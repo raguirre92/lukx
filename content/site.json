@@ -1,0 +1,151 @@
+{
+  "name": "Lukx",
+  "legalName": "LUKX Energía",
+  "url": "https://lukx.com.mx",
+  "locale": "es-MX",
+  "description": "Empresa de servicios de iluminación y soluciones energéticas en Monterrey: paneles solares, iluminación LED, estaciones de carga, coolers y sistemas de respaldo.",
+  "fonts": {
+    "display": "Bebas Neue",
+    "body": "Montserrat",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&display=swap"
+  },
+  "colors": {
+    "accentGreen": "#19B600",
+    "accentGreenRgb": "rgb(25, 182, 0)",
+    "buttonGreen": "#088538",
+    "buttonGreenRgb": "rgb(8, 133, 56)",
+    "note": "Source accent referenced as #1986b600 (8-digit); canonical 6-digit accent is #19B600"
+  },
+  "logos": {
+    "horizontalWhite": "/images/2025-05-LOGO-LUKX-BLANC-1.png",
+    "verticalWhite": "/images/2025-05-logo-vertical-blanco.png",
+    "remote": {
+      "horizontalWhite": "/images/2025-05-LOGO-LUKX-BLANC-1.png",
+      "verticalWhite": "/images/2025-05-logo-vertical-blanco.png"
+    }
+  },
+  "nav": [
+    {
+      "label": "Inicio",
+      "href": "/"
+    },
+    {
+      "label": "Soluciones",
+      "children": [
+        {
+          "label": "Paneles solares",
+          "href": "/paneles-solares/"
+        },
+        {
+          "label": "Iluminación",
+          "href": "/iluminacion/"
+        },
+        {
+          "label": "Estaciones de carga",
+          "href": "/estaciones-de-carga/"
+        },
+        {
+          "label": "Coolers",
+          "href": "/coolers/"
+        },
+        {
+          "label": "Sistemas de respaldo",
+          "href": "/sistemas-de-respaldo-de-energia-en-baterias/"
+        }
+      ]
+    },
+    {
+      "label": "Nosotros",
+      "href": "/nosotros/"
+    },
+    {
+      "label": "Blog",
+      "href": "/blog/"
+    },
+    {
+      "label": "FAQ´s",
+      "href": "/faqs/"
+    },
+    {
+      "label": "Contacto",
+      "href": "/contacto/"
+    }
+  ],
+  "contact": {
+    "officePhone": "+52 81 8340 1975",
+    "mobilePhone": "+52 81 1524 9123",
+    "email": "hola@lukx.com.mx",
+    "address": "Miguel Nieto#306, Nuevas colonias, Monterrey Nuevo León"
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/lukx.mexico/",
+    "facebook": "https://www.facebook.com/lukx.mexico/",
+    "linkedin": "https://www.linkedin.com/company/lukx-m%C3%A9xico/?originalSubdomain=mx"
+  },
+  "whatsapp": {
+    "phoneE164": "528115249123",
+    "url": "https://wa.me/528115249123"
+  },
+  "privacyPdf": {
+    "remote": "/images/2026-04-Aviso-de-Privacidad-LUKX.pdf",
+    "local": "/Aviso-de-Privacidad-LUKX.pdf"
+  },
+  "footer": {
+    "contact": {
+      "officePhone": "+52 81 8340 1975",
+      "mobilePhone": "+52 81 1524 9123",
+      "email": "hola@lukx.com.mx",
+      "address": "Miguel Nieto#306, Nuevas colonias, Monterrey Nuevo León"
+    },
+    "siteMap": [
+      {
+        "label": "Inicio",
+        "href": "/"
+      },
+      {
+        "label": "Paneles solares",
+        "href": "/paneles-solares/"
+      },
+      {
+        "label": "Iluminación",
+        "href": "/iluminacion/"
+      },
+      {
+        "label": "Estaciones de carga",
+        "href": "/estaciones-de-carga/"
+      },
+      {
+        "label": "Coolers",
+        "href": "/coolers/"
+      },
+      {
+        "label": "Sistemas de respaldo",
+        "href": "/sistemas-de-respaldo-de-energia-en-baterias/"
+      },
+      {
+        "label": "Nosotros",
+        "href": "/nosotros/"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog/"
+      },
+      {
+        "label": "FAQ´s",
+        "href": "/faqs/"
+      }
+    ],
+    "social": {
+      "instagram": "https://www.instagram.com/lukx.mexico/",
+      "facebook": "https://www.facebook.com/lukx.mexico/",
+      "linkedin": "https://www.linkedin.com/company/lukx-m%C3%A9xico/?originalSubdomain=mx"
+    },
+    "copyright": "© 2025 LUKX",
+    "privacyPdf": "/Aviso-de-Privacidad-LUKX.pdf",
+    "designer": {
+      "name": "Pixelero",
+      "url": "https://www.pixelero.com.mx/"
+    }
+  },
+  "scrapedAt": "2026-10-23T19:05:25.811Z"
+}

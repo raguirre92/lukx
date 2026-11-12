@@ -1,0 +1,46 @@
+{
+  "slug": "blog",
+  "title": "Blog",
+  "url": "https://lukx.com.mx/blog/",
+  "hero": {
+    "title": "Blog"
+  },
+  "posts": [
+    {
+      "title": "¿Cómo mejorar la eficiencia energética en industrias y oficinas?",
+      "link": "/2025/07/17/como-mejorar-la-eficiencia-energetica-en-industrias-y-oficinas/",
+      "image": "/images/2025-07-luz-1.jpg",
+      "excerpt": "Ver más",
+      "date": null
+    },
+    {
+      "title": "Cómo preparar tu negocio para la era de los autos eléctricos",
+      "link": "/2025/07/17/como-preparar-tu-negocio-para-la-era-de-los-autos-electricos/",
+      "image": "/images/2025-07-estacion-de-carga.jpg",
+      "excerpt": "Ver más",
+      "date": null
+    },
+    {
+      "title": "Cómo una buena iluminación mejora la eficiencia y estética de un edificio",
+      "link": "/2025/07/17/como-una-buena-iluminacion-mejora-la-eficiencia-y-estetica-de-un-edificio/",
+      "image": "/images/2025-07-il.jpg",
+      "excerpt": "Ver más",
+      "date": null
+    },
+    {
+      "title": "Retorno de inversión: ¿vale la pena instalar paneles solares?",
+      "link": "/2025/07/16/retorno-de-inversion-vale-la-pena-instalar-paneles-solares/",
+      "image": "https://lukx.com.mx/wp-content/uploads/2025/07/5-4-1536x1024.jpg",
+      "excerpt": "Ver más",
+      "date": null
+    }
+  ],
+  "images": [
+    "/images/2025-05-LOGO-LUKX-BLANC-1.png",
+    "/images/2025-07-luz-1.jpg",
+    "/images/2025-07-estacion-de-carga.jpg",
+    "/images/2025-07-il.jpg",
+    "/images/2025-05-logo-vertical-blanco.png",
+    "https://lukx.com.mx/wp-content/uploads/2025/07/5-4-1536x1024.jpg"
+  ]
+}

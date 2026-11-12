@@ -1,0 +1,45 @@
+import fs from "fs";
+
+const content = `import type { Metadata } from "next";
+import ContactCta from "@/components/ContactCta";
+import FaqAccordion from "@/components/FaqAccordion";
+import PageHero from "@/components/PageHero";
+import SectionHeading from "@/components/SectionHeading";
+import { faqs } from "@/data/faqs";
+
+export const metadata: Metadata = {
+  title: "FAQs",
+  description:
+    "Preguntas frecuentes sobre paneles solares, sistemas BESS, generadores y soluciones energ\u00e9ticas Lukx.",
+};
+
+export default function FaqsPage() {
+  return (
+    <>
+      <PageHero
+        title="FAQs"
+        subtitle="Respuestas claras sobre paneles solares, respaldo energ\u00e9tico y m\u00e1s."
+        image="/images/2025-07-alternative-energy-ecological-concept.jpg"
+      />
+
+      <section className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24">
+        <SectionHeading
+          title="Preguntas frecuentes"
+          subtitle="Si no encuentras lo que buscas, cont\u00e1ctanos y te orientamos."
+        />
+        <div className="mt-10">
+          <FaqAccordion items={faqs} />
+        </div>
+      </section>
+
+      <ContactCta
+        title="\u00bfTienes otra pregunta?"
+        subtitle="Escr\u00edbenos o ll\u00e1manos. Estamos listos para ayudarte con tu proyecto."
+      />
+    </>
+  );
+}
+`;
+
+fs.writeFileSync("src/app/faqs/page.tsx", content, "utf8");
+console.log("ok faqs");

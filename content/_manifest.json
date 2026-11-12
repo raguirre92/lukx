@@ -1,0 +1,53 @@
+{
+  "scrapedAt": "2026-10-23T19:08:04.395Z",
+  "source": "https://lukx.com.mx/",
+  "contentFiles": [
+    "blog-posts.json",
+    "blog.json",
+    "contacto.json",
+    "coolers.json",
+    "estaciones-de-carga.json",
+    "faqs.json",
+    "home.json",
+    "iluminacion.json",
+    "nosotros.json",
+    "paneles-solares.json",
+    "portfolio.json",
+    "sistemas-de-respaldo-de-energia-en-baterias.json",
+    "site.json",
+    "_manifest.json"
+  ],
+  "imageCount": 195,
+  "video": "/videos/WhatsApp-Video-2024-09-10-at-4.39.13-PM.mp4",
+  "privacyPdf": "/Aviso-de-Privacidad-LUKX.pdf",
+  "inventory": {
+    "site": "site.json — nav, contact, social, colors, fonts, logos",
+    "home": "home.json — hero(6 slides), solutions(5 with images), industries(3), benefits tabs(5), projects(7), blog teasers(4)",
+    "pages": [
+      "paneles-solares.json",
+      "iluminacion.json",
+      "estaciones-de-carga.json",
+      "coolers.json",
+      "sistemas-de-respaldo-de-energia-en-baterias.json",
+      "nosotros.json",
+      "faqs.json",
+      "blog.json",
+      "contacto.json"
+    ],
+    "blogPosts": [
+      "como-mejorar-la-eficiencia-energetica-en-industrias-y-oficinas",
+      "como-preparar-tu-negocio-para-la-era-de-los-autos-electricos",
+      "como-una-buena-iluminacion-mejora-la-eficiencia-y-estetica-de-un-edificio",
+      "retorno-de-inversion-vale-la-pena-instalar-paneles-solares"
+    ],
+    "portfolio": [
+      "grand-park (6 images)",
+      "bodegas-gp (15 images)",
+      "colegio-excelsior (18 images)",
+      "ifpp (22 images)",
+      "noho (14 images)",
+      "parroquia-goretti (2 images)",
+      "rinconada-patos (6 images)"
+    ]
+  }
+}

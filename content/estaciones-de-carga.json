@@ -1,0 +1,103 @@
+{
+  "slug": "estaciones-de-carga",
+  "title": "Estaciones de carga",
+  "url": "https://lukx.com.mx/estaciones-de-carga/",
+  "hero": {
+    "title": "Estaciones de carga",
+    "subtitle": "Rápidas, confiables y listas para moverte al futuro",
+    "backgroundImage": "/images/2025-09-woman-charging-her-electric-car-station.jpg"
+  },
+  "mission": {
+    "titleLines": [
+      "Nuestra misión es",
+      "construir conexiones"
+    ],
+    "body": "Que te lleven a donde necesites, con soluciones sostenibles y seguras, impulsando un futuro más consciente y respetuoso con el medio ambiente."
+  },
+  "industries": {
+    "title": "Industrias de especialización",
+    "items": [
+      {
+        "title": "Residencial",
+        "image": "/images/2025-09-estacion-residencial.jpg"
+      },
+      {
+        "title": "Comercial",
+        "image": "/images/2025-07-estacion-comercial-1.jpg"
+      }
+    ]
+  },
+  "product": {
+    "titleLines": [
+      "Estaciones de carga para",
+      "vehículos eléctricos"
+    ],
+    "body": "En Lukx ofrecemos estaciones de carga de alto desempeño que te permiten recargar tu vehículo eléctrico en menos tiempo y con la máxima eficiencia. Nuestro compromiso es facilitar tu transición hacia la movilidad eléctrica con una red sólida, accesible y en constante expansión.",
+    "diagramImage": "/images/2025-09-diseno-cargadores.png"
+  },
+  "benefits": {
+    "title": "Beneficios clave de nuestras estaciones de carga",
+    "items": [
+      "Carga rápida y eficiente",
+      "Ubicación estratégica",
+      "Compatibilidad universal",
+      "Acceso fácil",
+      "Monitoreo en tiempo real",
+      "Energía limpia"
+    ]
+  },
+  "faqs": [
+    {
+      "question": "¿Cuánto cuesta un sistema de paneles solares?",
+      "answer": "Es variable, según el consumo en KWH que tengas en casa, negocio o industria. Te podemos ayudar en hacerte un estudio y cotización si nos brindas tus datos de CFE."
+    },
+    {
+      "question": "¿Cuánto puedo ahorrar con paneles solares?",
+      "answer": "Puedes ahorrarte hasta un 99% en tu recibo de CFE."
+    },
+    {
+      "question": "¿Cuánto dura un sistema de paneles solares?",
+      "answer": "Tenemos equipos que tienen garantía de hasta 25 años, pero el tiempo de vida util de una celda fotovoltaica o inversor puede ser mucho mayor."
+    },
+    {
+      "question": "¿Qué mantenimiento requieren?",
+      "answer": "Recomendamos que se le haga una limpieza periódica, por lo menos 2 veces al año y una revisión general de las condiciones eléctricas."
+    },
+    {
+      "question": "¿Funciona si está nublado o llueve?",
+      "answer": "La respuesta es SI, sin embargo la generación de energía se ve disminuida en comparación de un día totalmente soleado."
+    },
+    {
+      "question": "¿Qué pasa con la energía que no uso?",
+      "answer": "Al contratar tu servicio de paneles solares, se hacen tramites ante CFE para poder medir la energía que produces, esto se hace a través de un medidor Bidireccional, la energía que no uses durante un período de tiempo va a quedar registrada en este medidor como un saldo a favor para poder darle uso en el período que tu lo requieras."
+    },
+    {
+      "question": "¿Cómo sé que soy apto para instalar paneles?",
+      "answer": "Nosotros nos encargamos de evaluar tu consumo actual de energía en base a tu recibo de CFE y de realizar un estudio físico y visual de las instalaciones para poder corroborar que se puede realizar el proyecto sin problemas"
+    },
+    {
+      "question": "¿Puedo financiar la instalación?",
+      "answer": "Así es, tenemos diferentes planes de financiamiento, contactanos para encontrar la mejor opción para tus necesidades."
+    },
+    {
+      "question": "¿Cuánto tiempo tarda la instalación?",
+      "answer": "Dependiendo del espacio y la cantidad de paneles solares a instalar. Nuestras instalaciones residenciales tardan de 1 a 3 días y las instalaciones industriales pueden llegar a tardar varias semanas."
+    },
+    {
+      "question": "¿Qué necesito para empezar?",
+      "answer": "Contactarnos y brindarnos los datos de tu recibo de CFE (el que tengan a la mano) No necesita ser el más reciente."
+    },
+    {
+      "question": "¿Cuánto tiempo tardan los trámites de CFE?",
+      "answer": "Los trámites pueden tardar varias semanas, dependiendo la zona en la que te encuentres."
+    }
+  ],
+  "images": [
+    "/images/2025-05-LOGO-LUKX-BLANC-1.png",
+    "/images/2025-09-woman-charging-her-electric-car-station.jpg",
+    "/images/2025-09-estacion-residencial.jpg",
+    "/images/2025-07-estacion-comercial-1.jpg",
+    "/images/2025-09-diseno-cargadores.png",
+    "/images/2025-05-logo-vertical-blanco.png"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "slug": "contacto",
+  "title": "Contacto",
+  "url": "https://lukx.com.mx/contacto/",
+  "hero": {
+    "title": "Contacto"
+  },
+  "socialPrompt": "Siguenos en redes sociales",
+  "contact": {
+    "officePhone": "+52 81 8340 1975",
+    "mobilePhone": "+52 81 1524 9123",
+    "email": "hola@lukx.com.mx",
+    "address": "Miguel Nieto#306, Nuevas colonias, Monterrey Nuevo León"
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/lukx.mexico/",
+    "facebook": "https://www.facebook.com/lukx.mexico/",
+    "linkedin": "https://www.linkedin.com/company/lukx-m%C3%A9xico/?originalSubdomain=mx"
+  },
+  "form": {
+    "fields": [
+      {
+        "name": "nombre",
+        "label": "Nombre",
+        "type": "text"
+      },
+      {
+        "name": "telefono",
+        "label": "Teléfono",
+        "type": "tel"
+      },
+      {
+        "name": "email",
+        "label": "Email",
+        "type": "email"
+      },
+      {
+        "name": "mensaje",
+        "label": "Mensaje",
+        "type": "textarea"
+      }
+    ]
+  }
+}

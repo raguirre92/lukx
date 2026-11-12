@@ -1,0 +1,95 @@
+{
+  "slug": "coolers",
+  "title": "Coolers",
+  "url": "https://lukx.com.mx/coolers/",
+  "hero": {
+    "title": "Coolers",
+    "subtitle": "¡Refresca tus espacios con Evercooler!",
+    "backgroundImage": "/images/2025-09-SM-COOLER-25-29.png"
+  },
+  "headings": [
+    "Coolers",
+    "¡Refresca tus espacios con Evercooler!",
+    "Evercooler enfriadores móviles de alto",
+    "rendimiento para todo tipo de espacios",
+    "En Evercooler ofrecemos una línea completa de enfriadores móviles de aire diseñados para resolver las necesidades de climatización en entornos industriales, comerciales y gastronómicos contamos con mas de 15 años de experiencia. Nuestros equipos están disponibles en diferentes potencias (100K, 350K, 750K y 1100K), lo que nos permite adaptarnos a cualquier espacio, desde oficinas y locales comerciales hasta naves industriales de gran tamaño.",
+    "Nuestros Coolers",
+    "Cooler Chico",
+    "Enfriadores de aire móviles. Ideal para jardines y quintas.",
+    "Cooler Mediano",
+    "Enfriadores de aire moviles, Ideal para refrescar espacios amplios.",
+    "Cooler Grande",
+    "Enfriadores de aire moviles. ideales para almacenes y espacios industriales.",
+    "Cooler Jumbo",
+    "Enfriadores de aire móviles, ideal para condiciones extremas y espacios muy amplios."
+  ],
+  "paragraphs": [],
+  "iconBoxes": [],
+  "faqs": [],
+  "images": [
+    "/images/2025-05-LOGO-LUKX-BLANC-1.png",
+    "/images/2025-09-SM-COOLER-25-29.png",
+    "/images/2025-07-chico-1.png",
+    "/images/2025-07-chico-2.png",
+    "/images/2025-07-chico-3.png",
+    "/images/2025-07-chico-4.png",
+    "/images/2025-07-mediano-1.png",
+    "/images/2025-07-mediano-2.png",
+    "/images/2025-07-mediano-4.png",
+    "/images/2025-07-mewdiano-3.png",
+    "/images/2025-07-grande-2.png",
+    "/images/2025-07-grande-3.png",
+    "/images/2025-07-grande-1.png",
+    "/images/2025-07-jumbo-1.png",
+    "/images/2025-07-jumbo-2.png",
+    "/images/2025-05-logo-vertical-blanco.png"
+  ],
+  "intro": {
+    "titleLines": [
+      "Evercooler enfriadores móviles de alto",
+      "rendimiento para todo tipo de espacios"
+    ]
+  },
+  "productsSection": {
+    "title": "Nuestros Coolers",
+    "products": [
+      {
+        "name": "Cooler Chico",
+        "description": "Enfriadores de aire móviles. Ideal para jardines y quintas.",
+        "images": [
+          "/images/2025-07-chico-1.png",
+          "/images/2025-07-chico-2.png",
+          "/images/2025-07-chico-3.png",
+          "/images/2025-07-chico-4.png"
+        ]
+      },
+      {
+        "name": "Cooler Mediano",
+        "description": "Enfriadores de aire moviles, Ideal para refrescar espacios amplios.",
+        "images": [
+          "/images/2025-07-mediano-1.png",
+          "/images/2025-07-mediano-2.png",
+          "/images/2025-07-mediano-4.png",
+          "/images/2025-07-mewdiano-3.png"
+        ]
+      },
+      {
+        "name": "Cooler Grande",
+        "description": "Enfriadores de aire moviles. ideales para almacenes y espacios industriales.",
+        "images": [
+          "/images/2025-07-grande-2.png",
+          "/images/2025-07-grande-3.png",
+          "/images/2025-07-grande-1.png"
+        ]
+      },
+      {
+        "name": "Cooler Jumbo",
+        "description": "Enfriadores de aire móviles, ideal para condiciones extremas y espacios muy amplios.",
+        "images": [
+          "/images/2025-07-jumbo-1.png",
+          "/images/2025-07-jumbo-2.png"
+        ]
+      }
+    ]
+  }
+}

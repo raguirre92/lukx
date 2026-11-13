@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { site } from "@/data/site";
 
-const TIME_SLOTS = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"] as const;
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
 const MONTHS = [
   "enero",
@@ -19,134 +19,204 @@ const MONTHS = [
   "diciembre",
 ] as const;
 
-type Step = "schedule" | "details" | "done";
+type Step = "datos" | "horario" | "lista";
+type Slot = { start: string; stop: string };
 
-function startOfDay(d: Date) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+function pad(value: number) {
+  return String(value).padStart(2, "0");
 }
 
-function isSameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+function dayKey(iso: string) {
+  return iso.slice(0, 10);
 }
 
-function toISODate(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+function timeLabel(iso: string) {
+  return iso.slice(11, 16);
 }
 
-function isBookableDay(d: Date, today: Date) {
-  const day = d.getDay(); // 0 Sun
-  if (day === 0) return false;
-  return startOfDay(d) >= today;
+function longDate(iso: string) {
+  const day = Number(iso.slice(8, 10));
+  const month = Number(iso.slice(5, 7));
+  const year = Number(iso.slice(0, 4));
+  return `${day} de ${MONTHS[month - 1]} de ${year}`;
 }
 
-function buildMonthGrid(year: number, month: number) {
-  const first = new Date(year, month, 1);
-  // Monday-first index
-  const mondayIndex = (first.getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < mondayIndex; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+function monthCells(year: number, month: number) {
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const offset = (first.getUTCDay() + 6) % 7;
+  const count = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const cells: Array<{ y: number; m: number; d: number } | null> = [];
+  for (let i = 0; i < offset; i += 1) cells.push(null);
+  for (let day = 1; day <= count; day += 1) cells.push({ y: year, m: month, d: day });
   while (cells.length % 7 !== 0) cells.push(null);
   return cells;
 }
 
+function shiftMonth(year: number, month: number, delta: number) {
+  const next = new Date(Date.UTC(year, month - 1 + delta, 1));
+  return { y: next.getUTCFullYear(), m: next.getUTCMonth() + 1 };
+}
+
 export default function BookingScheduler() {
-  const today = useMemo(() => startOfDay(new Date()), []);
-  const [cursor, setCursor] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), 1),
-  );
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>("schedule");
+  const [step, setStep] = useState<Step>("datos");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [leadToken, setLeadToken] = useState<string | null>(null);
+  const [timezone, setTimezone] = useState("America/Mexico_City");
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedStart, setSelectedStart] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<Slot | null>(null);
+  const [cursor, setCursor] = useState<{ y: number; m: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const byDay = useMemo(() => {
+    const map = new Map<string, Slot[]>();
+    for (const slot of slots) {
+      const key = dayKey(slot.start);
+      const list = map.get(key) ?? [];
+      list.push(slot);
+      map.set(key, list);
+    }
+    return map;
+  }, [slots]);
+
   const cells = useMemo(
-    () => buildMonthGrid(cursor.getFullYear(), cursor.getMonth()),
+    () => (cursor ? monthCells(cursor.y, cursor.m) : []),
     [cursor],
   );
+  const daySlots = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
 
-  const canGoDetails = Boolean(selectedDate && selectedTime);
-
-  function prevMonth() {
-    setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1));
+  async function loadSlots() {
+    setLoadingSlots(true);
+    try {
+      const res = await fetch("/api/disponibilidad", { cache: "no-store" });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        timezone?: string;
+        slots?: Slot[];
+      };
+      if (!res.ok) {
+        throw new Error(data.error || "No pudimos consultar los horarios.");
+      }
+      const next = data.slots ?? [];
+      setSlots(next);
+      setTimezone(data.timezone || "America/Mexico_City");
+      setSelectedDay(null);
+      setSelectedStart(null);
+      if (next[0]) {
+        setCursor({
+          y: Number(next[0].start.slice(0, 4)),
+          m: Number(next[0].start.slice(5, 7)),
+        });
+      }
+      return next;
+    } catch (err) {
+      setSlots([]);
+      setError(err instanceof Error ? err.message : "No pudimos consultar los horarios.");
+      return [];
+    } finally {
+      setLoadingSlots(false);
+    }
   }
 
-  function nextMonth() {
-    setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1));
+  async function onLead(event: FormEvent) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          whatsapp,
+          privacyAccepted,
+          lukx_hp: honeypot,
+          utm_source: params.get("utm_source") ?? "",
+          utm_medium: params.get("utm_medium") ?? "",
+          utm_campaign: params.get("utm_campaign") ?? "",
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        leadToken?: string;
+      };
+      if (!res.ok) throw new Error(data.error || "No pudimos guardar tus datos.");
+      if (!data.leadToken) {
+        throw new Error("No pudimos continuar. Recarga la página e inténtalo de nuevo.");
+      }
+      setLeadToken(data.leadToken);
+      setStep("horario");
+      await loadSlots();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No pudimos guardar tus datos.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!selectedDate || !selectedTime) return;
+  async function onBook(event: FormEvent) {
+    event.preventDefault();
+    if (!leadToken || !selectedStart) return;
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/agendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          date: toISODate(selectedDate),
-          time: selectedTime,
-          timezone: "America/Mexico_City",
-          durationMinutes: 60,
-          source: "lukx-web/agendar",
-        }),
+        body: JSON.stringify({ leadToken, start: selectedStart }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        throw new Error(data.error || "No se pudo agendar. Intenta de nuevo.");
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        start?: string;
+        stop?: string;
+      };
+      if (res.status === 409) {
+        setError(data.error || "Ese horario ya fue tomado. Elige otro.");
+        setSelectedStart(null);
+        setStep("horario");
+        await loadSlots();
+        return;
       }
-      setStep("done");
+      if (res.status === 401) {
+        setLeadToken(null);
+        setStep("datos");
+        throw new Error(data.error || "Tu sesión expiró. Vuelve a dejar tus datos para agendar.");
+      }
+      if (!res.ok || !data.start || !data.stop) {
+        throw new Error(data.error || "No pudimos confirmar la cita.");
+      }
+      setConfirmed({ start: data.start, stop: data.stop });
+      setStep("lista");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al enviar.");
+      setError(err instanceof Error ? err.message : "No pudimos confirmar la cita.");
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (step === "done" && selectedDate && selectedTime) {
+  if (step === "lista" && confirmed) {
+    const first = name.trim().split(" ")[0] || "";
     return (
       <div className="bg-white p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] md:p-8">
         <p className="font-display text-3xl leading-none text-lukx-charcoal md:text-4xl">
           CITA RESERVADA
         </p>
         <p className="mt-4 text-sm leading-relaxed text-lukx-muted md:text-base">
-          Gracias, {name.split(" ")[0]}. Te esperamos el{" "}
-          <strong className="font-semibold text-lukx-charcoal">
-            {selectedDate.getDate()} de {MONTHS[selectedDate.getMonth()]}
-          </strong>{" "}
-          a las <strong className="font-semibold text-lukx-charcoal">{selectedTime}</strong>{" "}
-          (America/Mexico_City). Te llegará confirmación por correo.
+          Gracias{first ? `, ${first}` : ""}. Tu asesoría quedó agendada el{" "}
+          <strong className="font-semibold text-lukx-charcoal">{longDate(confirmed.start)}</strong>{" "}
+          a las{" "}
+          <strong className="font-semibold text-lukx-charcoal">{timeLabel(confirmed.start)}</strong>{" "}
+          (hora del centro de México).
         </p>
-        <button
-          type="button"
-          className="btn-green mt-8"
-          onClick={() => {
-            setStep("schedule");
-            setSelectedDate(null);
-            setSelectedTime(null);
-            setName("");
-            setEmail("");
-            setPhone("");
-          }}
-        >
-          Agendar otra cita
-        </button>
       </div>
     );
   }
@@ -154,140 +224,27 @@ export default function BookingScheduler() {
   return (
     <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
       <div className="flex gap-2 border-b border-black/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted md:px-6">
-        <span className={step === "schedule" ? "text-lukx-charcoal" : undefined}>
-          Fecha y hora
-        </span>
+        <span className={step === "datos" ? "text-lukx-charcoal" : undefined}>Datos</span>
         <span aria-hidden>›</span>
-        <span className={step === "details" ? "text-lukx-charcoal" : undefined}>
-          Detalles
-        </span>
+        <span className={step === "horario" ? "text-lukx-charcoal" : undefined}>Fecha y hora</span>
         <span aria-hidden>›</span>
-        <span>Reservada</span>
+        <span>Confirmación</span>
       </div>
 
-      {step === "schedule" ? (
-        <div className="grid gap-8 p-5 md:grid-cols-[1.1fr_0.9fr] md:gap-6 md:p-6">
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-semibold capitalize text-lukx-charcoal">
-                {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
-              </p>
-              <div className="flex gap-1">
-                <button
-                  type="button"
-                  onClick={prevMonth}
-                  className="flex h-9 w-9 items-center justify-center border border-black/15 text-lukx-charcoal transition hover:border-lukx-green hover:text-lukx-green"
-                  aria-label="Mes anterior"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={nextMonth}
-                  className="flex h-9 w-9 items-center justify-center border border-black/15 text-lukx-charcoal transition hover:border-lukx-green hover:text-lukx-green"
-                  aria-label="Mes siguiente"
-                >
-                  ›
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide text-lukx-muted">
-              {WEEKDAYS.map((d) => (
-                <div key={d} className="py-2">
-                  {d}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {cells.map((day, i) => {
-                if (!day) return <div key={`e-${i}`} />;
-                const bookable = isBookableDay(day, today);
-                const selected = selectedDate ? isSameDay(day, selectedDate) : false;
-                return (
-                  <button
-                    key={day.toISOString()}
-                    type="button"
-                    disabled={!bookable}
-                    onClick={() => {
-                      setSelectedDate(day);
-                      setSelectedTime(null);
-                    }}
-                    className={`aspect-square text-sm transition ${
-                      selected
-                        ? "bg-lukx-green text-white"
-                        : bookable
-                          ? "border border-lukx-green/40 text-lukx-charcoal hover:bg-lukx-green/10"
-                          : "text-black/25"
-                    }`}
-                  >
-                    {day.getDate()}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-4 text-xs text-lukx-muted">
-              Zona horaria: America/Mexico_City
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold text-lukx-charcoal">
-              Selecciona una hora
-            </p>
-            {!selectedDate ? (
-              <p className="mt-3 text-sm text-lukx-muted">
-                Primero elige un día en el calendario.
-              </p>
-            ) : (
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {TIME_SLOTS.map((slot) => {
-                  const active = selectedTime === slot;
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      onClick={() => setSelectedTime(slot)}
-                      className={`border px-3 py-3 text-sm font-medium transition ${
-                        active
-                          ? "border-lukx-green bg-lukx-green text-white"
-                          : "border-black/15 text-lukx-green-btn hover:border-lukx-green"
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="mt-8 border-t border-black/10 pt-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted">
-                Detalles de la reunión
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-lukx-charcoal">
-                <li>En línea · Videollamada</li>
-                <li>1 hora</li>
-                {selectedDate && selectedTime ? (
-                  <li className="font-medium text-lukx-green-btn">
-                    {selectedDate.getDate()} {MONTHS[selectedDate.getMonth()]} ·{" "}
-                    {selectedTime}
-                  </li>
-                ) : null}
-              </ul>
-              <button
-                type="button"
-                disabled={!canGoDetails}
-                onClick={() => setStep("details")}
-                className="btn-green mt-6 w-full disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Continuar
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <form onSubmit={onSubmit} className="grid gap-8 p-5 md:grid-cols-[1.15fr_0.85fr] md:p-6">
+      {step === "datos" ? (
+        <form onSubmit={onLead} className="relative grid gap-8 p-5 md:grid-cols-[1.15fr_0.85fr] md:p-6">
           <div className="space-y-4">
+            <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+              <label htmlFor="lukx_hp">Sitio web</label>
+              <input
+                id="lukx_hp"
+                name="lukx_hp"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(event) => setHoneypot(event.target.value)}
+              />
+            </div>
             <div>
               <label htmlFor="bk-name" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
                 Nombre completo
@@ -297,7 +254,7 @@ export default function BookingScheduler() {
                 required
                 autoComplete="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(event) => setName(event.target.value)}
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               />
             </div>
@@ -311,63 +268,224 @@ export default function BookingScheduler() {
                 required
                 autoComplete="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               />
             </div>
             <div>
               <label htmlFor="bk-phone" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
-                Número de teléfono
+                WhatsApp
               </label>
               <input
                 id="bk-phone"
                 type="tel"
                 required
                 autoComplete="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+52"
+                inputMode="tel"
+                value={whatsapp}
+                onChange={(event) => setWhatsapp(event.target.value)}
+                placeholder="81 1234 5678"
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               />
             </div>
+            <label className="flex items-start gap-3 text-sm text-lukx-charcoal">
+              <input
+                type="checkbox"
+                required
+                checked={privacyAccepted}
+                onChange={(event) => setPrivacyAccepted(event.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                Acepto el{" "}
+                <a
+                  href={site.privacyPdf}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-lukx-green-btn underline"
+                >
+                  Aviso de Privacidad
+                </a>
+              </span>
+            </label>
             {error ? (
               <p className="text-sm text-red-600" role="alert">
                 {error}
               </p>
             ) : null}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setStep("schedule")}
-                className="border border-black/20 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-charcoal transition hover:border-lukx-charcoal"
-              >
-                Atrás
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="btn-green disabled:opacity-50"
-              >
-                {submitting ? "Enviando…" : "Confirmar cita"}
-              </button>
-            </div>
+            <button type="submit" disabled={submitting} className="btn-green disabled:opacity-50">
+              {submitting ? "Guardando…" : "Continuar"}
+            </button>
           </div>
-
           <aside className="border border-black/10 bg-lukx-light/60 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted">
               Resumen
             </p>
             <ul className="mt-4 space-y-2 text-sm text-lukx-charcoal">
-              <li>Videollamada · 1 hora</li>
-              {selectedDate ? (
-                <li>
-                  {selectedDate.getDate()} de {MONTHS[selectedDate.getMonth()]}{" "}
-                  {selectedDate.getFullYear()}
-                </li>
-              ) : null}
-              {selectedTime ? <li>{selectedTime} · America/Mexico_City</li> : null}
+              <li>Llamada o videollamada · 30 minutos</li>
+              <li>Zona horaria: America/Mexico_City</li>
+              <li>Tus datos quedan registrados al continuar, aunque todavía no elijas horario.</li>
             </ul>
           </aside>
+        </form>
+      ) : (
+        <form onSubmit={onBook} className="grid gap-8 p-5 md:grid-cols-[1.1fr_0.9fr] md:gap-6 md:p-6">
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-sm font-semibold capitalize text-lukx-charcoal">
+                {cursor ? `${MONTHS[cursor.m - 1]} ${cursor.y}` : "Horarios"}
+              </p>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => cursor && setCursor(shiftMonth(cursor.y, cursor.m, -1))}
+                  className="flex h-9 w-9 items-center justify-center border border-black/15 text-lukx-charcoal transition hover:border-lukx-green hover:text-lukx-green"
+                  aria-label="Mes anterior"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => cursor && setCursor(shiftMonth(cursor.y, cursor.m, 1))}
+                  className="flex h-9 w-9 items-center justify-center border border-black/15 text-lukx-charcoal transition hover:border-lukx-green hover:text-lukx-green"
+                  aria-label="Mes siguiente"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide text-lukx-muted">
+              {WEEKDAYS.map((day) => (
+                <div key={day} className="py-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {cells.map((day, index) => {
+                if (!day) return <div key={`e-${index}`} />;
+                const key = `${day.y}-${pad(day.m)}-${pad(day.d)}`;
+                const available = byDay.has(key);
+                const selected = selectedDay === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    disabled={!available}
+                    onClick={() => {
+                      setSelectedDay(key);
+                      setSelectedStart(null);
+                      setError(null);
+                    }}
+                    className={`aspect-square text-sm transition ${
+                      selected
+                        ? "bg-lukx-green text-white"
+                        : available
+                          ? "border border-lukx-green/40 text-lukx-charcoal hover:bg-lukx-green/10"
+                          : "text-black/25"
+                    }`}
+                  >
+                    {day.d}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs text-lukx-muted">Zona horaria: {timezone}</p>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-lukx-charcoal">Selecciona una hora</p>
+            {loadingSlots ? (
+              <p className="mt-3 text-sm text-lukx-muted">Cargando horarios…</p>
+            ) : slots.length === 0 ? (
+              <div className="mt-3 text-sm leading-relaxed text-lukx-muted">
+                <p>
+                  Por ahora no hay horarios libres en los próximos días. Escríbenos y te ayudamos a
+                  encontrar un espacio.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a
+                    href={site.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-green"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    href="/contacto"
+                    className="inline-flex items-center text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-green-btn"
+                  >
+                    Contacto
+                  </a>
+                </div>
+              </div>
+            ) : !selectedDay ? (
+              <p className="mt-3 text-sm text-lukx-muted">Primero elige un día en el calendario.</p>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {daySlots.map((slot) => {
+                  const active = selectedStart === slot.start;
+                  return (
+                    <button
+                      key={slot.start}
+                      type="button"
+                      onClick={() => {
+                        setSelectedStart(slot.start);
+                        setError(null);
+                      }}
+                      className={`border px-3 py-3 text-sm font-medium transition ${
+                        active
+                          ? "border-lukx-green bg-lukx-green text-white"
+                          : "border-black/15 text-lukx-green-btn hover:border-lukx-green"
+                      }`}
+                    >
+                      {timeLabel(slot.start)}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="mt-8 border-t border-black/10 pt-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted">
+                Detalles de la reunión
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-lukx-charcoal">
+                <li>En línea · Llamada o videollamada</li>
+                <li>30 minutos</li>
+                {selectedStart ? (
+                  <li className="font-medium text-lukx-green-btn">
+                    {longDate(selectedStart)} · {timeLabel(selectedStart)}
+                  </li>
+                ) : null}
+              </ul>
+              {error ? (
+                <p className="mt-4 text-sm text-red-600" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("datos");
+                    setError(null);
+                  }}
+                  className="border border-black/20 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-charcoal transition hover:border-lukx-charcoal"
+                >
+                  Atrás
+                </button>
+                <button
+                  type="submit"
+                  disabled={!selectedStart || submitting}
+                  className="btn-green disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {submitting ? "Confirmando…" : "Confirmar cita"}
+                </button>
+              </div>
+            </div>
+          </div>
         </form>
       )}
     </div>

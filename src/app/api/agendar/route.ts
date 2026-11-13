@@ -1,99 +1,46 @@
 import { NextResponse } from "next/server";
+import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
+import { verifyLeadToken } from "@/lib/lead-token";
+import { bookWebSlot } from "@/lib/odoo";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-type BookingBody = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  date?: string;
-  time?: string;
-  timezone?: string;
-  durationMinutes?: number;
-  source?: string;
-};
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function fail(status: number, error: string) {
+  return NextResponse.json({ error }, { status });
 }
 
 export async function POST(request: Request) {
-  let body: BookingBody;
+  if (!process.env.LEAD_SIGNING_SECRET?.trim()) return fail(503, MSG.calendar);
+
+  let body: unknown;
   try {
-    body = (await request.json()) as BookingBody;
+    body = await request.json();
   } catch {
-    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
+    return fail(400, MSG.invalidJson);
+  }
+  if (!body || typeof body !== "object") return fail(400, MSG.invalidJson);
+  const record = body as Record<string, unknown>;
+  if (typeof record.leadToken !== "string" || typeof record.start !== "string") {
+    return fail(400, MSG.badSlot);
+  }
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(record.start) || Number.isNaN(Date.parse(record.start))) {
+    return fail(400, MSG.badSlot);
   }
 
-  const name = body.name?.trim() ?? "";
-  const email = body.email?.trim() ?? "";
-  const phone = body.phone?.trim() ?? "";
-  const date = body.date?.trim() ?? "";
-  const time = body.time?.trim() ?? "";
-  const timezone = body.timezone?.trim() || "America/Mexico_City";
-  const durationMinutes = body.durationMinutes ?? 60;
-  const source = body.source?.trim() || "lukx-web/agendar";
+  const token = verifyLeadToken(record.leadToken);
+  if (!token) return fail(401, MSG.expired);
 
-  if (!name || !email || !phone || !date || !time) {
-    return NextResponse.json(
-      { error: "Faltan campos obligatorios." },
-      { status: 400 },
-    );
+  try {
+    const booked = await bookWebSlot({
+      leadId: token.leadId,
+      partnerId: token.partnerId,
+      startIso: record.start,
+    });
+    return NextResponse.json({ ok: true, ...booked });
+  } catch (err) {
+    if (err instanceof BookingError) return fail(err.status, err.message);
+    logBookingError("agendar", err);
+    return fail(502, MSG.book);
   }
-  if (!isValidEmail(email)) {
-    return NextResponse.json({ error: "Correo inválido." }, { status: 400 });
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
-    return NextResponse.json(
-      { error: "Fecha u hora inválida." },
-      { status: 400 },
-    );
-  }
-
-  const payload = {
-    name,
-    email,
-    phone,
-    date,
-    time,
-    timezone,
-    durationMinutes,
-    source,
-    createdAt: new Date().toISOString(),
-  };
-
-  const webhook = process.env.BOOKING_WEBHOOK_URL?.trim();
-
-  if (webhook) {
-    try {
-      const upstream = await fetch(webhook, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(process.env.BOOKING_WEBHOOK_SECRET
-            ? { Authorization: `Bearer ${process.env.BOOKING_WEBHOOK_SECRET}` }
-            : {}),
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!upstream.ok) {
-        const text = await upstream.text().catch(() => "");
-        console.error("Booking webhook failed", upstream.status, text);
-        return NextResponse.json(
-          { error: "No se pudo registrar la cita. Intenta más tarde." },
-          { status: 502 },
-        );
-      }
-    } catch (err) {
-      console.error("Booking webhook error", err);
-      return NextResponse.json(
-        { error: "No se pudo conectar con el calendario." },
-        { status: 502 },
-      );
-    }
-  } else if (process.env.NODE_ENV === "development") {
-    console.info("[agendar] webhook no configurado; cita recibida:", payload);
-  }
-
-  return NextResponse.json({ ok: true, booking: payload });
 }

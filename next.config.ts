@@ -22,6 +22,12 @@ const redirects = [
   { source: "/feed", destination: "/blog/rss.xml", permanent },
   { source: "/contacto-2/", destination: "/contacto", permanent },
   { source: "/contacto-2", destination: "/contacto", permanent },
+  { source: "/landing-iluminacion/", destination: "/iluminacion", permanent },
+  { source: "/landing-iluminacion", destination: "/iluminacion", permanent },
+  { source: "/landing-paneles/", destination: "/paneles-solares", permanent },
+  { source: "/landing-paneles", destination: "/paneles-solares", permanent },
+  { source: "/gracias-por-:slug/", destination: "/contacto", permanent },
+  { source: "/gracias-por-:slug", destination: "/contacto", permanent },
   {
     source: "/category/:slug((?!uncategorized/|uncategorized$)[^/]+)/",
     destination: "/blog/categoria/:slug",
@@ -36,17 +42,11 @@ const redirects = [
   // para no convertirlas en un 308 hacia otra URL.
   {
     source:
-      "/:path((?!sample-page/$|carrusel-de-inicio/$|landing-iluminacion/$|landing-paneles/$|gracias-por-[^/]+/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$).+)/",
+      "/:path((?!sample-page/$|carrusel-de-inicio/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$).+)/",
     destination: "/:path",
     permanent,
   },
 ];
-
-// TODO(Rafa): cuando confirme que los anuncios ya no usan estas URLs, redirigir en un solo salto:
-// /landing-iluminacion y /landing-iluminacion/ → /iluminacion
-// /landing-paneles y /landing-paneles/ → /paneles-solares
-// /gracias-por-* (con o sin barra final) → /contacto
-// Hasta entonces no se redirigen.
 
 const nextConfig: NextConfig = {
   experimental: {

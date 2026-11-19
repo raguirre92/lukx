@@ -33,8 +33,32 @@ export function formatContentDate(value?: string) {
   });
 }
 
+export const SITE_DESCRIPTION =
+  "Lukx: soluciones energéticas e iluminación en Monterrey. Paneles solares, LED, estaciones de carga, coolers y sistemas de respaldo.";
+
 export function stripBrand(title: string) {
   return title.replace(/\s+[–\-|]\s+Lukx\s*$/i, "").trim();
+}
+
+export function projectDescription(project: {
+  title: string;
+  summary?: string;
+  category?: string;
+  location?: string;
+  seoDescription?: string;
+}) {
+  const meta = project.seoDescription?.trim();
+  if (meta) return meta;
+  const excerpt = project.summary?.trim();
+  if (excerpt && excerpt !== project.title.trim()) return excerpt;
+  const category = project.category?.trim();
+  const location = project.location?.trim();
+  if (category && category.toLowerCase() !== "proyecto") {
+    return location
+      ? `Proyecto ${project.title} de Lukx en ${location}: ${category}.`
+      : `Proyecto ${project.title} de Lukx: ${category}.`;
+  }
+  return SITE_DESCRIPTION;
 }
 
 export function pageMetadata({
@@ -42,6 +66,7 @@ export function pageMetadata({
   description,
   canonical,
   image,
+  absoluteTitle = false,
   noindex = false,
   nofollow = false,
   type = "website",
@@ -50,6 +75,7 @@ export function pageMetadata({
   description?: string;
   canonical: string;
   image?: string;
+  absoluteTitle?: boolean;
   noindex?: boolean;
   nofollow?: boolean;
   type?: "website" | "article";
@@ -60,13 +86,14 @@ export function pageMetadata({
     follow: isProductionDeploy() ? !nofollow : false,
   };
   const images = image ? [{ url: image.startsWith("http") ? image : absoluteUrl(image), width: 1200, height: 630 }] : undefined;
+  const documentTitle = absoluteTitle ? title.trim() : stripBrand(title);
   return {
-    title: stripBrand(title),
+    title: absoluteTitle ? { absolute: documentTitle } : documentTitle,
     description,
     alternates: { canonical },
     robots,
     openGraph: {
-      title: stripBrand(title),
+      title: documentTitle,
       description,
       url: canonical,
       siteName: "Lukx",
@@ -76,7 +103,7 @@ export function pageMetadata({
     },
     twitter: {
       card: images ? "summary_large_image" : "summary",
-      title: stripBrand(title),
+      title: documentTitle,
       description,
       images: images?.map((item) => item.url),
     },

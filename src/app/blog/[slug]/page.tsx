@@ -22,8 +22,10 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const post = await getBlogPost(slug);
   if (!post) return { title: "Blog" };
+  const metaTitle = post.seoTitle?.trim();
   return pageMetadata({
-    title: post.seoTitle || post.title,
+    title: metaTitle || post.title,
+    absoluteTitle: Boolean(metaTitle),
     description: post.seoDescription || post.excerpt,
     canonical: postCanonical(post.slug, post.canonical),
     image: post.ogImage || post.image,

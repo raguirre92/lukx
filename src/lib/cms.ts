@@ -60,7 +60,14 @@ type SanityProject = {
   title: string;
   summary?: string | null;
   category?: string | null;
+  location?: string | null;
   services?: string[] | null;
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    noindex?: boolean | null;
+    nofollow?: boolean | null;
+  } | null;
   body?: unknown[] | null;
   mainImage?: SanityImage | null;
   gallery?: SanityImage[] | null;
@@ -176,10 +183,14 @@ function mapProject(project: SanityProject): PortfolioProject {
     gallery: gallery.map((item) => item.src),
     galleryAlts: gallery.map((item) => item.alt),
     category: project.category?.trim() || "Proyecto",
+    location: project.location?.trim() || undefined,
     summary: project.summary?.trim() || paragraphs[0] || project.title,
     description: paragraphs,
     services: (project.services ?? []).filter(Boolean),
     body: project.body ?? [],
+    noindex: Boolean(project.seo?.noindex),
+    seoTitle: project.seo?.metaTitle?.trim() || undefined,
+    seoDescription: project.seo?.metaDescription?.trim() || undefined,
   };
 }
 

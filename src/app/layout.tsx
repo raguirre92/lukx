@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import JsonLd from "@/components/JsonLd";
 import SiteChrome from "@/components/SiteChrome";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/organization";
+import { SITE_DESCRIPTION } from "@/lib/seo";
 import { isProductionDeploy } from "@/sanity/env";
 import "./globals.css";
 
@@ -32,8 +33,7 @@ export const metadata: Metadata = {
     default: "Paneles solares precio Monterrey - Lukx",
     template: "%s - Lukx",
   },
-  description:
-    "Lukx: soluciones energéticas e iluminación en Monterrey. Paneles solares, LED, estaciones de carga, coolers y sistemas de respaldo.",
+  description: SITE_DESCRIPTION,
   robots: isProductionDeploy()
     ? { index: true, follow: true }
     : { index: false, follow: false },

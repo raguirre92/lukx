@@ -8,11 +8,14 @@ export type PortfolioProject = {
   gallery: string[];
   galleryAlts?: string[];
   category: string;
+  location?: string;
   summary: string;
   description: string[];
   services: string[];
   body?: unknown[];
   noindex?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 const meta: Record<

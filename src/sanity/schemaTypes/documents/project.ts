@@ -48,6 +48,12 @@ export const project = defineType({
       type: "string",
     }),
     defineField({
+      name: "location",
+      title: "Lugar",
+      description: "Opcional. Se usa en la descripción meta si no hay extracto.",
+      type: "string",
+    }),
+    defineField({
       name: "mainImage",
       title: "Imagen principal",
       type: "image",

@@ -365,7 +365,9 @@ function mapSitemapUrl(raw, projectSlugs) {
   if (dated) return finish(`${ORIGIN}/blog/${dated[1]}`, 301);
   const leaf = path.split("/").filter(Boolean).at(-1) || "";
   if (OLD_POSTS.has(leaf) && (path === `/${leaf}` || dated)) return finish(`${ORIGIN}/blog/${leaf}`, 301);
-  if (path.startsWith("/landing-") || path.startsWith("/gracias-por-")) return finish("", "revisar");
+  if (path === "/landing-iluminacion") return finish(`${ORIGIN}/iluminacion`, 301);
+  if (path === "/landing-paneles") return finish(`${ORIGIN}/paneles-solares`, 301);
+  if (path.startsWith("/gracias-por-")) return finish(`${ORIGIN}/contacto`, 301);
   if (projectSlugs.has(leaf) && path !== `/portfolio/${leaf}`) {
     return finish(`${ORIGIN}/portfolio/${leaf}`, "revisar");
   }

@@ -55,10 +55,17 @@ export const PROJECTS_QUERY = defineQuery(`
     title,
     summary,
     category,
+    location,
     services,
     body,
     mainImage ${imageFields},
-    gallery[] ${imageFields}
+    gallery[] ${imageFields},
+    seo {
+      metaTitle,
+      metaDescription,
+      noindex,
+      nofollow
+    }
   }
 `);
 

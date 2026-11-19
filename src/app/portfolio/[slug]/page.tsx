@@ -8,6 +8,7 @@ import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import PortableBody from "@/components/PortableBody";
 import { getContentSlugs, getPortfolioProject, getPortfolioProjects } from "@/lib/cms";
+import { absoluteUrl, pageMetadata, projectDescription } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -24,10 +25,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getPortfolioProject(slug);
   if (!project) return { title: "Portafolio" };
-  return {
-    title: `${project.title}`,
-    description: project.summary,
-  };
+  const metaTitle = project.seoTitle?.trim();
+  return pageMetadata({
+    title: metaTitle || project.title,
+    absoluteTitle: Boolean(metaTitle),
+    description: projectDescription(project),
+    canonical: absoluteUrl(`/portfolio/${project.slug}`),
+    image: project.image,
+    noindex: project.noindex,
+  });
 }
 
 export default async function PortfolioProjectPage({ params }: Props) {

@@ -22,13 +22,31 @@ const redirects = [
   { source: "/feed", destination: "/blog/rss.xml", permanent },
   { source: "/contacto-2/", destination: "/contacto", permanent },
   { source: "/contacto-2", destination: "/contacto", permanent },
-  { source: "/category/:slug/", destination: "/blog/categoria/:slug", permanent },
-  { source: "/category/:slug", destination: "/blog/categoria/:slug", permanent },
-  { source: "/:path*/", destination: "/:path*", permanent },
+  {
+    source: "/category/:slug((?!uncategorized/|uncategorized$)[^/]+)/",
+    destination: "/blog/categoria/:slug",
+    permanent,
+  },
+  {
+    source: "/category/:slug((?!uncategorized/|uncategorized$)[^/]+)",
+    destination: "/blog/categoria/:slug",
+    permanent,
+  },
+  // El proxy responde 410 antes que este comodín. Estas rutas quedan fuera
+  // para no convertirlas en un 308 hacia otra URL.
+  {
+    source:
+      "/:path((?!sample-page/$|carrusel-de-inicio/$|landing-iluminacion/$|landing-paneles/$|gracias-por-[^/]+/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$).+)/",
+    destination: "/:path",
+    permanent,
+  },
 ];
 
-// TODO(Rafa): no redirigir todavía /landing-iluminacion, /landing-paneles ni /gracias-por-*
-// hasta confirmar si los anuncios siguen usando esas URLs.
+// TODO(Rafa): cuando confirme que los anuncios ya no usan estas URLs, redirigir en un solo salto:
+// /landing-iluminacion y /landing-iluminacion/ → /iluminacion
+// /landing-paneles y /landing-paneles/ → /paneles-solares
+// /gracias-por-* (con o sin barra final) → /contacto
+// Hasta entonces no se redirigen.
 
 const nextConfig: NextConfig = {
   experimental: {

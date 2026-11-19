@@ -347,12 +347,20 @@ function mapSitemapUrl(raw, projectSlugs) {
     destination,
     code: hadSlash && code === 200 ? 301 : code,
   });
-  const gone = path === "/sample-page" || path === "/carrusel-de-inicio";
+  const gone =
+    path === "/sample-page" ||
+    path === "/carrusel-de-inicio" ||
+    path === "/comments/feed" ||
+    path === "/category/uncategorized" ||
+    /^\/category\/[^/]+\/feed$/.test(path) ||
+    /^\/[^/]+\/feed$/.test(path);
   if (gone) return finish("", 410);
   if (path === "/feed") return finish(`${ORIGIN}/blog/rss.xml`, 301);
   if (path === "/contacto-2") return finish(`${ORIGIN}/contacto`, 301);
   const category = path.match(/^\/category\/([^/]+)$/);
-  if (category) return finish(`${ORIGIN}/blog/categoria/${category[1]}`, 301);
+  if (category && category[1] !== "uncategorized") {
+    return finish(`${ORIGIN}/blog/categoria/${category[1]}`, 301);
+  }
   const dated = path.match(/^\/\d{4}\/\d{2}\/\d{2}\/([^/]+)$/);
   if (dated) return finish(`${ORIGIN}/blog/${dated[1]}`, 301);
   const leaf = path.split("/").filter(Boolean).at(-1) || "";
@@ -553,9 +561,32 @@ writeFileSync(
   "import/imagenes-por-post.csv",
   ["post slug,image URL,current alt,nearby context text", ...imageRows.map((row) => [row.slug, row.url, row.alt, row.context].map(csvCell).join(","))].join("\n") + "\n",
 );
+const extraMapRows = [
+  { oldUrl: `${ORIGIN}/feed/`, destination: `${ORIGIN}/blog/rss.xml`, code: 301 },
+  { oldUrl: `${ORIGIN}/comments/feed/`, destination: "", code: 410 },
+  { oldUrl: `${ORIGIN}/comments/feed`, destination: "", code: 410 },
+  { oldUrl: `${ORIGIN}/category/uncategorized/`, destination: "", code: 410 },
+  { oldUrl: `${ORIGIN}/category/uncategorized`, destination: "", code: 410 },
+  ...["cargadores-electricos", "iluminacion", "paneles-solares"].flatMap((slug) => [
+    { oldUrl: `${ORIGIN}/category/${slug}/feed/`, destination: "", code: 410 },
+    { oldUrl: `${ORIGIN}/category/${slug}/feed`, destination: "", code: 410 },
+  ]),
+  ...[...OLD_POSTS].flatMap((slug) => [
+    { oldUrl: `${ORIGIN}/${slug}/feed/`, destination: "", code: 410 },
+    { oldUrl: `${ORIGIN}/${slug}/feed`, destination: "", code: 410 },
+  ]),
+];
+const seenMap = new Set(mapRows.map((row) => row.oldUrl));
+for (const row of extraMapRows) {
+  if (!seenMap.has(row.oldUrl)) mapRows.push(row);
+}
 writeFileSync(
   "import/mapa-301.csv",
-  ["old URL,destination,code", ...mapRows.map((row) => [row.oldUrl, row.destination, row.code].map(csvCell).join(","))].join("\n") + "\n",
+  [
+    "# Nota: las filas marcadas 301 se responden con 308 porque Next.js usa permanent: true. Para SEO es equivalente (redirección permanente).",
+    "old URL,destination,code",
+    ...mapRows.map((row) => [row.oldUrl, row.destination, row.code].map(csvCell).join(",")),
+  ].join("\n") + "\n",
 );
 writeFileSync("import/advertencias.json", `${JSON.stringify(warnings, null, 2)}\n`);
 

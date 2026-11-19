@@ -69,6 +69,26 @@ export const PROJECTS_QUERY = defineQuery(`
   }
 `);
 
+export const PROJECT_QUERY = defineQuery(`
+  *[_type == "project" && slug.current == $slug][0]{
+    "slug": slug.current,
+    title,
+    summary,
+    category,
+    location,
+    services,
+    body,
+    mainImage ${imageFields},
+    gallery[] ${imageFields},
+    seo {
+      metaTitle,
+      metaDescription,
+      noindex,
+      nofollow
+    }
+  }
+`);
+
 export const PROJECT_SLUGS_QUERY = defineQuery(`
   *[_type == "project" && defined(slug.current)]{ "slug": slug.current }
 `);

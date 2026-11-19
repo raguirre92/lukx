@@ -6,6 +6,7 @@ import {
   POST_QUERY,
   POST_SLUGS_QUERY,
   POSTS_QUERY,
+  PROJECT_QUERY,
   PROJECT_SLUGS_QUERY,
   PROJECTS_QUERY,
   SITEMAP_POSTS_QUERY,
@@ -240,8 +241,10 @@ export async function getPortfolioProjects(): Promise<PortfolioProject[]> {
 }
 
 export async function getPortfolioProject(slug: string) {
+  const project = await sanityFetchPublished<SanityProject | null>(PROJECT_QUERY, { slug });
+  if (project?.slug) return mapProject(project);
   const projects = await getPortfolioProjects();
-  return projects.find((project) => project.slug === slug);
+  return projects.find((item) => item.slug === slug);
 }
 
 export async function getPublishedCategorySlugs() {

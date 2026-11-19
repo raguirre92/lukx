@@ -72,7 +72,7 @@ export default function SistemasRespaldoPage() {
         <FaqAccordion items={bessFaqs} />
       </section>
 
-      <ContactCta title={respaldo.cta.title} subtitle={respaldo.cta.body} />
+      <ContactCta title={respaldo.cta.title} subtitle={respaldo.cta.body} primaryHref="/agendar?solucion=sistemas-de-respaldo-de-energia-en-baterias" />
     </>
   );
 }

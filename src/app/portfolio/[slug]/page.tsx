@@ -50,8 +50,8 @@ export default async function PortfolioProjectPage({ params }: Props) {
         title={project.title}
         subtitle={project.summary}
         image={project.image}
-        ctaLabel="Contactanos"
-        ctaHref="/contacto"
+        ctaLabel="Agendar asesoría"
+        ctaHref="/agendar"
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
@@ -90,7 +90,7 @@ export default async function PortfolioProjectPage({ params }: Props) {
               </div>
             ) : null}
             <Link
-              href="/contacto"
+              href="/agendar"
               className="btn-green mt-10 inline-flex"
             >
               Quiero un proyecto similar

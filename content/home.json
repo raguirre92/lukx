@@ -25,16 +25,11 @@
       },
       {
         "index": 3,
-        "backgroundImage": "/images/2025-12-12b1828709cd1c68d846d7489d8660da-1.jpg",
-        "title": "Soluciones energéticas e iluminación."
-      },
-      {
-        "index": 4,
         "backgroundImage": "/images/2025-12-GSL-Liquid-Cooling-BESS-Container-Battery-Storage-1.jpg",
         "title": "Soluciones energéticas e iluminación."
       },
       {
-        "index": 5,
+        "index": 4,
         "backgroundImage": "/images/2025-12-WhatsApp-Image-2025-07-07-at-3.58.27-PM-1.jpeg",
         "title": "Soluciones energéticas e iluminación."
       }
@@ -67,13 +62,6 @@
       "image": "/images/2025-07-cargador-electrico.jpg"
     },
     {
-      "title": "Coolers",
-      "description": "Enfriadores móviles ideales para climatizar áreas exteriores o interiores de forma práctica, eficiente y ecológica.",
-      "link": "/coolers/",
-      "linkText": "Más información",
-      "image": "/images/2025-09-Diseno-sin-titulo-14.png"
-    },
-    {
       "title": "Energía en baterías",
       "description": "Impulsamos el futuro energético con soluciones integrales de almacenamiento de energía y baterías (BESS).",
       "link": "/sistemas-de-almacenamiento-de-energia-en-baterias/",
@@ -83,7 +71,7 @@
   ],
   "about": {
     "titleLines": [
-      "+15 Años de experiencia",
+      "Años de experiencia",
       "Siendo tu asesor en",
       "iluminación y energía solar"
     ],
@@ -151,18 +139,6 @@
         "ctaHref": "/contacto/",
         "image": "/images/2025-07-estacion-de-carga.jpg",
         "video": null
-      },
-      {
-        "id": "coolers",
-        "title": "Coolers",
-        "body": [
-          "Nuestros enfriadores móviles son ideales para refrescar cualquier espacio interior o exterior desde 50m2 hasta 450m2, con potencias que van desde los 100W hasta los 1100W. Ideal para naves industriales, talleres, gimnasios, restaurantes, jardines entre otras aplicaciones. Su estructura resistente garantiza durabilidad y alto desempeño"
-        ],
-        "listItems": [],
-        "cta": "Solicitar asesoría",
-        "ctaHref": "/contacto/",
-        "image": "/images/2025-07-WhatsApp-Image-2024-09-10-at-4.jpg",
-        "video": "/images/2025-07-Evercoolerhorizontal.mp4"
       },
       {
         "id": "respaldo",
@@ -387,10 +363,6 @@
       {
         "label": "Estaciones de carga",
         "href": "/estaciones-de-carga/"
-      },
-      {
-        "label": "Coolers",
-        "href": "/coolers/"
       },
       {
         "label": "Sistemas de respaldo",

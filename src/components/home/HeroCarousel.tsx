@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { heroSlides, navSolutions } from "@/data/site";
 
-const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Coolers", "Respaldo en baterías", "Proyectos Lukx"];
+const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
 
 export default function HeroCarousel() {
   const [index, setIndex] = useState(0);
@@ -67,25 +67,25 @@ export default function HeroCarousel() {
       <div className="relative z-[3] mx-auto flex h-full max-w-[1400px] items-end gap-10 px-5 pb-16 md:px-10 md:pb-20">
         <div className="flex-1">
           <p className="eyebrow hero-fade">Monterrey, Nuevo León · Más de 15 años</p>
-          <h1 className="mt-6 font-display text-[clamp(3.6rem,10vw,9rem)] leading-[0.86] text-white">
-            <span className="hero-line block overflow-hidden"><span className="block">Soluciones</span></span>
-            <span className="hero-line block overflow-hidden"><span className="block">energéticas</span></span>
+          <h1 className="mt-6 font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
+            <span className="hero-line block overflow-hidden"><span className="block">Energía e</span></span>
             <span className="hero-line block overflow-hidden">
               <span className="block">
-                e <span className="text-lukx-green">iluminación.</span>
+                <span className="text-lukx-green">iluminación</span>
               </span>
             </span>
+            <span className="hero-line block overflow-hidden"><span className="block">a tu medida.</span></span>
           </h1>
           <p className="hero-fade mt-6 max-w-xl text-[15px] leading-relaxed text-white/80 md:text-base">
-            Diseñamos e instalamos paneles solares, iluminación LED, estaciones de carga, coolers y
-            sistemas de respaldo para hogares, comercios e industria.
+            Diseñamos e instalamos la solución que tu casa, comercio o industria sí necesita.
+            Agenda una asesoría y te decimos qué conviene para tu proyecto.
           </p>
           <div className="hero-fade mt-8 flex flex-wrap gap-3">
             <Link href="/agendar" className="btn-green">
               Agendar asesoría <Icon icon="solar:arrow-right-linear" className="arrow" width={16} aria-hidden />
             </Link>
-            <Link href="#soluciones" className="btn-outline">
-              Ver soluciones
+            <Link href="#espacios" className="btn-outline">
+              Elige tu espacio
             </Link>
           </div>
         </div>

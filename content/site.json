@@ -3,7 +3,7 @@
   "legalName": "LUKX Energía",
   "url": "https://lukx.com.mx",
   "locale": "es-MX",
-  "description": "Empresa de servicios de iluminación y soluciones energéticas en Monterrey: paneles solares, iluminación LED, estaciones de carga, coolers y sistemas de respaldo.",
+  "description": "Empresa de servicios de iluminación y soluciones energéticas en Monterrey: paneles solares, iluminación LED, estaciones de carga y sistemas de respaldo.",
   "fonts": {
     "display": "Bebas Neue",
     "body": "Montserrat",
@@ -43,10 +43,6 @@
         {
           "label": "Estaciones de carga",
           "href": "/estaciones-de-carga/"
-        },
-        {
-          "label": "Coolers",
-          "href": "/coolers/"
         },
         {
           "label": "Sistemas de respaldo",
@@ -113,10 +109,6 @@
       {
         "label": "Estaciones de carga",
         "href": "/estaciones-de-carga/"
-      },
-      {
-        "label": "Coolers",
-        "href": "/coolers/"
       },
       {
         "label": "Sistemas de respaldo",

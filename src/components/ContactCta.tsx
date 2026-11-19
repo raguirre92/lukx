@@ -4,25 +4,43 @@ import { site } from "@/data/site";
 type ContactCtaProps = {
   title?: string;
   subtitle?: string;
+  eyebrow?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
+  items?: string[];
 };
 
 export default function ContactCta({
-  title = "¿Listo para empezar tu proyecto?",
-  subtitle = "Contáctanos y te ayudamos a diseñar la solución energética ideal para tu hogar, negocio o industria.",
+  title = "Agenda tu asesoría",
+  subtitle = "Revisamos tu caso, te decimos qué solución conviene y armamos el siguiente paso: visita o propuesta. Sin compromiso de compra.",
+  eyebrow = "Siguiente paso",
+  primaryHref = "/agendar",
+  primaryLabel = "Agendar asesoría",
+  items,
 }: ContactCtaProps) {
   return (
     <section className="relative overflow-hidden bg-lukx-black text-white">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lukx-green to-transparent" />
       <div className="mx-auto grid max-w-[1400px] gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
         <div>
-          <p className="eyebrow">Hablemos</p>
+          <p className="eyebrow">{eyebrow}</p>
           <h2 className="mt-5 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[1.08]">{title}</h2>
           <p data-reveal className="mt-6 max-w-xl text-base leading-relaxed text-white/75 md:text-lg">{subtitle}</p>
+          {items?.length ? (
+            <ul className="mt-6 space-y-2 text-sm text-white/80">
+              {items.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-lukx-green" aria-hidden />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <div data-reveal className="mt-9 flex flex-wrap gap-3">
-            <Link href="/agendar" className="btn-green">
-              Agendar asesoría <span className="arrow" aria-hidden>→</span>
+            <Link href={primaryHref} className="btn-green">
+              {primaryLabel} <span className="arrow" aria-hidden>→</span>
             </Link>
-            <Link href="/contacto" className="btn-outline">Contáctanos</Link>
+            <Link href="/contacto" className="btn-outline">Contacto</Link>
           </div>
         </div>
         <dl data-stagger className="grid gap-6 border-t border-white/15 pt-8 text-sm">

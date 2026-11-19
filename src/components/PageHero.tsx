@@ -7,14 +7,18 @@ type PageHeroProps = {
   image: string;
   ctaHref?: string;
   ctaLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
 };
 
 export default function PageHero({
   title,
   subtitle,
   image,
-  ctaHref = "/contacto",
-  ctaLabel = "Solicitar asesoría",
+  ctaHref = "/agendar",
+  ctaLabel = "Agendar asesoría",
+  secondaryHref = "/contacto",
+  secondaryLabel = "Contacto",
 }: PageHeroProps) {
   return (
     <section className="relative flex min-h-[62vh] items-end overflow-hidden bg-lukx-black pt-24 md:min-h-[76vh]">
@@ -32,7 +36,7 @@ export default function PageHero({
             <Link href={ctaHref} className="btn-green">
               {ctaLabel} <span className="arrow" aria-hidden>→</span>
             </Link>
-            <Link href="/agendar" className="btn-outline">Agendar cita</Link>
+            <Link href={secondaryHref} className="btn-outline">{secondaryLabel}</Link>
           </div>
         </div>
       </div>

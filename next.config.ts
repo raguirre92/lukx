@@ -26,6 +26,8 @@ const redirects = [
   { source: "/landing-iluminacion", destination: "/iluminacion", permanent },
   { source: "/landing-paneles/", destination: "/paneles-solares", permanent },
   { source: "/landing-paneles", destination: "/paneles-solares", permanent },
+  { source: "/coolers/", destination: "/", permanent },
+  { source: "/coolers", destination: "/", permanent },
   { source: "/gracias-por-:slug/", destination: "/contacto", permanent },
   { source: "/gracias-por-:slug", destination: "/contacto", permanent },
   {

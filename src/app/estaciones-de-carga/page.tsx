@@ -75,7 +75,7 @@ export default function EstacionesDeCargaPage() {
         </div>
       </section>
 
-      <ContactCta title="Prepara tu negocio para la movilidad eléctrica" />
+      <ContactCta title="Prepara tu negocio para la movilidad eléctrica" primaryHref="/agendar?solucion=estaciones-de-carga" />
     </>
   );
 }

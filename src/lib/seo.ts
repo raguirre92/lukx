@@ -34,7 +34,7 @@ export function formatContentDate(value?: string) {
 }
 
 export const SITE_DESCRIPTION =
-  "Lukx: soluciones energéticas e iluminación en Monterrey. Paneles solares, LED, estaciones de carga, coolers y sistemas de respaldo.";
+  "Lukx: soluciones energéticas e iluminación en Monterrey. Paneles solares, LED, estaciones de carga y sistemas de respaldo.";
 
 export function stripBrand(title: string) {
   return title.replace(/\s+[–\-|]\s+Lukx\s*$/i, "").trim();

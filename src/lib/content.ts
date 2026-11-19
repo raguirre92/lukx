@@ -1,11 +1,9 @@
-import coolersJson from "../../content/coolers.json";
 import homeJson from "../../content/home.json";
 import portfolioJson from "../../content/portfolio.json";
 import siteJson from "../../content/site.json";
 
 export const scrapedSite = siteJson;
 export const scrapedHome = homeJson;
-export const scrapedCoolers = coolersJson;
 export const scrapedPortfolio = portfolioJson as Array<{
   slug: string;
   title: string;

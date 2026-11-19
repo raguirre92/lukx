@@ -12,7 +12,6 @@ const STATIC_PATHS = [
   "/paneles-solares",
   "/iluminacion",
   "/estaciones-de-carga",
-  "/coolers",
   "/sistemas-de-respaldo-de-energia-en-baterias",
   "/agendar",
 ];

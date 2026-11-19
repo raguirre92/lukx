@@ -97,8 +97,8 @@ export default async function PanelesSolaresPage() {
             </li>
           ))}
         </ol>
-        <Link href="/contacto" className="btn-green mt-8">
-          Solicitar asesoría
+        <Link href="/agendar?solucion=paneles-solares" className="btn-green mt-8">
+          Agendar asesoría
         </Link>
       </section>
 
@@ -109,7 +109,7 @@ export default async function PanelesSolaresPage() {
         <FaqAccordion items={paneles.faqs} />
       </section>
 
-      <ContactCta />
+      <ContactCta primaryHref="/agendar?solucion=paneles-solares" />
     </>
   );
 }

@@ -89,7 +89,7 @@ export default async function IluminacionPage() {
       </section>
 
       <ProjectsCarousel projects={projects} />
-      <ContactCta title="Ilumina tu próximo proyecto con Lukx" />
+      <ContactCta title="Ilumina tu próximo proyecto con Lukx" primaryHref="/agendar?solucion=iluminacion" />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import { site } from "@/data/site";
@@ -41,6 +42,8 @@ export default function ContactoPage() {
         image="/images/2025-12-WhatsApp-Image-2025-07-07-at-3.58.27-PM-1.jpeg"
         ctaHref={site.whatsapp}
         ctaLabel="WhatsApp"
+        secondaryHref="/agendar"
+        secondaryLabel="Agendar asesoría"
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
@@ -67,6 +70,9 @@ export default function ContactoPage() {
                 </li>
               ))}
             </ul>
+            <Link href="/agendar" className="btn-green mt-10 inline-flex">
+              Prefiero agendar una videollamada <span className="arrow" aria-hidden>→</span>
+            </Link>
           </div>
 
           <div className="bg-lukx-light p-6 md:p-10">

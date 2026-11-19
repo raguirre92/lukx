@@ -22,19 +22,38 @@ export const site = {
 };
 
 export const navSolutions = [
-  { label: "Paneles solares", href: "/paneles-solares" },
-  { label: "Iluminación", href: "/iluminacion" },
-  { label: "Estaciones de carga", href: "/estaciones-de-carga" },
-  { label: "Coolers", href: "/coolers" },
-  { label: "Sistemas de respaldo", href: "/sistemas-de-respaldo-de-energia-en-baterias" },
+  {
+    label: "Paneles solares",
+    href: "/paneles-solares",
+    image: "/images/2025-12-Paneles-solares-carrusel-1-1.jpg",
+    summary: "Sistemas a la medida para generar energía y bajar el recibo.",
+  },
+  {
+    label: "Sistemas de respaldo",
+    href: "/sistemas-de-respaldo-de-energia-en-baterias",
+    image: "/images/2025-12-GSL-Liquid-Cooling-BESS-Container-Battery-Storage-1.jpg",
+    summary: "Baterías y respaldo para que la operación no se detenga.",
+  },
+  {
+    label: "Iluminación",
+    href: "/iluminacion",
+    image: "/images/2025-12-BODEGA-ILUMINACION-CARRUSEL-1-1-scaled.jpg",
+    summary: "Proyectos que resuelven el uso, el diseño y el consumo.",
+  },
+  {
+    label: "Estaciones de carga",
+    href: "/estaciones-de-carga",
+    image: "/images/2025-12-Estaciones-de-carga-carrusel-2-1-scaled.jpg",
+    summary: "Carga para autos eléctricos en casa, negocio o planta.",
+  },
 ];
 
 export const navMain = [
-  { label: "Inicio", href: "/" },
-  { label: "Soluciones", href: "#", children: navSolutions },
   { label: "Nosotros", href: "/nosotros" },
+  { label: "Soluciones", href: "#", children: navSolutions },
   { label: "Blog", href: "/blog" },
   { label: "FAQs", href: "/faqs" },
+  { label: "Contacto", href: "/contacto" },
 ];
 
 export const heroSlides = [
@@ -55,11 +74,6 @@ export const heroSlides = [
   },
   {
     title: ["Soluciones energéticas", "e iluminación."],
-    image: "/images/2025-12-12b1828709cd1c68d846d7489d8660da-1.jpg",
-    href: "/coolers",
-  },
-  {
-    title: ["Soluciones energéticas", "e iluminación."],
     image: "/images/2025-12-GSL-Liquid-Cooling-BESS-Container-Battery-Storage-1.jpg",
     href: "/sistemas-de-respaldo-de-energia-en-baterias",
   },
@@ -72,6 +86,7 @@ export const heroSlides = [
 
 export const solutions = [
   {
+    id: "paneles-solares",
     title: "Paneles Solares",
     href: "/paneles-solares",
     image: "/images/2025-05-847925520_241513079_1706x960.webp",
@@ -79,6 +94,15 @@ export const solutions = [
       "Sistemas fotovoltaicos diseñados para reducir el consumo eléctrico y generar energía limpia de forma eficiente y sostenible. Conoce sobre paneles solares precio Monterrey",
   },
   {
+    id: "sistemas-de-respaldo-de-energia-en-baterias",
+    title: "Energía en baterías",
+    href: "/sistemas-de-respaldo-de-energia-en-baterias",
+    image: "/images/2025-10-baterias.jpg",
+    description:
+      "Impulsamos el futuro energético con soluciones integrales de almacenamiento de energía y baterías (BESS).",
+  },
+  {
+    id: "iluminacion",
     title: "Iluminación",
     href: "/iluminacion",
     image: "/images/2025-07-Office-Design-_-UFFICIO-HIGHCOMMERCE.jpg",
@@ -86,25 +110,12 @@ export const solutions = [
       "Soluciones de iluminación que combinan tecnología, diseño y funcionalidad para realzar espacios residenciales, comerciales e industriales.",
   },
   {
+    id: "estaciones-de-carga",
     title: "Cargadores Eléctricos",
     href: "/estaciones-de-carga",
     image: "/images/2025-07-cargador-electrico.jpg",
     description:
       "Instalación de estaciones de carga para vehículos eléctricos, pensadas para facilitar la transición a la movilidad sustentable.",
-  },
-  {
-    title: "Coolers",
-    href: "/coolers",
-    image: "/images/2025-09-Diseno-sin-titulo-14.png",
-    description:
-      "Enfriadores móviles ideales para climatizar áreas exteriores o interiores de forma práctica, eficiente y ecológica.",
-  },
-  {
-    title: "Energía en baterías",
-    href: "/sistemas-de-respaldo-de-energia-en-baterias",
-    image: "/images/2025-10-baterias.jpg",
-    description:
-      "Impulsamos el futuro energético con soluciones integrales de almacenamiento de energía y baterías (BESS).",
   },
 ];
 
@@ -123,6 +134,55 @@ export const industries = [
   },
 ];
 
+
+export type SpaceId = "residencial" | "comercial" | "industrial";
+
+export const spaces = [
+  {
+    id: "residencial" as const,
+    title: "Residencial",
+    image: "/images/2025-07-residencial-2.jpg",
+    blurb: "Para tu casa: un proyecto a tu medida y menos dependencia de la tarifa eléctrica.",
+    solutionIds: ["paneles-solares", "iluminacion", "estaciones-de-carga"],
+  },
+  {
+    id: "comercial" as const,
+    title: "Comercial",
+    image: "/images/2025-07-COMERCIAL.jpg",
+    blurb: "Para tu negocio: ahorro, iluminación y continuidad de acuerdo a tu operación.",
+    solutionIds: [
+      "paneles-solares",
+      "sistemas-de-respaldo-de-energia-en-baterias",
+      "iluminacion",
+      "estaciones-de-carga",
+    ],
+  },
+  {
+    id: "industrial" as const,
+    title: "Industrial",
+    image: "/images/2025-07-INDUSTRIAL-2.jpg",
+    blurb: "Para tu planta: consumo, iluminación de grandes espacios y respaldo energético.",
+    solutionIds: [
+      "paneles-solares",
+      "sistemas-de-respaldo-de-energia-en-baterias",
+      "iluminacion",
+      "estaciones-de-carga",
+    ],
+  },
+];
+
+export function isSpaceId(value: string | undefined): value is SpaceId {
+  return value === "residencial" || value === "comercial" || value === "industrial";
+}
+
+export function agendarHref(opts?: { segmento?: string; solucion?: string }) {
+  const params = new URLSearchParams();
+  if (opts?.segmento) params.set("segmento", opts.segmento);
+  if (opts?.solucion) params.set("solucion", opts.solucion);
+  const query = params.toString();
+  return query ? `/agendar?${query}` : "/agendar";
+}
+
 export const benefitTabs = [
   {
     id: "paneles",
@@ -130,6 +190,12 @@ export const benefitTabs = [
     image: "/images/2025-12-Paneles-solares-carrusel-1-1.jpg",
     video: "/videos/WhatsApp-Video-2024-09-10-at-4.39.13-PM.mp4",
     body: "Somos expertos en asesoramiento de proyectos fotovoltaicos para generar una alta rentabilidad en su inversión, buscando el ahorro energético y acompañarte durante todo el proceso, realizamos proyectos llave en mano para que nuestros clientes no tengan que preocuparse de nada hasta que les entreguemos la instalación completamente funcionando.",
+  },
+  {
+    id: "respaldo",
+    label: "Sistema de Respaldo",
+    image: "/images/elementor-thumbs-baterias-rcxbh93cyxjj83clldkyayzj3n8p0at94vwsztzfp0.jpg",
+    body: "Diseñamos soluciones integrales de respaldo energético con tecnología BESS y Generadores Eléctricos, garantizando continuidad operativa, seguridad industrial, eficiencia energética y máxima confiabilidad para tu empresa.",
   },
   {
     id: "led",
@@ -147,18 +213,6 @@ export const benefitTabs = [
       "Eficiencia: Carga rápida y segura",
       "Sostenibilidad: Contribuye a un futuro más verde y reduce tu huella de carbono.",
     ],
-  },
-  {
-    id: "coolers",
-    label: "Coolers",
-    image: "/images/2025-07-WhatsApp-Image-2024-09-10-at-4.jpg",
-    body: "Nuestros enfriadores móviles son ideales para refrescar cualquier espacio interior o exterior desde 50m2 hasta 450m2, con potencias que van desde los 100W hasta los 1100W. Ideal para naves industriales, talleres, gimnasios, restaurantes, jardines entre otras aplicaciones. Su estructura resistente garantiza durabilidad y alto desempeño",
-  },
-  {
-    id: "respaldo",
-    label: "Sistema de Respaldo",
-    image: "/images/elementor-thumbs-baterias-rcxbh93cyxjj83clldkyayzj3n8p0at94vwsztzfp0.jpg",
-    body: "Diseñamos soluciones integrales de respaldo energético con tecnología BESS y Generadores Eléctricos, garantizando continuidad operativa, seguridad industrial, eficiencia energética y máxima confiabilidad para tu empresa.",
   },
 ];
 

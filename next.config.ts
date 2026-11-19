@@ -31,6 +31,9 @@ const redirects = [
 // hasta confirmar si los anuncios siguen usando esas URLs.
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [

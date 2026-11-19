@@ -4,11 +4,15 @@ export type PortfolioProject = {
   slug: string;
   title: string;
   image: string;
+  imageAlt?: string;
   gallery: string[];
+  galleryAlts?: string[];
   category: string;
   summary: string;
   description: string[];
   services: string[];
+  body?: unknown[];
+  noindex?: boolean;
 };
 
 const meta: Record<

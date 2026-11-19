@@ -8,10 +8,22 @@ export type BlogPost = {
   slug: string;
   title: string;
   date: string;
+  updatedAt?: string;
   image: string;
+  imageAlt?: string;
   excerpt: string;
   category?: string;
+  categorySlug?: string;
   sections: BlogSection[];
+  body?: unknown[];
+  seoTitle?: string;
+  seoDescription?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
+  canonical?: string;
+  ogImage?: string;
+  authorName?: string;
+  authorUrl?: string;
 };
 
 export const blogPostsFull: BlogPost[] = [

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import JsonLd from "@/components/JsonLd";
 import SiteChrome from "@/components/SiteChrome";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/organization";
+import { isProductionDeploy } from "@/sanity/env";
 import "./globals.css";
 
 /*
@@ -24,21 +27,36 @@ const bebas = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lukx.com.mx"),
   title: {
     default: "Paneles solares precio Monterrey - Lukx",
     template: "%s - Lukx",
   },
   description:
     "Lukx: soluciones energéticas e iluminación en Monterrey. Paneles solares, LED, estaciones de carga, coolers y sistemas de respaldo.",
+  robots: isProductionDeploy()
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
+  openGraph: {
+    siteName: "Lukx",
+    locale: "es_MX",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="es"
+      lang="es-MX"
       className={`${montserrat.variable} ${bebas.variable} h-full antialiased`}
     >
       <body className={`${montserrat.className} flex min-h-full flex-col`}>
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@graph": [organizationJsonLd(), websiteJsonLd()],
+          }}
+        />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

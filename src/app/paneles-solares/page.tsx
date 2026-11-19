@@ -6,7 +6,7 @@ import PageHero from "@/components/PageHero";
 import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import SectionHeading from "@/components/SectionHeading";
 import paneles from "../../../content/paneles-solares.json";
-import { getPortfolioProjects } from "@/lib/wordpress";
+import { getPortfolioProjects } from "@/lib/cms";
 
 export const revalidate = 300;
 

@@ -1,30 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import ContactCta from "@/components/ContactCta";
+import JsonLd from "@/components/JsonLd";
 import PageHero from "@/components/PageHero";
-import { getBlogPost, getBlogPosts } from "@/lib/wordpress";
+import PortableBody from "@/components/PortableBody";
+import ContactCta from "@/components/ContactCta";
+import { getBlogPost, getBlogPosts, getContentSlugs } from "@/lib/cms";
+import { ORGANIZATION_ID, SITE_URL } from "@/lib/organization";
+import { formatContentDate, pageMetadata, postCanonical } from "@/lib/seo";
 
 export const revalidate = 300;
 
-type Props = {
-  params: Promise<{ slug: string }>;
-};
+type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  const slugs = await getContentSlugs("post");
+  return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const post = await getBlogPost(slug);
   if (!post) return { title: "Blog" };
-  return {
-    title: `${post.title}`,
-    description: post.excerpt,
-  };
+  return pageMetadata({
+    title: post.seoTitle || post.title,
+    description: post.seoDescription || post.excerpt,
+    canonical: postCanonical(post.slug, post.canonical),
+    image: post.ogImage || post.image,
+    noindex: post.noindex,
+    nofollow: post.nofollow,
+    type: "article",
+  });
 }
 
 export default async function BlogPostPage({ params }: Props) {
@@ -34,57 +40,50 @@ export default async function BlogPostPage({ params }: Props) {
 
   const posts = await getBlogPosts();
   const related = posts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const canonical = postCanonical(post.slug, post.canonical);
+  const image = post.ogImage || post.image;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${canonical}#article`,
+        headline: post.title,
+        description: post.seoDescription || post.excerpt,
+        datePublished: post.date,
+        dateModified: post.updatedAt || post.date,
+        inLanguage: "es-MX",
+        image: image.startsWith("http") ? image : `${SITE_URL}${image}`,
+        mainEntityOfPage: canonical,
+        author: post.authorName
+          ? { "@type": "Person", name: post.authorName, url: post.authorUrl }
+          : { "@id": ORGANIZATION_ID },
+        publisher: { "@id": ORGANIZATION_ID },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Inicio", item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
+          { "@type": "ListItem", position: 3, name: post.title, item: canonical },
+        ],
+      },
+    ],
+  };
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <PageHero
         title={post.title}
-        subtitle={[post.category, new Date(post.date).toLocaleDateString("es-MX", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })].filter(Boolean).join(" · ")}
+        subtitle={[post.category, formatContentDate(post.date)].filter(Boolean).join(" · ")}
         image={post.image}
         ctaLabel="Más artículos"
         ctaHref="/blog"
       />
 
       <article className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24">
-        <div className="space-y-8">
-          {post.sections.map((section, index) => (
-            <div key={`${post.slug}-${index}`}>
-              {section.heading ? (
-                <h2 className="font-display text-3xl text-lukx-charcoal md:text-4xl">
-                  {section.heading}
-                </h2>
-              ) : null}
-              {section.paragraphs?.map((paragraph) => (
-                <p
-                  key={paragraph.slice(0, 40)}
-                  className={`text-base leading-relaxed text-lukx-muted md:text-lg ${
-                    section.heading ? "mt-4" : ""
-                  }`}
-                >
-                  {paragraph}
-                </p>
-              ))}
-              {section.bullets ? (
-                <ul className="mt-4 space-y-2">
-                  {section.bullets.map((bullet) => (
-                    <li
-                      key={bullet}
-                      className="flex gap-3 text-base leading-relaxed text-lukx-muted md:text-lg"
-                    >
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-lukx-green" aria-hidden />
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          ))}
-        </div>
-
+        {post.body?.length ? <PortableBody value={post.body} /> : null}
         <div className="mt-12 border-t border-black/10 pt-8">
           <Link
             href="/blog"
@@ -98,16 +97,14 @@ export default async function BlogPostPage({ params }: Props) {
       {related.length > 0 ? (
         <section className="bg-lukx-light">
           <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-            <h2 className="font-display text-4xl text-lukx-charcoal md:text-5xl">
-              Más artículos
-            </h2>
+            <h2 className="font-display text-4xl text-lukx-charcoal md:text-5xl">Más artículos</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {related.map((item) => (
                 <Link key={item.slug} href={`/blog/${item.slug}`} className="group block">
                   <div className="relative aspect-[16/10] overflow-hidden bg-white">
                     <Image
                       src={item.image}
-                      alt={item.title}
+                      alt={item.imageAlt || item.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 33vw"

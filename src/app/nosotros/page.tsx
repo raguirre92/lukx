@@ -4,7 +4,7 @@ import ContactCta from "@/components/ContactCta";
 import PageHero from "@/components/PageHero";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
-import { getPortfolioProjects } from "@/lib/wordpress";
+import { getPortfolioProjects } from "@/lib/cms";
 
 export const revalidate = 300;
 

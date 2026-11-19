@@ -43,6 +43,8 @@ function LeadChrome({ children }: { children: React.ReactNode }) {
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  if (pathname.startsWith("/studio")) return children;
+
   const isLeadPortal = pathname === "/agendar" || pathname.startsWith("/agendar/");
 
   if (isLeadPortal) {

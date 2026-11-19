@@ -7,7 +7,7 @@ import Industries from "@/components/home/Industries";
 import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import ContactCta from "@/components/ContactCta";
 import SolutionsGrid from "@/components/home/SolutionsGrid";
-import { getBlogPosts, getPortfolioProjects } from "@/lib/wordpress";
+import { getBlogPosts, getPortfolioProjects } from "@/lib/cms";
 
 export const revalidate = 300;
 

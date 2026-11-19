@@ -6,7 +6,8 @@ import ContactCta from "@/components/ContactCta";
 import PageHero from "@/components/PageHero";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
-import { getPortfolioProject, getPortfolioProjects } from "@/lib/wordpress";
+import PortableBody from "@/components/PortableBody";
+import { getContentSlugs, getPortfolioProject, getPortfolioProjects } from "@/lib/cms";
 
 export const revalidate = 300;
 
@@ -15,8 +16,8 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const projects = await getPortfolioProjects();
-  return projects.map((project) => ({ slug: project.slug }));
+  const slugs = await getContentSlugs("project");
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -54,15 +55,18 @@ export default async function PortfolioProjectPage({ params }: Props) {
               {project.category}
             </p>
             <SectionHeading title={`Proyecto ${project.title}`} />
-            <div className="mt-6 space-y-4">
-              {project.description.map((paragraph) => (
-                <p
-                  key={paragraph.slice(0, 48)}
-                  className="text-base leading-relaxed text-lukx-muted md:text-lg"
-                >
-                  {paragraph}
-                </p>
-              ))}
+            <div className="mt-6">
+              {project.body?.length ? (
+                <PortableBody value={project.body} />
+              ) : (
+                <div className="space-y-4">
+                  {project.description.map((paragraph) => (
+                    <p key={paragraph.slice(0, 48)} className="text-base leading-relaxed text-lukx-muted md:text-lg">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
             {project.services.length > 0 ? (
               <div className="mt-8">

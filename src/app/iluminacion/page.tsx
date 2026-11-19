@@ -5,13 +5,15 @@ import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import SectionHeading from "@/components/SectionHeading";
 import iluminacion from "../../../content/iluminacion.json";
 import { getPortfolioProjects } from "@/lib/cms";
+import { brandedPage } from "@/lib/seo";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Iluminación",
   description: iluminacion.hero.tagline,
-};
+  path: "/iluminacion",
+});
 
 const services = [
   {

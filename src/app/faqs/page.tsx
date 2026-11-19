@@ -4,12 +4,14 @@ import FaqAccordion from "@/components/FaqAccordion";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import { faqs } from "@/data/faqs";
+import { brandedPage } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "FAQs",
   description:
     "Preguntas frecuentes sobre paneles solares, sistemas BESS, generadores y soluciones energéticas Lukx.",
-};
+  path: "/faqs",
+});
 
 export default function FaqsPage() {
   return (

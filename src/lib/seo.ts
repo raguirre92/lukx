@@ -40,6 +40,34 @@ export function stripBrand(title: string) {
   return title.replace(/\s+[–\-|]\s+Lukx\s*$/i, "").trim();
 }
 
+export function brandedPage({
+  title,
+  description,
+  path,
+  absolute = false,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  absolute?: boolean;
+}): Metadata {
+  const canonical = path === "/" ? "/" : `/${path.replace(/^\/+|\/+$/g, "")}`;
+  const fullTitle = absolute ? title : `${title} | Lukx`;
+  return {
+    title: absolute ? { absolute: fullTitle } : title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: { absolute: fullTitle },
+      description,
+      url: canonical,
+      siteName: "Lukx",
+      locale: "es_MX",
+      type: "website",
+    },
+  };
+}
+
 export function projectDescription(project: {
   title: string;
   summary?: string;

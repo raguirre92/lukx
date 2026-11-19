@@ -2,6 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { agendarHref, solutions, spaces, type SpaceId } from "@/data/site";
 
+function solutionGridClass(count: number) {
+  const base = "grid gap-3 lg:gap-4";
+  if (count <= 1) return `${base} mx-auto max-w-sm grid-cols-1`;
+  if (count === 2) return `${base} mx-auto max-w-4xl grid-cols-1 sm:grid-cols-2`;
+  if (count === 3) return `${base} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`;
+  return `${base} grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`;
+}
+
+function solutionImageSizes(count: number) {
+  if (count >= 4) return "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw";
+  if (count === 3) return "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw";
+  if (count === 2) return "(max-width: 639px) 100vw, 50vw";
+  return "100vw";
+}
+
 export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
   const space = spaces.find((item) => item.id === segmento);
   const items = space
@@ -28,19 +43,14 @@ export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
             </Link>
           ) : null}
         </div>
-        <div
-          data-stagger
-          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4"
-        >
-          {items.map((item) => {
-            const featured = item.id === "paneles-solares";
-            return (
+        <div data-stagger className={solutionGridClass(items.length)}>
+          {items.map((item, index) => (
               <article
                 key={item.href}
-                className={`group relative overflow-hidden bg-lukx-charcoal ${
-                  featured
-                    ? "aspect-[3/4] sm:aspect-auto sm:min-h-[420px] lg:col-span-2 lg:row-span-2 lg:min-h-full"
-                    : "aspect-[3/4]"
+                className={`group relative aspect-[3/4] overflow-hidden bg-lukx-charcoal ${
+                  items.length === 3 && index === items.length - 1
+                    ? "sm:col-span-2 sm:w-[calc(50%-0.375rem)] sm:justify-self-center lg:col-span-1 lg:w-full lg:justify-self-stretch"
+                    : ""
                 }`}
               >
                 <Image
@@ -48,7 +58,7 @@ export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
                   alt={item.title}
                   fill
                   className="object-cover transition duration-700 group-hover:scale-105"
-                  sizes={featured ? "(max-width:1024px) 100vw, 50vw" : "(max-width:1024px) 50vw, 25vw"}
+                  sizes={solutionImageSizes(items.length)}
                 />
                 <div className="absolute inset-0 bg-black/25 transition duration-500 group-hover:bg-black/70" />
                 <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6">
@@ -74,8 +84,7 @@ export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
                   </div>
                 </div>
               </article>
-            );
-          })}
+          ))}
         </div>
       </div>
     </section>

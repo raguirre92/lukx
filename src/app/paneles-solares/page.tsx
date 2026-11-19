@@ -7,13 +7,15 @@ import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import SectionHeading from "@/components/SectionHeading";
 import paneles from "../../../content/paneles-solares.json";
 import { getPortfolioProjects } from "@/lib/cms";
+import { brandedPage } from "@/lib/seo";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Paneles solares",
   description: paneles.hero.subtitle,
-};
+  path: "/paneles-solares",
+});
 
 const benefits = [
   {

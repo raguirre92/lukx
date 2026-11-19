@@ -6,11 +6,13 @@ import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import { faqs } from "@/data/faqs";
 import respaldo from "../../../content/sistemas-de-respaldo-de-energia-en-baterias.json";
+import { brandedPage } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Sistemas de respaldo de energía en baterías",
   description: respaldo.hero.subtitle,
-};
+  path: "/sistemas-de-respaldo-de-energia-en-baterias",
+});
 
 export default function SistemasRespaldoPage() {
   const bessFaqs = faqs.filter((f) =>

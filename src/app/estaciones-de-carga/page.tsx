@@ -4,11 +4,13 @@ import ContactCta from "@/components/ContactCta";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import estaciones from "../../../content/estaciones-de-carga.json";
+import { brandedPage } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Estaciones de carga",
   description: estaciones.hero.subtitle,
-};
+  path: "/estaciones-de-carga",
+});
 
 export default function EstacionesDeCargaPage() {
   return (

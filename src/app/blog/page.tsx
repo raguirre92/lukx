@@ -8,7 +8,8 @@ import { absoluteUrl, formatContentDate, pageMetadata } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata = pageMetadata({
-  title: "Blog",
+  title: "Blog | Lukx",
+  absoluteTitle: true,
   description:
     "Artículos sobre eficiencia energética, paneles solares, iluminación y movilidad eléctrica.",
   canonical: absoluteUrl("/blog"),

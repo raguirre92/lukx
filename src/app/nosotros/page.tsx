@@ -5,14 +5,16 @@ import PageHero from "@/components/PageHero";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeading from "@/components/SectionHeading";
 import { getPortfolioProjects } from "@/lib/cms";
+import { brandedPage } from "@/lib/seo";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Nosotros",
   description:
     "Tenemos más de 15 años de experiencia en el mercado, buscando brindar soluciones que minimicen el gasto energético y solucionen las necesidades de iluminación.",
-};
+  path: "/nosotros",
+});
 
 const values = [
   {

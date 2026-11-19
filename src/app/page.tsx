@@ -7,6 +7,14 @@ import SolutionsGrid from "@/components/home/SolutionsGrid";
 import SpaceChooser from "@/components/home/SpaceChooser";
 import { getBlogPosts, getPortfolioProjects } from "@/lib/cms";
 import { isSpaceId } from "@/data/site";
+import { brandedPage, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata = brandedPage({
+  title: "Paneles solares precio Monterrey | Lukx",
+  description: SITE_DESCRIPTION,
+  path: "/",
+  absolute: true,
+});
 
 export const revalidate = 300;
 

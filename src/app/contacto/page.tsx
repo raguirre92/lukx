@@ -3,12 +3,14 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import { site } from "@/data/site";
+import { brandedPage } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = brandedPage({
   title: "Contacto",
   description:
     "Contacta a Lukx: Oficina +52 81 8340 1975, Celular +52 81 1524 9123, hola@lukx.com.mx. Miguel Nieto#306, Nuevas colonias, Monterrey.",
-};
+  path: "/contacto",
+});
 
 const contactItems = [
   {

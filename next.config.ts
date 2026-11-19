@@ -40,6 +40,12 @@ const redirects = [
     destination: "/blog/categoria/:slug",
     permanent,
   },
+  { source: "/sitemap_index.xml", destination: "/sitemap.xml", permanent },
+  { source: "/sitemap_index.xml/", destination: "/sitemap.xml", permanent },
+  { source: "/:file(.*-sitemap\\d*\\.xml)", destination: "/sitemap.xml", permanent },
+  { source: "/:file(.*-sitemap\\d*\\.xml)/", destination: "/sitemap.xml", permanent },
+  { source: "/portfolio", destination: "/#proyectos", permanent },
+  { source: "/portfolio/", destination: "/#proyectos", permanent },
   // El proxy responde 410 antes que este comodín. Estas rutas quedan fuera
   // para no convertirlas en un 308 hacia otra URL.
   {

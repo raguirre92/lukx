@@ -50,7 +50,7 @@ const redirects = [
   // para no convertirlas en un 308 hacia otra URL.
   {
     source:
-      "/:path((?!sample-page/$|carrusel-de-inicio/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$).+)/",
+      "/:path((?!sample-page/$|carrusel-de-inicio/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$|wp-content/uploads/2021/05/AURORA-HIGH-BAY-1\\.pdf/$|wp-content/uploads/2021/05/UFO-HIGH-BAY\\.pdf/$|wp-content/uploads/2021/05/Access-Street-Light-A-1\\.pdf/$).+)/",
     destination: "/:path",
     permanent,
   },

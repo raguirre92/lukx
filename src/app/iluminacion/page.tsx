@@ -10,7 +10,7 @@ import { brandedPage } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata: Metadata = brandedPage({
-  title: "Iluminación",
+  title: "Diseño e instalación de proyectos de iluminación",
   description: iluminacion.hero.tagline,
   path: "/iluminacion",
 });
@@ -25,8 +25,8 @@ const services = [
     body: "Con simulaciones y cálculos fotométricos para garantizar uniformidad, niveles adecuados de luz y eficiencia operativa.",
   },
   {
-    title: "Venta y distribución de luminarias LED",
-    body: "Robustas, duraderas y con alta eficiencia energética.",
+    title: "Diseño e instalación de proyectos de iluminación",
+    body: "Del diseño a la instalación, según el uso de cada espacio.",
   },
   {
     title: "Reducción de costos de energía y mantenimiento",

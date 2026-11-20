@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { heroSlides, navSolutions, spaces } from "@/data/site";
+import { heroSlides, navSolutions } from "@/data/site";
 
 const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
 
@@ -66,8 +66,7 @@ export default function HeroCarousel() {
 
       <div className="relative z-[3] mx-auto flex h-full max-w-[1400px] items-end gap-10 px-5 pb-16 md:px-10 md:pb-20">
         <div className="flex-1">
-          <p className="eyebrow hero-fade">Monterrey, Nuevo León · Más de 15 años</p>
-          <h1 className="mt-6 font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
+          <h1 className="font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
             <span className="hero-line block overflow-hidden"><span className="block">Energía e</span></span>
             <span className="hero-line block overflow-hidden">
               <span className="block">
@@ -84,14 +83,6 @@ export default function HeroCarousel() {
             <Link href="/agendar" className="btn-green btn-lg">
               Agendar asesoría <Icon icon="solar:arrow-right-linear" className="arrow" width={16} aria-hidden />
             </Link>
-            <p className="mt-5 text-sm text-white/70">o explora por tipo de proyecto</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {spaces.map((space) => (
-                <Link key={space.id} href={`/${space.id}`} className="btn-outline">
-                  {space.title}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
 

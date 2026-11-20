@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { heroSlides, navSolutions } from "@/data/site";
+import { heroSlides, navSolutions, spaces } from "@/data/site";
 
 const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
 
@@ -80,14 +80,19 @@ export default function HeroCarousel() {
             Diseñamos e instalamos la solución que tu casa, comercio o industria sí necesita.
             Agenda una asesoría y te decimos qué conviene para tu proyecto.
           </p>
-          <div className="hero-fade mt-8 flex flex-wrap gap-3">
-            <Link href="/agendar" className="btn-green">
-              Agendar asesoría <Icon icon="solar:arrow-right-linear" className="arrow" width={16} aria-hidden />
-            </Link>
-            <Link href="#espacios" className="btn-outline">
-              Elige tu espacio
-            </Link>
+          <div className="hero-fade mt-8 grid gap-3 sm:max-w-3xl sm:grid-cols-3">
+            {spaces.map((space) => (
+              <Link key={space.id} href={`/${space.id}`} className="btn-green btn-lg w-full">
+                {space.title}
+              </Link>
+            ))}
           </div>
+          <Link
+            href="/agendar"
+            className="hero-fade mt-4 inline-flex text-sm text-white/80 underline decoration-white/40 underline-offset-4 transition hover:text-white"
+          >
+            No sé, quiero asesoría
+          </Link>
         </div>
 
         <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 lg:block">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
 import { signLeadToken } from "@/lib/lead-token";
+import { SEGMENT_LABELS, SOLUTION_LABELS } from "@/lib/agendarCopy";
 import { saveWebLead } from "@/lib/odoo";
 import { cleanUtm, normalizeEmailAddress, normalizePersonName, normalizeWhatsAppMx } from "@/lib/phone";
 import { allowLeadWrite, clientIp } from "@/lib/rate-limit";
@@ -10,6 +11,11 @@ export const dynamic = "force-dynamic";
 
 function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
+}
+
+function knownLabel(value: unknown, labels: Record<string, string>) {
+  if (typeof value !== "string") return "";
+  return labels[value.trim()] ?? "";
 }
 
 export async function POST(request: Request) {
@@ -49,6 +55,8 @@ export async function POST(request: Request) {
       utmSource: cleanUtm(record.utm_source),
       utmMedium: cleanUtm(record.utm_medium),
       utmCampaign: cleanUtm(record.utm_campaign),
+      segmento: knownLabel(record.segmento, SEGMENT_LABELS),
+      solucion: knownLabel(record.solucion, SOLUTION_LABELS),
     });
     const leadToken = signLeadToken(saved.leadId, saved.partnerId);
     return NextResponse.json({ leadToken });

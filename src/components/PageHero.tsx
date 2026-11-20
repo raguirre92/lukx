@@ -36,7 +36,9 @@ export default function PageHero({
             <Link href={ctaHref} className="btn-green">
               {ctaLabel} <span className="arrow" aria-hidden>→</span>
             </Link>
-            <Link href={secondaryHref} className="btn-outline">{secondaryLabel}</Link>
+            {secondaryHref && secondaryLabel ? (
+              <Link href={secondaryHref} className="btn-outline">{secondaryLabel}</Link>
+            ) : null}
           </div>
         </div>
       </div>

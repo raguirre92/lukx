@@ -226,6 +226,12 @@ img {
   background: var(--lukx-green-hover);
 }
 
+.btn-green.btn-lg {
+  font-size: 14px;
+  padding: 16px 22px;
+  letter-spacing: 0.08em;
+}
+
 .btn-outline {
   display: inline-flex;
   align-items: center;

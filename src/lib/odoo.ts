@@ -50,6 +50,8 @@ type LeadInput = {
   utmSource: string;
   utmMedium: string;
   utmCampaign: string;
+  segmento?: string;
+  solucion?: string;
 };
 
 export type PublicSlot = { start: string; stop: string };
@@ -314,6 +316,8 @@ async function staffPartner(userId: number): Promise<number> {
 
 function consentText(input: LeadInput, at: Date): string {
   const lines = [`Consentimiento del Aviso de Privacidad: ${formatCdmxStamp(at)}`];
+  if (input.segmento) lines.push(`Segmento: ${input.segmento}`);
+  if (input.solucion) lines.push(`Solución: ${input.solucion}`);
   if (input.utmSource) lines.push(`utm_source: ${input.utmSource}`);
   if (input.utmMedium) lines.push(`utm_medium: ${input.utmMedium}`);
   if (input.utmCampaign) lines.push(`utm_campaign: ${input.utmCampaign}`);

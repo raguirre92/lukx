@@ -143,6 +143,8 @@ export default function BookingScheduler() {
           utm_source: params.get("utm_source") ?? "",
           utm_medium: params.get("utm_medium") ?? "",
           utm_campaign: params.get("utm_campaign") ?? "",
+          segmento: params.get("segmento") ?? "",
+          solucion: params.get("solucion") ?? "",
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {

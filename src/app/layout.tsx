@@ -30,7 +30,7 @@ const bebas = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://lukx.com.mx"),
   title: {
-    default: "Paneles solares precio Monterrey | Lukx",
+    default: "Energía solar, respaldo e iluminación en Monterrey | Lukx",
     template: "%s | Lukx",
   },
   description: SITE_DESCRIPTION,

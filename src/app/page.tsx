@@ -6,35 +6,26 @@ import ContactCta from "@/components/ContactCta";
 import SolutionsGrid from "@/components/home/SolutionsGrid";
 import SpaceChooser from "@/components/home/SpaceChooser";
 import { getBlogPosts, getPortfolioProjects } from "@/lib/cms";
-import { isSpaceId } from "@/data/site";
-import { brandedPage, SITE_DESCRIPTION } from "@/lib/seo";
+import { brandedPage } from "@/lib/seo";
 
 export const metadata = brandedPage({
-  title: "Paneles solares precio Monterrey | Lukx",
-  description: SITE_DESCRIPTION,
+  title: "Energía solar, respaldo e iluminación en Monterrey | Lukx",
+  description:
+    "Lukx diseña e instala proyectos de energía solar, respaldo e iluminación para casas, comercios e industrias en Monterrey.",
   path: "/",
   absolute: true,
 });
 
 export const revalidate = 300;
 
-type HomePageProps = {
-  searchParams: Promise<{ segmento?: string }>;
-};
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const [{ segmento }, projects, posts] = await Promise.all([
-    searchParams,
-    getPortfolioProjects(),
-    getBlogPosts(),
-  ]);
-  const space = isSpaceId(segmento) ? segmento : undefined;
+export default async function HomePage() {
+  const [projects, posts] = await Promise.all([getPortfolioProjects(), getBlogPosts()]);
 
   return (
     <>
       <HeroCarousel />
-      <SpaceChooser segmento={space} />
-      <SolutionsGrid segmento={space} />
+      <SpaceChooser />
+      <SolutionsGrid />
       <ProjectsCarousel projects={projects} />
       <ExperienceStrip />
       <ContactCta

@@ -142,14 +142,7 @@ export const spaces = [
     id: "residencial" as const,
     title: "Residencial",
     image: "/images/2025-07-residencial-2.jpg",
-    blurb: "Para tu casa: un proyecto a tu medida y menos dependencia de la tarifa eléctrica.",
-    solutionIds: ["paneles-solares", "iluminacion", "estaciones-de-carga"],
-  },
-  {
-    id: "comercial" as const,
-    title: "Comercial",
-    image: "/images/2025-07-COMERCIAL.jpg",
-    blurb: "Para tu negocio: ahorro, iluminación y continuidad de acuerdo a tu operación.",
+    blurb: "Para tu casa: un proyecto de energía e iluminación a tu medida.",
     solutionIds: [
       "paneles-solares",
       "sistemas-de-respaldo-de-energia-en-baterias",
@@ -158,15 +151,27 @@ export const spaces = [
     ],
   },
   {
+    id: "comercial" as const,
+    title: "Comercial",
+    image: "/images/2025-07-COMERCIAL.jpg",
+    blurb: "Para tu negocio: el proyecto que acompaña la operación de tu local.",
+    solutionIds: [
+      "paneles-solares",
+      "iluminacion",
+      "estaciones-de-carga",
+      "sistemas-de-respaldo-de-energia-en-baterias",
+    ],
+  },
+  {
     id: "industrial" as const,
     title: "Industrial",
     image: "/images/2025-07-INDUSTRIAL-2.jpg",
-    blurb: "Para tu planta: consumo, iluminación de grandes espacios y respaldo energético.",
+    blurb: "Para tu planta: energía, iluminación de naves y bodegas, carga y respaldo.",
     solutionIds: [
       "paneles-solares",
-      "sistemas-de-respaldo-de-energia-en-baterias",
       "iluminacion",
       "estaciones-de-carga",
+      "sistemas-de-respaldo-de-energia-en-baterias",
     ],
   },
 ];

@@ -33,8 +33,8 @@ export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
             </h2>
             <p className="mt-2 max-w-xl text-sm text-lukx-muted">
               {space
-                ? "Paneles solares es la solución principal. Elige una ficha o agenda tu asesoría."
-                : "Solar es la solución principal, y también resolvemos respaldo, iluminación y carga."}
+                ? "Estos son los proyectos que diseñamos e instalamos para este espacio."
+                : "Diseñamos e instalamos proyectos de energía solar, respaldo, iluminación y carga."}
             </p>
           </div>
           {space ? (

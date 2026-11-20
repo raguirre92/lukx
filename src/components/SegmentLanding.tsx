@@ -32,8 +32,6 @@ export default function SegmentLanding({
         image={page.image}
         ctaHref={agendar}
         ctaLabel="Agendar asesoría"
-        secondaryHref=""
-        secondaryLabel=""
       />
 
       <section className="bg-white py-16 md:py-24">

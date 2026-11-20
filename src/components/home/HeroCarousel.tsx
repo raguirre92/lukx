@@ -80,19 +80,19 @@ export default function HeroCarousel() {
             Diseñamos e instalamos la solución que tu casa, comercio o industria sí necesita.
             Agenda una asesoría y te decimos qué conviene para tu proyecto.
           </p>
-          <div className="hero-fade mt-8 grid gap-3 sm:max-w-3xl sm:grid-cols-3">
-            {spaces.map((space) => (
-              <Link key={space.id} href={`/${space.id}`} className="btn-green btn-lg w-full">
-                {space.title}
-              </Link>
-            ))}
+          <div className="hero-fade mt-8">
+            <Link href="/agendar" className="btn-green btn-lg">
+              Agendar asesoría <Icon icon="solar:arrow-right-linear" className="arrow" width={16} aria-hidden />
+            </Link>
+            <p className="mt-5 text-sm text-white/70">o explora por tipo de proyecto</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {spaces.map((space) => (
+                <Link key={space.id} href={`/${space.id}`} className="btn-outline">
+                  {space.title}
+                </Link>
+              ))}
+            </div>
           </div>
-          <Link
-            href="/agendar"
-            className="hero-fade mt-4 inline-flex text-sm text-white/80 underline decoration-white/40 underline-offset-4 transition hover:text-white"
-          >
-            No sé, quiero asesoría
-          </Link>
         </div>
 
         <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 lg:block">

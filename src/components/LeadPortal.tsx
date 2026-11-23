@@ -3,15 +3,14 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import BookingScheduler from "@/components/BookingScheduler";
-import { leadAllies, leadHomeBenefits, leadReviews } from "@/data/leadPortal";
-import { getAgendarCopy } from "@/lib/agendarCopy";
+import { bookingPages, type BookingPageId } from "@/lib/booking-pages";
 import { site } from "@/data/site";
 
-const SOLAR_IMAGE = "/images/2025-12-Paneles-solares-carrusel-1-1.jpg";
-
-export default function LeadPortal() {
+export default function LeadPortal({ page }: { page: BookingPageId }) {
   const searchParams = useSearchParams();
-  const copy = getAgendarCopy(searchParams.get("segmento"), searchParams.get("solucion"));
+  const copy = bookingPages[page];
+  const requestedNeed = page === "general" ? searchParams.get("solucion") ?? "" : "";
+  const initialNeed = copy.needs.some((item) => item.value === requestedNeed) ? requestedNeed : "";
 
   return (
     <>
@@ -25,15 +24,10 @@ export default function LeadPortal() {
               LUKX
             </p>
             <h1 className="mt-2 font-display text-[clamp(2rem,4.5vw,3.1rem)] leading-[0.95] tracking-wide text-lukx-charcoal">
-              AGENDA TU ASESORÍA
+              {copy.h1}
             </h1>
-            {copy.interest ? (
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-lukx-green">
-                {copy.interest}
-              </p>
-            ) : null}
             <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-lukx-muted md:text-[15px]">
-              {copy.intro}
+              {copy.subtitle}
             </p>
             <ul className="mt-8 space-y-3 border-t border-black/10 pt-6 text-sm text-lukx-charcoal">
               {copy.bullets.map((item) => (
@@ -54,7 +48,7 @@ export default function LeadPortal() {
           </div>
 
           <div>
-            <BookingScheduler />
+            <BookingScheduler page={copy} initialNeed={initialNeed} />
           </div>
         </div>
       </section>
@@ -77,24 +71,7 @@ export default function LeadPortal() {
             <p className="mt-4 max-w-[44ch] text-sm leading-relaxed text-lukx-muted md:text-base">
               {copy.storyBody}
             </p>
-            {copy.isHomeSolar ? (
-              <div className="mt-10 space-y-8">
-                {leadHomeBenefits.map((item) => (
-                  <div key={item.title} className="border-t border-black/10 pt-6">
-                    <h3 className="text-base font-semibold text-lukx-charcoal">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-lukx-muted">
-                      {item.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-            <a
-              href="#calendario"
-              className="btn-green mt-10 w-fit active:scale-[0.98]"
-            >
+            <a href="#calendario" className="btn-green mt-10 w-fit active:scale-[0.98]">
               Agendar asesoría
             </a>
           </div>
@@ -103,16 +80,13 @@ export default function LeadPortal() {
 
       <section className="relative min-h-[40vh] overflow-hidden bg-lukx-black md:min-h-[48vh]">
         <Image
-          src={SOLAR_IMAGE}
+          src={copy.storyImage}
           alt=""
           fill
           className="object-cover object-center opacity-80"
           sizes="100vw"
         />
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent"
-          aria-hidden
-        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" aria-hidden />
         <div className="relative z-10 flex min-h-[40vh] items-end px-5 py-12 md:min-h-[48vh] md:px-12 md:py-16 lg:px-16">
           <p className="max-w-xl font-display text-[clamp(1.8rem,3.5vw,2.8rem)] leading-[1.05] text-white">
             {copy.bannerLine}
@@ -120,66 +94,13 @@ export default function LeadPortal() {
         </div>
       </section>
 
-      <section className="bg-lukx-charcoal section-pad">
-        <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14">
-          <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-white">
-            ALIADOS QUE RESPALDAN
-          </h2>
-          <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/70 md:text-base">
-            {copy.alliesBody}
-          </p>
-          <div className="mt-10 grid grid-cols-2 items-center gap-x-8 gap-y-10 sm:grid-cols-4">
-            {leadAllies.map((ally) => (
-              <div
-                key={ally.logo}
-                className="relative flex h-14 items-center justify-center opacity-80 transition hover:opacity-100"
-              >
-                <Image
-                  src={ally.logo}
-                  alt={ally.name}
-                  width={140}
-                  height={56}
-                  className="max-h-12 w-auto object-contain brightness-0 invert"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white section-pad">
-        <div className="mx-auto max-w-[900px] px-5 md:px-8">
-          <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-lukx-charcoal">
-            LO QUE DICEN NUESTROS CLIENTES
-          </h2>
-          <div className="mt-12 divide-y divide-black/10 border-y border-black/10">
-            {leadReviews.map((review) => (
-              <blockquote key={review.name} className="py-8 md:py-10">
-                <p className="max-w-[54ch] text-base leading-relaxed text-lukx-charcoal md:text-lg">
-                  “{review.quote}”
-                </p>
-                <footer className="mt-4 text-sm text-lukx-muted">
-                  <span className="font-semibold text-lukx-charcoal">
-                    {review.name}
-                  </span>
-                  {" · "}
-                  {review.place}
-                </footer>
-              </blockquote>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="bg-lukx-black">
         <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-8 px-5 py-14 md:flex-row md:items-center md:px-10 md:py-16 lg:px-14">
           <div className="max-w-xl">
             <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-white">
-              ¿LISTO PARA EMPEZAR?
+              ¿Listo para empezar?
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-white/80 md:text-base">
-              {copy.closeBody}
-            </p>
+            <p className="mt-4 text-sm leading-relaxed text-white/80 md:text-base">{copy.closeBody}</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <a href="#calendario" className="btn-green active:scale-[0.98]">
@@ -197,12 +118,7 @@ export default function LeadPortal() {
         </div>
         <p className="pb-8 text-center text-xs text-white/35">
           © {new Date().getFullYear()} Lukx ·{" "}
-          <a
-            href={site.privacyPdf}
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-white/60"
-          >
+          <a href={site.privacyPdf} target="_blank" rel="noreferrer" className="hover:text-white/60">
             Aviso de Privacidad
           </a>
         </p>

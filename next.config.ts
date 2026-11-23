@@ -46,6 +46,42 @@ const redirects = [
   { source: "/:file(.*-sitemap\\d*\\.xml)/", destination: "/sitemap.xml", permanent },
   { source: "/portfolio", destination: "/#proyectos", permanent },
   { source: "/portfolio/", destination: "/#proyectos", permanent },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "residencial" }],
+    destination: "/agendar/residencial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "residencial" }],
+    destination: "/agendar/residencial",
+    permanent,
+  },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "comercial" }],
+    destination: "/agendar/comercial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "comercial" }],
+    destination: "/agendar/comercial",
+    permanent,
+  },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "industrial" }],
+    destination: "/agendar/industrial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "industrial" }],
+    destination: "/agendar/industrial",
+    permanent,
+  },
   // El proxy responde 410 antes que este comodín. Estas rutas quedan fuera
   // para no convertirlas en un 308 hacia otra URL.
   {

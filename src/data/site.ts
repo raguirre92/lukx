@@ -189,10 +189,14 @@ export function isSpaceId(value: string | undefined): value is SpaceId {
 
 export function agendarHref(opts?: { segmento?: string; solucion?: string }) {
   const params = new URLSearchParams();
-  if (opts?.segmento) params.set("segmento", opts.segmento);
   if (opts?.solucion) params.set("solucion", opts.solucion);
+  const segment =
+    opts?.segmento === "residencial" || opts?.segmento === "comercial" || opts?.segmento === "industrial"
+      ? opts.segmento
+      : "";
+  const base = segment ? `/agendar/${segment}` : "/agendar";
   const query = params.toString();
-  return query ? `/agendar?${query}` : "/agendar";
+  return query ? `${base}?${query}` : base;
 }
 
 export const benefitTabs = [

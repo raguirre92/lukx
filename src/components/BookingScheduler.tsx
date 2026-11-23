@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
+import type { BookingPage } from "@/lib/booking-pages";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
 const MONTHS = [
@@ -57,11 +58,20 @@ function shiftMonth(year: number, month: number, delta: number) {
   return { y: next.getUTCFullYear(), m: next.getUTCMonth() + 1 };
 }
 
-export default function BookingScheduler() {
+export default function BookingScheduler({
+  page,
+  initialNeed = "",
+}: {
+  page: BookingPage;
+  initialNeed?: string;
+}) {
   const [step, setStep] = useState<Step>("datos");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [need, setNeed] = useState(page.needs.some((item) => item.value === initialNeed) ? initialNeed : "");
+  const [city, setCity] = useState("");
+  const [extra, setExtra] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [leadToken, setLeadToken] = useState<string | null>(null);
@@ -143,8 +153,11 @@ export default function BookingScheduler() {
           utm_source: params.get("utm_source") ?? "",
           utm_medium: params.get("utm_medium") ?? "",
           utm_campaign: params.get("utm_campaign") ?? "",
-          segmento: params.get("segmento") ?? "",
-          solucion: params.get("solucion") ?? "",
+          pagina: page.id,
+          necesidad: need,
+          ciudad: city,
+          tipoNegocio: page.extra?.name === "tipoNegocio" ? extra : "",
+          tipoPlanta: page.extra?.name === "tipoPlanta" ? extra : "",
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -290,6 +303,55 @@ export default function BookingScheduler() {
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               />
             </div>
+            <div>
+              <label htmlFor="bk-need" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                ¿Qué quieres revisar?
+              </label>
+              <select
+                id="bk-need"
+                required
+                value={need}
+                onChange={(event) => setNeed(event.target.value)}
+                className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+              >
+                <option value="">Elige una opción</option>
+                {page.needs.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {page.city ? (
+              <div>
+                <label htmlFor="bk-city" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                  Ciudad
+                </label>
+                <input
+                  id="bk-city"
+                  required
+                  value={city}
+                  onChange={(event) => setCity(event.target.value)}
+                  placeholder="Monterrey"
+                  className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+                />
+              </div>
+            ) : null}
+            {page.extra ? (
+              <div>
+                <label htmlFor="bk-extra" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                  {page.extra.label}
+                </label>
+                <input
+                  id="bk-extra"
+                  required
+                  value={extra}
+                  onChange={(event) => setExtra(event.target.value)}
+                  placeholder={page.extra.placeholder}
+                  className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+                />
+              </div>
+            ) : null}
             <label className="flex items-start gap-3 text-sm text-lukx-charcoal">
               <input
                 type="checkbox"
@@ -324,7 +386,7 @@ export default function BookingScheduler() {
               Resumen
             </p>
             <ul className="mt-4 space-y-2 text-sm text-lukx-charcoal">
-              <li>Llamada o videollamada · 30 minutos</li>
+              <li>Llamada o videollamada</li>
               <li>Zona horaria: America/Mexico_City</li>
               <li>Tus datos quedan registrados al continuar, aunque todavía no elijas horario.</li>
             </ul>
@@ -454,8 +516,7 @@ export default function BookingScheduler() {
                 Detalles de la reunión
               </p>
               <ul className="mt-3 space-y-2 text-sm text-lukx-charcoal">
-                <li>En línea · Llamada o videollamada</li>
-                <li>30 minutos</li>
+                <li>Llamada o videollamada</li>
                 {selectedStart ? (
                   <li className="font-medium text-lukx-green-btn">
                     {longDate(selectedStart)} · {timeLabel(selectedStart)}

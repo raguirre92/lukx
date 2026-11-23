@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import LeadPortal from "@/components/LeadPortal";
+import { bookingPages } from "@/lib/booking-pages";
 import { brandedPage } from "@/lib/seo";
+
+const page = bookingPages.general;
 
 export const metadata: Metadata = {
   ...brandedPage({
-    title: "Agenda tu asesoría",
-    description:
-      "Agenda una videollamada con Lukx. Revisamos tu casa, comercio o industria y te proponemos la solución de energía o iluminación que conviene.",
-    path: "/agendar",
+    title: page.title,
+    description: page.description,
+    path: page.path,
   }),
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function AgendarPage() {
   return (
     <Suspense>
-      <LeadPortal />
+      <LeadPortal page="general" />
     </Suspense>
   );
 }

@@ -57,6 +57,7 @@ type LeadInput = {
   ciudad?: string;
   tipoNegocio?: string;
   tipoPlanta?: string;
+  detalle?: string[];
 };
 
 export type PublicSlot = { start: string; stop: string };
@@ -326,6 +327,9 @@ function consentText(input: LeadInput, at: Date): string {
   if (input.ciudad) lines.push(`Ciudad: ${input.ciudad}`);
   if (input.tipoNegocio) lines.push(`Tipo de negocio: ${input.tipoNegocio}`);
   if (input.tipoPlanta) lines.push(`Tipo de planta/nave: ${input.tipoPlanta}`);
+  for (const line of input.detalle ?? []) {
+    if (line.trim()) lines.push(line.trim());
+  }
   if (input.segmento) lines.push(`Segmento: ${input.segmento}`);
   if (input.solucion) lines.push(`Solución: ${input.solucion}`);
   if (input.utmSource) lines.push(`utm_source: ${input.utmSource}`);

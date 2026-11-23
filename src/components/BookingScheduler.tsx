@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
 import type { BookingPage } from "@/lib/booking-pages";
 
@@ -61,20 +61,24 @@ function shiftMonth(year: number, month: number, delta: number) {
 export default function BookingScheduler({
   page,
   initialNeed = "",
+  resumeToken = null,
+  onScheduled,
 }: {
-  page: BookingPage;
+  page?: BookingPage;
   initialNeed?: string;
+  resumeToken?: string | null;
+  onScheduled?: () => void;
 }) {
-  const [step, setStep] = useState<Step>("datos");
+  const [step, setStep] = useState<Step>(resumeToken ? "horario" : "datos");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [need, setNeed] = useState(page.needs.some((item) => item.value === initialNeed) ? initialNeed : "");
+  const [need, setNeed] = useState(page?.needs.some((item) => item.value === initialNeed) ? initialNeed : "");
   const [city, setCity] = useState("");
   const [extra, setExtra] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
-  const [leadToken, setLeadToken] = useState<string | null>(null);
+  const [leadToken, setLeadToken] = useState<string | null>(resumeToken);
   const [timezone, setTimezone] = useState("America/Mexico_City");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -101,6 +105,10 @@ export default function BookingScheduler({
     [cursor],
   );
   const daySlots = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
+
+  useEffect(() => {
+    if (resumeToken) void loadSlots();
+  }, [resumeToken]);
 
   async function loadSlots() {
     setLoadingSlots(true);
@@ -153,11 +161,11 @@ export default function BookingScheduler({
           utm_source: params.get("utm_source") ?? "",
           utm_medium: params.get("utm_medium") ?? "",
           utm_campaign: params.get("utm_campaign") ?? "",
-          pagina: page.id,
+          pagina: page?.id ?? "",
           necesidad: need,
           ciudad: city,
-          tipoNegocio: page.extra?.name === "tipoNegocio" ? extra : "",
-          tipoPlanta: page.extra?.name === "tipoPlanta" ? extra : "",
+          tipoNegocio: page?.extra?.name === "tipoNegocio" ? extra : "",
+          tipoPlanta: page?.extra?.name === "tipoPlanta" ? extra : "",
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -211,6 +219,7 @@ export default function BookingScheduler({
       }
       setConfirmed({ start: data.start, stop: data.stop });
       setStep("lista");
+      onScheduled?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos confirmar la cita.");
     } finally {
@@ -315,14 +324,14 @@ export default function BookingScheduler({
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               >
                 <option value="">Elige una opción</option>
-                {page.needs.map((item) => (
+                {(page?.needs ?? []).map((item) => (
                   <option key={item.value} value={item.value}>
                     {item.label}
                   </option>
                 ))}
               </select>
             </div>
-            {page.city ? (
+            {page?.city ? (
               <div>
                 <label htmlFor="bk-city" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
                   Ciudad
@@ -337,17 +346,17 @@ export default function BookingScheduler({
                 />
               </div>
             ) : null}
-            {page.extra ? (
+            {page?.extra ? (
               <div>
                 <label htmlFor="bk-extra" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
-                  {page.extra.label}
+                  {page?.extra?.label}
                 </label>
                 <input
                   id="bk-extra"
                   required
                   value={extra}
                   onChange={(event) => setExtra(event.target.value)}
-                  placeholder={page.extra.placeholder}
+                  placeholder={page?.extra?.placeholder}
                   className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
                 />
               </div>

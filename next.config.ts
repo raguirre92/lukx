@@ -111,12 +111,17 @@ const nextConfig: NextConfig = {
     return redirects;
   },
   async headers() {
-    if (process.env.VERCEL_ENV === "production") return [];
+    const lp = {
+      source: "/lp/:path*",
+      headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+    };
+    if (process.env.VERCEL_ENV === "production") return [lp];
     return [
       {
         source: "/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      lp,
     ];
   },
   turbopack: {

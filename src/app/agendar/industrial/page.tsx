@@ -1,24 +1,10 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import LeadPortal from "@/components/LeadPortal";
-import { bookingPages } from "@/lib/booking-pages";
-import { brandedPage } from "@/lib/seo";
+import AgendarScreen from "@/components/agendar/AgendarScreen";
+import { agendarMetadata, findPag } from "@/lib/agendar-metadata";
 
-const page = bookingPages.industrial;
+const pag = findPag("/agendar/industrial");
 
-export const metadata: Metadata = {
-  ...brandedPage({
-    title: page.title,
-    description: page.description,
-    path: page.path,
-  }),
-  robots: { index: true, follow: true },
-};
+export const metadata = agendarMetadata(pag);
 
-export default function AgendarIndustrialPage() {
-  return (
-    <Suspense>
-      <LeadPortal page="industrial" />
-    </Suspense>
-  );
+export default function Page() {
+  return <AgendarScreen pag={pag} />;
 }

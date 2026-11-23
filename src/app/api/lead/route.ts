@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
 import { signLeadToken } from "@/lib/lead-token";
-import { bookingPages, isBookingPageId } from "@/lib/booking-pages";
+import { CIUDADES } from "@/lib/agendar-config";
 import { saveWebLead } from "@/lib/odoo";
 import { cleanUtm, normalizeEmailAddress, normalizePersonName, normalizeWhatsAppMx } from "@/lib/phone";
 import { allowLeadWrite, clientIp } from "@/lib/rate-limit";
@@ -48,14 +48,26 @@ export async function POST(request: Request) {
   if (!process.env.LEAD_SIGNING_SECRET?.trim()) return fail(503, MSG.calendar);
 
   try {
-    if (!isBookingPageId(record.pagina)) return fail(400, "No pudimos identificar la página de agenda.");
-    const page = bookingPages[record.pagina];
-    const need = page.needs.find((item) => item.value === record.necesidad);
-    if (!need) return fail(400, "Elige qué quieres revisar.");
-    const ciudad = cleanText(record.ciudad);
-    if (page.city && !ciudad) return fail(400, "Escribe tu ciudad.");
-    const extra = page.extra ? cleanText(record[page.extra.name]) : "";
-    if (page.extra && !extra) return fail(400, `Escribe ${page.extra.label.toLowerCase()}.`);
+    const pagina = cleanText(record.pagina, 40);
+    if (!pagina) return fail(400, "No pudimos identificar la página de agenda.");
+    const respuestas = record.respuestas && typeof record.respuestas === "object" ? record.respuestas as Record<string, unknown> : {};
+    const ciudad = cleanText(respuestas["Ciudad o municipio"] ?? record.ciudad, 80);
+    if (!CIUDADES.includes(ciudad as (typeof CIUDADES)[number])) return fail(400, "Elige tu ciudad.");
+    const necesidad = cleanText(
+      respuestas["¿Qué te interesa?"] ?? respuestas["Tipo de proyecto"] ?? record.necesidad,
+      160,
+    );
+    const detalle = [`Página de agenda: ${pagina}`, `Necesidad: ${necesidad || "No indicada"}`, `Ciudad: ${ciudad}`];
+    for (const [key, value] of Object.entries(respuestas)) {
+      const text = cleanText(value, 300);
+      if (!text || key === "Ciudad o municipio") continue;
+      detalle.push(`${key}: ${text}`);
+    }
+    const atribucion = record.atribucion && typeof record.atribucion === "object" ? record.atribucion as Record<string, unknown> : {};
+    for (const [key, value] of Object.entries(atribucion)) {
+      const text = cleanText(value, 300);
+      if (text) detalle.push(`${key}: ${text}`);
+    }
 
     const saved = await saveWebLead({
       name,
@@ -64,11 +76,10 @@ export async function POST(request: Request) {
       utmSource: cleanUtm(record.utm_source),
       utmMedium: cleanUtm(record.utm_medium),
       utmCampaign: cleanUtm(record.utm_campaign),
-      pagina: page.id,
-      necesidad: need.label,
+      pagina,
+      necesidad,
       ciudad,
-      tipoNegocio: page.extra?.name === "tipoNegocio" ? extra : "",
-      tipoPlanta: page.extra?.name === "tipoPlanta" ? extra : "",
+      detalle,
     });
     const leadToken = signLeadToken(saved.leadId, saved.partnerId);
     return NextResponse.json({ leadToken });

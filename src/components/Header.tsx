@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { navMain, site } from "@/data/site";
+import { navMain, navSpaces, site } from "@/data/site";
 import { SolutionsMega, SolutionsMobileList, SolutionsTrigger } from "@/components/SolutionsMenu";
 
 export default function Header() {
@@ -69,7 +69,10 @@ export default function Header() {
               <span key={item.label} className="contents">
                 <SolutionsTrigger
                   open={solutionsOpen}
-                  active={item.children.some((child) => isActive(child.href))}
+                  active={
+                    item.children.some((child) => isActive(child.href)) ||
+                    navSpaces.some((space) => isActive(space.href))
+                  }
                   onOpen={() => setSolutionsOpen(true)}
                   onToggle={() => setSolutionsOpen((value) => !value)}
                 />

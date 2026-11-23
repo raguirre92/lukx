@@ -4,7 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
-import { navSolutions } from "@/data/site";
+import { navSolutions, navSpaces } from "@/data/site";
+
+const menuGroups = [
+  { label: "Por espacio", items: navSpaces },
+  { label: "Por solución", items: navSolutions },
+];
+
+const menuItems = menuGroups.flatMap((group) => group.items);
 
 type Props = {
   open: boolean;
@@ -53,22 +60,25 @@ export function SolutionsTrigger({
 }
 
 export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const fromKeys = useRef(false);
   const [active, setActive] = useState(0);
   const [marker, setMarker] = useState({ y: 0, h: 56 });
-  const current = navSolutions[active] ?? navSolutions[0];
+  const current = menuItems[active] ?? menuItems[0];
 
   useEffect(() => {
-    const match = navSolutions.findIndex((item) => pathname.startsWith(item.href));
+    const match = menuItems.findIndex((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (match >= 0) setActive(match);
   }, [pathname, open]);
 
   useEffect(() => {
-    const row = listRef.current?.querySelectorAll("li")[active];
-    if (!row) return;
-    setMarker({ y: row.offsetTop, h: row.offsetHeight });
+    const list = listRef.current;
+    const link = list?.querySelectorAll("a")[active];
+    if (!list || !link) return;
+    const listBox = list.getBoundingClientRect();
+    const linkBox = link.getBoundingClientRect();
+    setMarker({ y: linkBox.top - listBox.top, h: linkBox.height });
   }, [active, open]);
 
   useEffect(() => {
@@ -90,7 +100,7 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
       fromKeys.current = true;
       setActive((index) => {
         const next = event.key === "ArrowDown" ? index + 1 : index - 1;
-        return (next + navSolutions.length) % navSolutions.length;
+        return (next + menuItems.length) % menuItems.length;
       });
     };
     window.addEventListener("keydown", onKey);
@@ -106,7 +116,7 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
       aria-hidden={!open}
     >
       <div className="relative min-h-0 overflow-hidden">
-        {navSolutions.map((item, index) => (
+        {menuItems.map((item, index) => (
           <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
             <Image
               src={item.image}
@@ -132,37 +142,49 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-col justify-center px-8 py-8 md:px-12">
+      <div className="flex min-h-0 flex-col justify-center overflow-y-auto px-8 py-8 md:px-12">
         <div className="relative">
         <span
           className="mega-marker absolute left-0 top-0 w-[3px] bg-lukx-green"
           style={{ height: marker.h, transform: `translateY(${marker.y}px)` }}
           aria-hidden
         />
-        <ul ref={listRef}>
-          {navSolutions.map((item, index) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`mega-row nav-link flex items-center justify-between gap-4 py-5 pl-6 pr-2 text-[15px] font-medium ${
-                  index === active ? "translate-x-2" : ""
-                }`}
-                data-active={pathname.startsWith(item.href) ? "true" : "false"}
-                data-current={index === active ? "true" : "false"}
-                onMouseEnter={() => setActive(index)}
-                onFocus={() => setActive(index)}
-              >
-                {item.label}
-                <Icon
-                  icon="solar:arrow-right-linear"
-                  width={18}
-                  className={`shrink-0 transition-transform duration-500 ${index === active ? "translate-x-1 text-lukx-green" : "text-white/30"}`}
-                  aria-hidden
-                />
-              </Link>
-            </li>
+        <div ref={listRef} className="flex flex-col gap-6">
+          {menuGroups.map((group) => (
+            <div key={group.label}>
+              <p className="pl-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+                {group.label}
+              </p>
+              <ul>
+                {group.items.map((item) => {
+                  const index = menuItems.findIndex((entry) => entry.href === item.href);
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={`mega-row nav-link flex items-center justify-between gap-4 py-3 pl-6 pr-2 text-[15px] font-medium ${
+                          index === active ? "translate-x-2" : ""
+                        }`}
+                        data-active={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "true" : "false"}
+                        data-current={index === active ? "true" : "false"}
+                        onMouseEnter={() => setActive(index)}
+                        onFocus={() => setActive(index)}
+                      >
+                        {item.label}
+                        <Icon
+                          icon="solar:arrow-right-linear"
+                          width={18}
+                          className={`shrink-0 transition-transform duration-500 ${index === active ? "translate-x-1 text-lukx-green" : "text-white/30"}`}
+                          aria-hidden
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
         </div>
       </div>
     </div>
@@ -171,24 +193,33 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
 
 export function SolutionsMobileList({ pathname }: { pathname: string }) {
   return (
-    <ul className="grid gap-2 pb-2">
-      {navSolutions.map((item) => (
-        <li key={item.href}>
-          <Link
-            href={item.href}
-            className="nav-link flex items-center gap-3 py-1"
-            data-active={pathname.startsWith(item.href) ? "true" : "false"}
-          >
-            <span className="relative h-16 w-16 shrink-0 overflow-hidden">
-              <Image src={item.image} alt="" fill sizes="64px" className="object-cover" />
-            </span>
-            <span>
-              <span className="block text-sm font-medium">{item.label}</span>
-              <span className="mt-0.5 block text-xs text-white/60">{item.summary}</span>
-            </span>
-          </Link>
-        </li>
+    <div className="grid gap-4 pb-2">
+      {menuGroups.map((group) => (
+        <div key={group.label}>
+          <p className="px-1 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            {group.label}
+          </p>
+          <ul className="grid gap-2">
+            {group.items.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="nav-link flex items-center gap-3 py-1"
+                  data-active={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "true" : "false"}
+                >
+                  <span className="relative h-16 w-16 shrink-0 overflow-hidden">
+                    <Image src={item.image} alt="" fill sizes="64px" className="object-cover" />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-medium">{item.label}</span>
+                    <span className="mt-0.5 block text-xs text-white/60">{item.summary}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }

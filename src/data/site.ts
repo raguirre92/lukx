@@ -176,6 +176,13 @@ export const spaces = [
   },
 ];
 
+export const navSpaces = spaces.map((space) => ({
+  label: space.title,
+  href: `/${space.id}` as const,
+  image: space.image,
+  summary: space.blurb,
+}));
+
 export function isSpaceId(value: string | undefined): value is SpaceId {
   return value === "residencial" || value === "comercial" || value === "industrial";
 }

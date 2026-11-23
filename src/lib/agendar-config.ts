@@ -15,6 +15,22 @@ export const CIUDADES = [
 // TODO: rangos de recibo de CFE por definir. Hasta entonces el campo es texto libre.
 export const RANGOS_LUZ: readonly string[] | null = null;
 
+// TODO: rangos provisionales de /lp/residencial. Rafa tiene que aprobarlos antes de darlos por definitivos.
+export const RANGOS_LUZ_RESIDENCIAL = [
+  "Menos de $2,000",
+  "$2,000–$5,000",
+  "$5,000–$10,000",
+  "Más de $10,000",
+  "No sé",
+] as const;
+
+export const INTERESES_CASA = [
+  "Paneles solares",
+  "Baterías de respaldo",
+  "Las dos",
+  "No estoy seguro",
+] as const;
+
 // TODO: tipos de negocio por definir. Hasta entonces el campo es texto libre.
 export const TIPOS_NEGOCIO: readonly string[] | null = null;
 

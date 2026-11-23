@@ -451,6 +451,39 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
   }
 }
 
+const COTIZADOR_MARK = "Respuestas del cotizador:";
+
+export async function appendLeadAnswers(input: {
+  leadId: number;
+  partnerId: number;
+  lines: string[];
+}): Promise<void> {
+  try {
+    const leads = await executeKw<OdooRecord[]>(
+      "crm.lead",
+      "search_read",
+      [[["id", "=", input.leadId], ["partner_id", "=", input.partnerId]]],
+      { fields: ["description"], limit: 1 },
+    );
+    if (!leads[0]) throw new BookingError(401, MSG.expired);
+    const previous = asText(leads[0].description);
+    const block = [COTIZADOR_MARK, ...input.lines.map((line) => line.trim()).filter(Boolean)].join("\n");
+    const index = previous.indexOf(COTIZADOR_MARK);
+    const description = index === -1
+      ? previous ? `${previous}\n\n${block}` : block
+      : `${previous.slice(0, index).trimEnd()}\n\n${block}`;
+    const wrote = await executeKw<boolean>("crm.lead", "write", [
+      [input.leadId],
+      { description },
+    ]);
+    if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.save);
+  } catch (err) {
+    if (err instanceof BookingError) throw err;
+    logBookingError("odoo", err);
+    throw new BookingError(502, MSG.save);
+  }
+}
+
 async function busyIntervals(config: TypeConfig, from: Date, to: Date): Promise<BusyInterval[]> {
   const showAs = await hasField("calendar.event", "show_as");
   const domain: unknown[] = [

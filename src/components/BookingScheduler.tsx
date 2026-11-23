@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
+import { pushDataLayer } from "@/lib/attribution";
 import type { BookingPage } from "@/lib/booking-pages";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
@@ -63,14 +64,20 @@ export default function BookingScheduler({
   initialNeed = "",
   resumeToken = null,
   onScheduled,
+  guestName = "",
+  onBack,
+  trackingPage,
 }: {
   page?: BookingPage;
   initialNeed?: string;
   resumeToken?: string | null;
   onScheduled?: () => void;
+  guestName?: string;
+  onBack?: () => void;
+  trackingPage?: string;
 }) {
   const [step, setStep] = useState<Step>(resumeToken ? "horario" : "datos");
-  const [name, setName] = useState("");
+  const [name, setName] = useState(guestName);
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [need, setNeed] = useState(page?.needs.some((item) => item.value === initialNeed) ? initialNeed : "");
@@ -246,14 +253,14 @@ export default function BookingScheduler({
   }
 
   return (
-    <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
-      <div className="flex gap-2 border-b border-black/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted md:px-6">
+    <div className={onBack ? "bg-white" : "bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]"}>
+      {onBack ? null : <div className="flex gap-2 border-b border-black/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted md:px-6">
         <span className={step === "datos" ? "text-lukx-charcoal" : undefined}>Datos</span>
         <span aria-hidden>›</span>
         <span className={step === "horario" ? "text-lukx-charcoal" : undefined}>Fecha y hora</span>
         <span aria-hidden>›</span>
         <span>Confirmación</span>
-      </div>
+      </div>}
 
       {step === "datos" ? (
         <form onSubmit={onLead} className="relative grid gap-8 p-5 md:grid-cols-[1.15fr_0.85fr] md:p-6">
@@ -482,15 +489,20 @@ export default function BookingScheduler({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-green"
+                    onClick={() => {
+                      if (trackingPage) pushDataLayer("click_whatsapp", { pagina: trackingPage });
+                    }}
                   >
                     WhatsApp
                   </a>
-                  <a
-                    href="/contacto"
-                    className="inline-flex items-center text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-green-btn"
-                  >
-                    Contacto
-                  </a>
+                  {onBack ? null : (
+                    <a
+                      href="/contacto"
+                      className="inline-flex items-center text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-green-btn"
+                    >
+                      Contacto
+                    </a>
+                  )}
                 </div>
               </div>
             ) : !selectedDay ? (
@@ -541,6 +553,10 @@ export default function BookingScheduler({
                 <button
                   type="button"
                   onClick={() => {
+                    if (onBack) {
+                      onBack();
+                      return;
+                    }
                     setStep("datos");
                     setError(null);
                   }}

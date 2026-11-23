@@ -426,7 +426,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
 
   return (
     <article>
-      <section className="relative min-h-[100svh] bg-lukx-black">
+      <section className="relative bg-lukx-black">
         <div className="absolute inset-0">
           <Image
             src="/images/2025-07-proyecto-rinconada-patos.jpg"
@@ -438,28 +438,28 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
           />
           <HeroScrim />
         </div>
-        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-8 px-4 pt-24 pb-16 md:px-8 md:pt-28 lg:grid-cols-[1.1fr_minmax(0,28rem)] lg:gap-12 lg:pt-32">
+        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-4 px-4 pt-20 pb-6 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-8 lg:pt-[4.75rem] lg:pb-8">
           <div className="max-w-xl text-white">
-            <h1 className="font-display text-[2.4rem] leading-[0.92] sm:text-[clamp(2.8rem,5vw,4.6rem)]">{pag.h1}</h1>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/90 md:text-base">{pag.sub}</p>
-            <ul className="mt-6 space-y-3">
+            <h1 className="font-display text-[2rem] leading-[0.95] lg:text-[3.2rem]">{pag.h1}</h1>
+            <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{pag.sub}</p>
+            <ul className="mt-3 space-y-1.5">
               {POINTS.map((point) => (
-                <li key={point} className="flex gap-3 text-sm leading-relaxed text-white md:text-base">
+                <li key={point} className="flex gap-2 text-sm leading-snug text-white">
                   <Icon icon="solar:check-circle-bold" className="mt-0.5 size-5 shrink-0 text-lukx-green" aria-hidden />
                   <span>{point}</span>
                 </li>
               ))}
             </ul>
           </div>
-          <form id="agenda" onSubmit={onContact} onFocus={markStart} className="scroll-mt-24 bg-white p-5 shadow-[0_28px_80px_rgba(0,0,0,0.35)] md:p-7">
+          <form id="agenda" onSubmit={onContact} onFocus={markStart} className="scroll-mt-20 bg-white p-4 shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lukx-muted">Agenda tu asesoría</p>
-            <h2 className="mt-2 font-display text-3xl leading-none text-lukx-charcoal">Tus datos</h2>
+            <h2 className="mt-1 font-display text-2xl leading-none text-lukx-charcoal">Tus datos</h2>
             <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden>
               <label htmlFor="lukx_hp">Sitio web</label>
               <input id="lukx_hp" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
             </div>
             {attr ? Object.entries(attr).map(([key, value]) => <input key={key} type="hidden" name={key} value={value} readOnly />) : null}
-            <div className="mt-5 grid gap-4">
+            <div className="mt-3 grid gap-2.5">
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-lukx-charcoal">Nombre</span>
                 <input ref={nameRef} required autoComplete="name" value={name} onFocus={markStart} onChange={(event) => setName(event.target.value)} className={fieldClass} />

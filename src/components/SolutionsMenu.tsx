@@ -6,12 +6,37 @@ import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import { navSolutions, navSpaces } from "@/data/site";
 
+const solutionDetails: Record<string, { icon: string; description: string }> = {
+  "/paneles-solares": {
+    icon: "solar:sun-linear",
+    description: "Diseño e instalación de sistemas solares según tu consumo.",
+  },
+  "/sistemas-de-respaldo-de-energia-en-baterias": {
+    icon: "solar:battery-charge-linear",
+    description: "Energía de respaldo con baterías para cuando se va la luz.",
+  },
+  "/iluminacion": {
+    icon: "solar:lightbulb-linear",
+    description: "Proyectos de iluminación del diseño a la instalación.",
+  },
+  "/estaciones-de-carga": {
+    icon: "solar:plug-circle-linear",
+    description: "Instalación de cargadores para vehículos eléctricos.",
+  },
+};
+
+const spaceIcons: Record<string, string> = {
+  "/residencial": "solar:home-2-linear",
+  "/comercial": "solar:shop-linear",
+  "/industrial": "solar:buildings-2-linear",
+};
+
 const menuGroups = [
   { label: "Por espacio", items: navSpaces },
   { label: "Por solución", items: navSolutions },
 ];
 
-const menuItems = menuGroups.flatMap((group) => group.items);
+const menuItems = [...navSolutions, ...navSpaces];
 
 type Props = {
   open: boolean;
@@ -63,82 +88,8 @@ function isCurrentPath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function MenuColumn({
-  label,
-  items,
-  active,
-  pathname,
-  open,
-  onActive,
-}: {
-  label: string;
-  items: (typeof menuItems)[number][];
-  active: number;
-  pathname: string;
-  open: boolean;
-  onActive: (index: number) => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [marker, setMarker] = useState({ y: 0, h: 0, visible: false });
-
-  useEffect(() => {
-    const root = ref.current;
-    const link = root?.querySelector<HTMLAnchorElement>('a[data-current="true"]');
-    if (!root || !link) {
-      setMarker((currentMarker) => ({ ...currentMarker, visible: false }));
-      return;
-    }
-    const rootBox = root.getBoundingClientRect();
-    const linkBox = link.getBoundingClientRect();
-    setMarker({ y: linkBox.top - rootBox.top, h: linkBox.height, visible: true });
-  }, [active, open]);
-
-  return (
-    <div
-      ref={ref}
-      className={`relative self-start px-6 pb-8 pt-8 md:px-8 ${
-        label === "Por espacio" ? "border-r border-white/10" : ""
-      }`}
-    >
-      <span
-        className="mega-marker absolute left-6 top-0 w-[3px] bg-lukx-green md:left-8"
-        style={{
-          height: marker.h,
-          transform: `translateY(${marker.y}px)`,
-          opacity: marker.visible ? 1 : 0,
-        }}
-        aria-hidden
-      />
-      <p className="pl-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{label}</p>
-      <ul>
-        {items.map((item) => {
-          const index = menuItems.findIndex((entry) => entry.href === item.href);
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`mega-row nav-link flex items-center justify-between gap-4 py-3 pl-6 pr-2 text-[15px] font-medium ${
-                  index === active ? "translate-x-2" : ""
-                }`}
-                data-active={isCurrentPath(pathname, item.href) ? "true" : "false"}
-                data-current={index === active ? "true" : "false"}
-                onMouseEnter={() => onActive(index)}
-                onFocus={() => onActive(index)}
-              >
-                {item.label}
-                <Icon
-                  icon="solar:arrow-right-linear"
-                  width={18}
-                  className={`shrink-0 transition-transform duration-500 ${index === active ? "translate-x-1 text-lukx-green" : "text-white/30"}`}
-                  aria-hidden
-                />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
+function menuIndex(href: string) {
+  return menuItems.findIndex((entry) => entry.href === href);
 }
 
 export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
@@ -182,26 +133,86 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
   return (
     <div
       id="soluciones-mega"
-      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden min-h-[420px] bg-[#141414] md:top-[88px] lg:grid lg:grid-cols-[minmax(240px,0.9fr)_minmax(280px,1.15fr)_minmax(300px,0.95fr)] lg:items-start"
+      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden bg-[#141414] md:top-[88px] lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.8fr)] lg:items-start"
       data-open={open}
       inert={!open}
       aria-hidden={!open}
     >
-      <div ref={listRef} className="contents">
-        {menuGroups.map((group) => (
-          <MenuColumn
-            key={group.label}
-            label={group.label}
-            items={group.items}
-            active={active}
-            pathname={pathname}
-            open={open}
-            onActive={setActive}
-          />
-        ))}
+      <div ref={listRef} className="px-8 pb-8 pt-8 md:px-10">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por solución</p>
+        <ul className="mt-3 grid grid-cols-2 gap-2">
+          {navSolutions.map((item) => {
+            const index = menuIndex(item.href);
+            const detail = solutionDetails[item.href];
+            const currentPath = isCurrentPath(pathname, item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="group flex gap-3 p-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06]"
+                  data-active={currentPath ? "true" : "false"}
+                  data-current={index === active ? "true" : "false"}
+                  onMouseEnter={() => setActive(index)}
+                  onFocus={() => setActive(index)}
+                >
+                  <Icon
+                    icon={detail?.icon ?? "solar:widget-linear"}
+                    width={22}
+                    className={`mt-0.5 shrink-0 ${currentPath ? "text-lukx-green" : "text-white/55 group-hover:text-white"}`}
+                    aria-hidden
+                  />
+                  <span>
+                    <span
+                      className={`block text-[15px] font-semibold ${
+                        currentPath ? "text-lukx-green" : "text-white/90 group-hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                    <span className="mt-1 block text-[13px] leading-snug text-white/55">{detail?.description}</span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="my-5 h-px bg-white/10" />
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por espacio</p>
+        <ul className="mt-3 grid grid-cols-3 gap-2">
+          {navSpaces.map((item) => {
+            const index = menuIndex(item.href);
+            const currentPath = isCurrentPath(pathname, item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="group flex items-center gap-2.5 p-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06]"
+                  data-active={currentPath ? "true" : "false"}
+                  data-current={index === active ? "true" : "false"}
+                  onMouseEnter={() => setActive(index)}
+                  onFocus={() => setActive(index)}
+                >
+                  <Icon
+                    icon={spaceIcons[item.href] ?? "solar:map-point-linear"}
+                    width={20}
+                    className={`shrink-0 ${currentPath ? "text-lukx-green" : "text-white/55 group-hover:text-white"}`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`text-[15px] font-semibold ${
+                      currentPath ? "text-lukx-green" : "text-white/90 group-hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
-      <div className="relative mt-8 min-h-[360px] self-start overflow-hidden">
+      <div className="relative mt-8 mr-8 mb-8 min-h-[340px] self-start overflow-hidden border border-white/10">
         {menuItems.map((item, index) => (
           <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
             <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" />
@@ -226,24 +237,36 @@ export function SolutionsMobileList({ pathname }: { pathname: string }) {
           <p className="px-1 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
             {group.label}
           </p>
-          <ul className="grid gap-2">
-            {group.items.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="nav-link flex items-center gap-3 py-1"
-                  data-active={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "true" : "false"}
-                >
-                  <span className="relative h-16 w-16 shrink-0 overflow-hidden">
-                    <Image src={item.image} alt="" fill sizes="64px" className="object-cover" />
-                  </span>
-                  <span>
-                    <span className="block text-sm font-medium">{item.label}</span>
-                    <span className="mt-0.5 block text-xs text-white/60">{item.summary}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+          <ul className="grid gap-1">
+            {group.items.map((item) => {
+              const currentPath = isCurrentPath(pathname, item.href);
+              const description = solutionDetails[item.href]?.description;
+              const icon = solutionDetails[item.href]?.icon ?? spaceIcons[item.href] ?? "solar:widget-linear";
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-start gap-3 px-1 py-2"
+                    data-active={currentPath ? "true" : "false"}
+                  >
+                    <Icon
+                      icon={icon}
+                      width={20}
+                      className={`mt-0.5 shrink-0 ${currentPath ? "text-lukx-green" : "text-white/55"}`}
+                      aria-hidden
+                    />
+                    <span>
+                      <span className={`block text-sm font-semibold ${currentPath ? "text-lukx-green" : "text-white"}`}>
+                        {item.label}
+                      </span>
+                      {description ? (
+                        <span className="mt-0.5 block text-xs leading-snug text-white/55">{description}</span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}

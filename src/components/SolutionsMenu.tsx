@@ -59,27 +59,99 @@ export function SolutionsTrigger({
   );
 }
 
+function isCurrentPath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function MenuColumn({
+  label,
+  items,
+  active,
+  pathname,
+  open,
+  onActive,
+}: {
+  label: string;
+  items: (typeof menuItems)[number][];
+  active: number;
+  pathname: string;
+  open: boolean;
+  onActive: (index: number) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [marker, setMarker] = useState({ y: 0, h: 0, visible: false });
+
+  useEffect(() => {
+    const root = ref.current;
+    const link = root?.querySelector<HTMLAnchorElement>('a[data-current="true"]');
+    if (!root || !link) {
+      setMarker((currentMarker) => ({ ...currentMarker, visible: false }));
+      return;
+    }
+    const rootBox = root.getBoundingClientRect();
+    const linkBox = link.getBoundingClientRect();
+    setMarker({ y: linkBox.top - rootBox.top, h: linkBox.height, visible: true });
+  }, [active, open]);
+
+  return (
+    <div
+      ref={ref}
+      className={`relative flex flex-col justify-center px-6 py-8 md:px-8 ${
+        label === "Por espacio" ? "border-r border-white/10" : ""
+      }`}
+    >
+      <span
+        className="mega-marker absolute left-6 top-0 w-[3px] bg-lukx-green md:left-8"
+        style={{
+          height: marker.h,
+          transform: `translateY(${marker.y}px)`,
+          opacity: marker.visible ? 1 : 0,
+        }}
+        aria-hidden
+      />
+      <p className="pl-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{label}</p>
+      <ul>
+        {items.map((item) => {
+          const index = menuItems.findIndex((entry) => entry.href === item.href);
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={`mega-row nav-link flex items-center justify-between gap-4 py-3 pl-6 pr-2 text-[15px] font-medium ${
+                  index === active ? "translate-x-2" : ""
+                }`}
+                data-active={isCurrentPath(pathname, item.href) ? "true" : "false"}
+                data-current={index === active ? "true" : "false"}
+                onMouseEnter={() => onActive(index)}
+                onFocus={() => onActive(index)}
+              >
+                {item.label}
+                <Icon
+                  icon="solar:arrow-right-linear"
+                  width={18}
+                  className={`shrink-0 transition-transform duration-500 ${index === active ? "translate-x-1 text-lukx-green" : "text-white/30"}`}
+                  aria-hidden
+                />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const fromKeys = useRef(false);
   const [active, setActive] = useState(0);
-  const [marker, setMarker] = useState({ y: 0, h: 56 });
   const current = menuItems[active] ?? menuItems[0];
 
   useEffect(() => {
-    const match = menuItems.findIndex((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
+    const match = menuItems.findIndex((item) => isCurrentPath(pathname, item.href));
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (match >= 0) setActive(match);
   }, [pathname, open]);
-
-  useEffect(() => {
-    const list = listRef.current;
-    const link = list?.querySelectorAll("a")[active];
-    if (!list || !link) return;
-    const listBox = list.getBoundingClientRect();
-    const linkBox = link.getBoundingClientRect();
-    setMarker({ y: linkBox.top - listBox.top, h: linkBox.height });
-  }, [active, open]);
 
   useEffect(() => {
     if (!open || !fromKeys.current) return;
@@ -110,81 +182,36 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
   return (
     <div
       id="soluciones-mega"
-      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden h-[min(520px,70vh)] grid-cols-[1.15fr_0.85fr] bg-[#141414] md:top-[88px] lg:grid"
+      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden min-h-[420px] bg-[#141414] md:top-[88px] lg:grid lg:grid-cols-[minmax(240px,0.9fr)_minmax(280px,1.15fr)_minmax(300px,0.95fr)]"
       data-open={open}
       inert={!open}
       aria-hidden={!open}
     >
-      <div className="relative min-h-0 overflow-hidden">
-        {menuItems.map((item, index) => (
-          <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
-            <Image
-              src={item.image}
-              alt=""
-              fill
-              sizes="60vw"
-              className="object-cover"
-            />
-          </div>
+      <div ref={listRef} className="contents">
+        {menuGroups.map((group) => (
+          <MenuColumn
+            key={group.label}
+            label={group.label}
+            items={group.items}
+            active={active}
+            pathname={pathname}
+            open={open}
+            onActive={setActive}
+          />
         ))}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/25 to-transparent" />
-        <Link
-          href={current.href}
-          tabIndex={-1}
-          aria-hidden
-          className="absolute inset-0 z-10"
-        />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-8 md:p-10">
-          <p className="font-display text-[clamp(3.2rem,6vw,5.4rem)] leading-[0.9] text-white">
-            {current.label}
-          </p>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80">{current.summary}</p>
-        </div>
       </div>
 
-      <div className="flex min-h-0 flex-col justify-center overflow-y-auto px-8 py-8 md:px-12">
-        <div className="relative">
-        <span
-          className="mega-marker absolute left-0 top-0 w-[3px] bg-lukx-green"
-          style={{ height: marker.h, transform: `translateY(${marker.y}px)` }}
-          aria-hidden
-        />
-        <div ref={listRef} className="flex flex-col gap-6">
-          {menuGroups.map((group) => (
-            <div key={group.label}>
-              <p className="pl-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-                {group.label}
-              </p>
-              <ul>
-                {group.items.map((item) => {
-                  const index = menuItems.findIndex((entry) => entry.href === item.href);
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`mega-row nav-link flex items-center justify-between gap-4 py-3 pl-6 pr-2 text-[15px] font-medium ${
-                          index === active ? "translate-x-2" : ""
-                        }`}
-                        data-active={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "true" : "false"}
-                        data-current={index === active ? "true" : "false"}
-                        onMouseEnter={() => setActive(index)}
-                        onFocus={() => setActive(index)}
-                      >
-                        {item.label}
-                        <Icon
-                          icon="solar:arrow-right-linear"
-                          width={18}
-                          className={`shrink-0 transition-transform duration-500 ${index === active ? "translate-x-1 text-lukx-green" : "text-white/30"}`}
-                          aria-hidden
-                        />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
+      <div className="relative min-h-[420px] overflow-hidden">
+        {menuItems.map((item, index) => (
+          <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
+            <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" />
+          </div>
+        ))}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent" />
+        <Link href={current.href} tabIndex={-1} aria-hidden className="absolute inset-0 z-10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-8">
+          <p className="font-display text-[clamp(2.4rem,4vw,3.6rem)] leading-[0.9] text-white">{current.label}</p>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">{current.summary}</p>
         </div>
       </div>
     </div>

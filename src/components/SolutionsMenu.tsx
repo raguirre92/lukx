@@ -96,7 +96,7 @@ function MenuColumn({
   return (
     <div
       ref={ref}
-      className={`relative flex flex-col justify-center px-6 py-8 md:px-8 ${
+      className={`relative self-start px-6 pb-8 pt-8 md:px-8 ${
         label === "Por espacio" ? "border-r border-white/10" : ""
       }`}
     >
@@ -182,7 +182,7 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
   return (
     <div
       id="soluciones-mega"
-      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden min-h-[420px] bg-[#141414] md:top-[88px] lg:grid lg:grid-cols-[minmax(240px,0.9fr)_minmax(280px,1.15fr)_minmax(300px,0.95fr)]"
+      className="mega-panel fixed inset-x-0 top-[72px] z-20 hidden min-h-[420px] bg-[#141414] md:top-[88px] lg:grid lg:grid-cols-[minmax(240px,0.9fr)_minmax(280px,1.15fr)_minmax(300px,0.95fr)] lg:items-start"
       data-open={open}
       inert={!open}
       aria-hidden={!open}
@@ -201,7 +201,7 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
         ))}
       </div>
 
-      <div className="relative min-h-[420px] overflow-hidden">
+      <div className="relative mt-8 min-h-[360px] self-start overflow-hidden">
         {menuItems.map((item, index) => (
           <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
             <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" />

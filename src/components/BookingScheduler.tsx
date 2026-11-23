@@ -176,6 +176,8 @@ export default function BookingScheduler({
           respuestas: {
             "Ciudad o municipio": city,
             "¿Qué te interesa?": need,
+            ...(page?.extra?.name === "tipoNegocio" ? { "Tipo de negocio": extra } : {}),
+            ...(page?.extra?.name === "tipoPlanta" ? { "Tipo de planta o nave": extra } : {}),
           },
         }),
       });

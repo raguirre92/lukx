@@ -344,3 +344,13 @@ h1 .w > span, h2 .w > span { display: inline-block; will-change: transform; }
 .quote-bubble { animation: quote-bubble-in 0.28s ease; }
 .quote-bar { transition: width 0.28s ease; }
 .quote-radio:focus-visible { outline: none; }
+
+dialog.lp-modal {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+}
+dialog.lp-modal::backdrop {
+  background: transparent;
+}

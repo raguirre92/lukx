@@ -45,6 +45,15 @@ function pendingFrom(record: Record<string, unknown>, respuestas: Record<string,
     }
   };
   pick("tienePaneles", respuestas["¿Ya tienes paneles solares?"]);
+  pick("motivo", respuestas["¿Qué te motiva más?"]);
+  pick("propietario", respuestas["¿Eres dueño de la casa?"]);
+  pick("empresa", respuestas.Empresa);
+  pick("puesto", respuestas.Puesto);
+  pick("plazo", respuestas["¿Cuándo planeas hacerlo?"]);
+  pick("tipoNegocio", respuestas["Tipo de negocio"], record.tipoNegocio);
+  pick("tipoPlanta", respuestas["Tipo de planta"], respuestas["Tipo de planta o nave"], respuestas["Tipo de planta/nave"], record.tipoPlanta);
+  pick("decideCompra", respuestas["¿Eres quien decide la compra?"]);
+  pick("tamanoNave", respuestas["Tamaño aproximado de la nave o del consumo"]);
   pick("landing", atribucion.landing);
   pick("referrer", atribucion.referrer);
   pick("gclid", atribucion.gclid, record.gclid);

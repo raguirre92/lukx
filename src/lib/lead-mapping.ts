@@ -24,6 +24,15 @@ export type Sector = "Residencial" | "Comercial" | "Industrial";
 
 export type PendingLeadFields = {
   tienePaneles: string;
+  motivo: string;
+  propietario: string;
+  empresa: string;
+  puesto: string;
+  plazo: string;
+  tipoNegocio: string;
+  tipoPlanta: string;
+  decideCompra: string;
+  tamanoNave: string;
   avisoPrivacidadEn: string;
   landing: string;
   referrer: string;
@@ -56,6 +65,15 @@ const SLUG_TAGS: Record<string, number[]> = {
 export function emptyPendingFields(): PendingLeadFields {
   return {
     tienePaneles: "",
+    motivo: "",
+    propietario: "",
+    empresa: "",
+    puesto: "",
+    plazo: "",
+    tipoNegocio: "",
+    tipoPlanta: "",
+    decideCompra: "",
+    tamanoNave: "",
     avisoPrivacidadEn: "",
     landing: "",
     referrer: "",

@@ -15,6 +15,12 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    return () => {
+      if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -30,17 +36,20 @@ export default function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const cancelSolutionsClose = () => {
+    if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
+  };
+
+  const scheduleSolutionsClose = () => {
+    if (!window.matchMedia("(hover: hover) and (min-width: 1024px)").matches) return;
+    cancelSolutionsClose();
+    closeMenuTimer.current = window.setTimeout(() => setSolutionsOpen(false), 180);
+  };
+
   return (
     <header
       className="fixed inset-x-0 top-0 z-50 bg-[#1a1a1a] transition-shadow duration-300 data-[scrolled=true]:shadow-lg data-[scrolled=true]:shadow-black/25"
       data-scrolled={scrolled || open}
-      onMouseEnter={() => {
-        if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
-      }}
-      onMouseLeave={() => {
-        if (!window.matchMedia("(hover: hover) and (min-width: 1024px)").matches) return;
-        closeMenuTimer.current = window.setTimeout(() => setSolutionsOpen(false), 160);
-      }}
     >
       <button
         type="button"
@@ -73,13 +82,19 @@ export default function Header() {
                     item.children.some((child) => isActive(child.href)) ||
                     navSpaces.some((space) => isActive(space.href))
                   }
-                  onOpen={() => setSolutionsOpen(true)}
+                  onOpen={() => {
+                    cancelSolutionsClose();
+                    setSolutionsOpen(true);
+                  }}
                   onToggle={() => setSolutionsOpen((value) => !value)}
+                  onLeave={scheduleSolutionsClose}
                 />
                 <SolutionsMega
                   open={solutionsOpen}
                   pathname={pathname}
                   onOpenChange={setSolutionsOpen}
+                  onHoverStart={cancelSolutionsClose}
+                  onHoverEnd={scheduleSolutionsClose}
                 />
               </span>
             ) : (

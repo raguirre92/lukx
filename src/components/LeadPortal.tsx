@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import BookingScheduler from "@/components/BookingScheduler";
+import HeroScrim from "@/components/HeroScrim";
 import { bookingPages, type BookingPageId } from "@/lib/booking-pages";
 import { site } from "@/data/site";
 
@@ -86,7 +87,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
           className="object-cover object-center opacity-80"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" aria-hidden />
+        <HeroScrim />
         <div className="relative z-10 flex min-h-[40vh] items-end px-5 py-12 md:min-h-[48vh] md:px-12 md:py-16 lg:px-16">
           <p className="max-w-xl font-display text-[clamp(1.8rem,3.5vw,2.8rem)] leading-[1.05] text-white">
             {copy.bannerLine}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import HeroScrim from "@/components/HeroScrim";
 import { heroSlides, navSolutions } from "@/data/site";
 
 const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
@@ -61,8 +62,9 @@ export default function HeroCarousel() {
         </div>
       ))}
 
-      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-r from-black/85 via-black/45 to-black/10" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 z-[2]">
+        <HeroScrim />
+      </div>
 
       <div className="relative z-[3] mx-auto flex h-full max-w-[1400px] items-end gap-10 px-5 pb-16 md:px-10 md:pb-20">
         <div className="flex-1">

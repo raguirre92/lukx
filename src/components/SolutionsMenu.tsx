@@ -42,6 +42,8 @@ type Props = {
   open: boolean;
   pathname: string;
   onOpenChange: (open: boolean) => void;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
 };
 
 export function SolutionsTrigger({
@@ -49,11 +51,13 @@ export function SolutionsTrigger({
   active,
   onOpen,
   onToggle,
+  onLeave,
 }: {
   open: boolean;
   active: boolean;
   onOpen: () => void;
   onToggle: () => void;
+  onLeave: () => void;
 }) {
   const openedAt = useRef(0);
 
@@ -72,6 +76,7 @@ export function SolutionsTrigger({
         if (open && performance.now() - openedAt.current > 350) onToggle();
         else onOpen();
       }}
+      onMouseLeave={onLeave}
     >
       Soluciones
       <Icon
@@ -92,7 +97,7 @@ function menuIndex(href: string) {
   return menuItems.findIndex((entry) => entry.href === href);
 }
 
-export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
+export function SolutionsMega({ open, pathname, onOpenChange, onHoverStart, onHoverEnd }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const fromKeys = useRef(false);
   const [active, setActive] = useState(0);
@@ -137,6 +142,8 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
       data-open={open}
       inert={!open}
       aria-hidden={!open}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
     >
       <div ref={listRef} className="px-8 pb-8 pt-8 md:px-10">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por espacio</p>

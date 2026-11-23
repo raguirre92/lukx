@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import HeroScrim from "@/components/HeroScrim";
 
 type PageHeroProps = {
   title: string;
@@ -23,8 +24,7 @@ export default function PageHero({
   return (
     <section className="relative flex min-h-[62vh] items-end overflow-hidden bg-lukx-black pt-24 md:min-h-[76vh]">
       <Image src={image} alt="" fill priority className="kenburns object-cover object-center" sizes="100vw" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/10" />
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+      <HeroScrim />
       <div className="relative z-10 mx-auto w-full max-w-[1400px] px-5 pb-14 md:px-10 md:pb-20">
         <p className="eyebrow lead-hero-copy">Lukx · Monterrey</p>
         <div className="lead-hero-copy">

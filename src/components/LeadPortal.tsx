@@ -117,12 +117,6 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
             </a>
           </div>
         </div>
-        <p className="pb-8 text-center text-xs text-white/35">
-          © {new Date().getFullYear()} Lukx ·{" "}
-          <a href={site.privacyPdf} target="_blank" rel="noreferrer" className="hover:text-white/60">
-            Aviso de Privacidad
-          </a>
-        </p>
       </section>
     </>
   );

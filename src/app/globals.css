@@ -135,24 +135,17 @@ header .nav-link[data-active="true"]:visited {
 }
 
 .mega-photo {
-  clip-path: inset(0 0 0 100%);
   opacity: 0;
+  transform: scale(1.03);
   transition:
-    clip-path 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.4s ease;
+    opacity 280ms ease,
+    transform 280ms ease;
 }
 
 .mega-photo[data-active="true"] {
-  clip-path: inset(0);
+  z-index: 1;
   opacity: 1;
-}
-
-.mega-photo img {
-  transform: scale(1.05);
-}
-
-.mega-photo[data-active="true"] img {
-  animation: mega-breathe 9s ease-in-out infinite alternate;
+  transform: scale(1);
 }
 
 .mega-marker {
@@ -174,11 +167,6 @@ header a.mega-row[data-active="true"] {
   color: #19b600;
 }
 
-@keyframes mega-breathe {
-  from { transform: scale(1.04); }
-  to { transform: scale(1.08); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mega-panel,
   .mega-photo,
@@ -188,9 +176,8 @@ header a.mega-row[data-active="true"] {
     transition: none;
   }
 
-  .mega-photo[data-active="true"] img,
-  .mega-photo img {
-    animation: none;
+  .mega-photo,
+  .mega-photo[data-active="true"] {
     transform: none;
   }
 }

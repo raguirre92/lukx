@@ -36,7 +36,7 @@ const menuGroups = [
   { label: "Por solución", items: navSolutions },
 ];
 
-const menuItems = [...navSolutions, ...navSpaces];
+const menuItems = [...navSpaces, ...navSolutions];
 
 type Props = {
   open: boolean;
@@ -139,6 +139,40 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
       aria-hidden={!open}
     >
       <div ref={listRef} className="px-8 pb-8 pt-8 md:px-10">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por espacio</p>
+        <ul className="mt-3 grid grid-cols-3 gap-2">
+          {navSpaces.map((item) => {
+            const index = menuIndex(item.href);
+            const currentPath = isCurrentPath(pathname, item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="group flex items-center gap-2.5 p-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06]"
+                  data-active={currentPath ? "true" : "false"}
+                  data-current={index === active ? "true" : "false"}
+                  onMouseEnter={() => setActive(index)}
+                  onFocus={() => setActive(index)}
+                >
+                  <Icon
+                    icon={spaceIcons[item.href] ?? "solar:map-point-linear"}
+                    width={20}
+                    className={`shrink-0 ${currentPath ? "text-lukx-green" : "text-white/55 group-hover:text-white"}`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`text-[15px] font-semibold ${
+                      currentPath ? "text-lukx-green" : "text-white/90 group-hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="my-5 h-px bg-white/10" />
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por solución</p>
         <ul className="mt-3 grid grid-cols-2 gap-2">
           {navSolutions.map((item) => {
@@ -176,46 +210,12 @@ export function SolutionsMega({ open, pathname, onOpenChange }: Props) {
             );
           })}
         </ul>
-        <div className="my-5 h-px bg-white/10" />
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">Por espacio</p>
-        <ul className="mt-3 grid grid-cols-3 gap-2">
-          {navSpaces.map((item) => {
-            const index = menuIndex(item.href);
-            const currentPath = isCurrentPath(pathname, item.href);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="group flex items-center gap-2.5 p-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06]"
-                  data-active={currentPath ? "true" : "false"}
-                  data-current={index === active ? "true" : "false"}
-                  onMouseEnter={() => setActive(index)}
-                  onFocus={() => setActive(index)}
-                >
-                  <Icon
-                    icon={spaceIcons[item.href] ?? "solar:map-point-linear"}
-                    width={20}
-                    className={`shrink-0 ${currentPath ? "text-lukx-green" : "text-white/55 group-hover:text-white"}`}
-                    aria-hidden
-                  />
-                  <span
-                    className={`text-[15px] font-semibold ${
-                      currentPath ? "text-lukx-green" : "text-white/90 group-hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
       </div>
 
       <div className="relative mt-8 mr-8 mb-8 min-h-[340px] self-start overflow-hidden border border-white/10">
         {menuItems.map((item, index) => (
           <div key={item.href} className="mega-photo absolute inset-0" data-active={index === active}>
-            <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" />
+            <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" priority />
           </div>
         ))}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent" />

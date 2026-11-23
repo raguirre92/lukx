@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
-import { pushDataLayer } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer } from "@/lib/attribution";
 import type { BookingPage } from "@/lib/booking-pages";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
@@ -155,7 +155,7 @@ export default function BookingScheduler({
     setSubmitting(true);
     setError(null);
     try {
-      const params = new URLSearchParams(window.location.search);
+      const attribution = captureAttribution();
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -165,14 +165,17 @@ export default function BookingScheduler({
           whatsapp,
           privacyAccepted,
           lukx_hp: honeypot,
-          utm_source: params.get("utm_source") ?? "",
-          utm_medium: params.get("utm_medium") ?? "",
-          utm_campaign: params.get("utm_campaign") ?? "",
+          utm_source: attribution.utm_source,
+          utm_medium: attribution.utm_medium,
+          utm_campaign: attribution.utm_campaign,
+          atribucion: attribution,
           pagina: page?.id ?? "",
           necesidad: need,
           ciudad: city,
-          tipoNegocio: page?.extra?.name === "tipoNegocio" ? extra : "",
-          tipoPlanta: page?.extra?.name === "tipoPlanta" ? extra : "",
+          respuestas: {
+            "Ciudad o municipio": city,
+            "¿Qué te interesa?": need,
+          },
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {

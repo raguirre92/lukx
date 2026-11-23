@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
+import { toOdooUtc } from "@/lib/cdmx";
 import { signLeadToken } from "@/lib/lead-token";
-import { CIUDADES } from "@/lib/agendar-config";
+import {
+  cityLabel,
+  cleanComment,
+  emptyPendingFields,
+  sectorForPage,
+  type PendingLeadFields,
+} from "@/lib/lead-mapping";
 import { saveWebLead } from "@/lib/odoo";
-import { cleanUtm, normalizeEmailAddress, normalizePersonName, normalizeWhatsAppMx } from "@/lib/phone";
+import { normalizeEmailAddress, normalizePersonName, normalizeWhatsAppMx } from "@/lib/phone";
 import { allowLeadWrite, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -13,9 +20,43 @@ function fail(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-function cleanText(value: unknown, max = 80) {
+function cleanText(value: unknown, max = 160) {
   if (typeof value !== "string") return "";
   return value.replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
+}
+
+function isContact(pagina: string) {
+  return pagina === "/contacto" || pagina === "contacto";
+}
+
+function pendingFrom(record: Record<string, unknown>, respuestas: Record<string, unknown>, privacyAccepted: boolean): PendingLeadFields {
+  const pending = emptyPendingFields();
+  const atribucion = record.atribucion && typeof record.atribucion === "object"
+    ? record.atribucion as Record<string, unknown>
+    : {};
+  const pick = (key: keyof PendingLeadFields, ...sources: unknown[]) => {
+    for (const source of sources) {
+      const text = cleanText(source, 300);
+      if (text) {
+        pending[key] = text;
+        return;
+      }
+    }
+  };
+  pick("tienePaneles", respuestas["¿Ya tienes paneles solares?"]);
+  pick("landing", atribucion.landing);
+  pick("referrer", atribucion.referrer);
+  pick("gclid", atribucion.gclid, record.gclid);
+  pick("gbraid", atribucion.gbraid, record.gbraid);
+  pick("wbraid", atribucion.wbraid, record.wbraid);
+  pick("fbclid", atribucion.fbclid, record.fbclid);
+  pick("utm_source", atribucion.utm_source, record.utm_source);
+  pick("utm_medium", atribucion.utm_medium, record.utm_medium);
+  pick("utm_campaign", atribucion.utm_campaign, record.utm_campaign);
+  pick("utm_term", atribucion.utm_term, record.utm_term);
+  pick("utm_content", atribucion.utm_content, record.utm_content);
+  if (privacyAccepted) pending.avisoPrivacidadEn = toOdooUtc(new Date());
+  return pending;
 }
 
 export async function POST(request: Request) {
@@ -41,45 +82,50 @@ export async function POST(request: Request) {
   if (!name) return fail(400, MSG.name);
   const email = normalizeEmailAddress(record.email);
   if (!email) return fail(400, MSG.email);
-  const whatsapp =
-    typeof record.whatsapp === "string" ? normalizeWhatsAppMx(record.whatsapp) : null;
-  if (!whatsapp) return fail(400, MSG.whatsapp);
-  if (record.privacyAccepted !== true) return fail(400, MSG.privacy);
+
+  const pagina = cleanText(record.pagina, 40);
+  if (!pagina) return fail(400, "No pudimos identificar la página de agenda.");
+  const contact = isContact(pagina);
+  const rawPhone = typeof record.whatsapp === "string" ? record.whatsapp.trim() : "";
+  let whatsapp = "";
+  if (rawPhone) {
+    const normalized = normalizeWhatsAppMx(rawPhone);
+    if (!normalized) return fail(400, MSG.whatsapp);
+    whatsapp = normalized;
+  } else if (!contact) {
+    return fail(400, MSG.whatsapp);
+  }
+  const privacyAccepted = record.privacyAccepted === true;
+  if (!contact && !privacyAccepted) return fail(400, MSG.privacy);
   if (!process.env.LEAD_SIGNING_SECRET?.trim()) return fail(503, MSG.calendar);
 
   try {
-    const pagina = cleanText(record.pagina, 40);
-    if (!pagina) return fail(400, "No pudimos identificar la página de agenda.");
-    const respuestas = record.respuestas && typeof record.respuestas === "object" ? record.respuestas as Record<string, unknown> : {};
-    const ciudad = cleanText(respuestas["Ciudad o municipio"] ?? record.ciudad, 80);
-    if (!CIUDADES.includes(ciudad as (typeof CIUDADES)[number])) return fail(400, "Elige tu ciudad.");
-    const necesidad = cleanText(
+    const respuestas = record.respuestas && typeof record.respuestas === "object"
+      ? record.respuestas as Record<string, unknown>
+      : {};
+    const cityRaw = cleanText(respuestas["Ciudad o municipio"] ?? record.ciudad, 80);
+    const space = cleanText(
+      respuestas["¿Dónde sería el proyecto?"] ?? respuestas["¿Para qué espacio es tu proyecto?"],
+      160,
+    );
+    const solution = cleanText(
       respuestas["¿Qué te interesa?"] ?? respuestas["Tipo de proyecto"] ?? record.necesidad,
       160,
     );
-    const detalle = [`Página de agenda: ${pagina}`, `Necesidad: ${necesidad || "No indicada"}`, `Ciudad: ${ciudad}`];
-    for (const [key, value] of Object.entries(respuestas)) {
-      const text = cleanText(value, 300);
-      if (!text || key === "Ciudad o municipio") continue;
-      detalle.push(`${key}: ${text}`);
-    }
-    const atribucion = record.atribucion && typeof record.atribucion === "object" ? record.atribucion as Record<string, unknown> : {};
-    for (const [key, value] of Object.entries(atribucion)) {
-      const text = cleanText(value, 300);
-      if (text) detalle.push(`${key}: ${text}`);
-    }
+    const rawComment = [record.mensaje, respuestas.Comentarios, respuestas.Mensaje].find((item) => typeof item === "string") ?? "";
+    const comment = cleanComment(rawComment);
+    if (contact && !comment) return fail(400, "Escribe tu mensaje.");
 
     const saved = await saveWebLead({
       name,
       email,
       whatsapp,
-      utmSource: cleanUtm(record.utm_source),
-      utmMedium: cleanUtm(record.utm_medium),
-      utmCampaign: cleanUtm(record.utm_campaign),
-      pagina,
-      necesidad,
-      ciudad,
-      detalle,
+      city: cityRaw ? cityLabel(cityRaw) : "",
+      sector: sectorForPage(pagina, space),
+      comment,
+      solution,
+      contact,
+      pendingFields: pendingFrom(record, respuestas, privacyAccepted),
     });
     const leadToken = signLeadToken(saved.leadId, saved.partnerId);
     return NextResponse.json({ leadToken });

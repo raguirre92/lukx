@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { INTERESES_CASA, RANGOS_LUZ_RESIDENCIAL } from "@/lib/agendar-config";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
 import { verifyLeadToken } from "@/lib/lead-token";
-import { appendLeadAnswers } from "@/lib/odoo";
+import { updateLeadSolution } from "@/lib/odoo";
 import { allowLeadWrite, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -40,12 +40,14 @@ export async function POST(request: Request) {
   if (interes && !INTERESES.has(interes)) return fail(400, "Elige qué te interesa.");
   if (!recibo && !interes) return fail(400, "Falta la respuesta para actualizar tu solicitud.");
 
-  const lines: string[] = [];
-  if (recibo) lines.push(`¿Cuánto pagas de luz al bimestre?: ${recibo}`);
-  if (interes) lines.push(`¿Qué te interesa?: ${interes}`);
+  if (!interes) return NextResponse.json({ ok: true });
 
   try {
-    await appendLeadAnswers({ leadId: token.leadId, partnerId: token.partnerId, lines });
+    await updateLeadSolution({
+      leadId: token.leadId,
+      partnerId: token.partnerId,
+      solution: interes,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof BookingError) return fail(err.status, err.message);

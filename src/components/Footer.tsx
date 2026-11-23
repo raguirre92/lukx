@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { navMain, navSolutions, site } from "@/data/site";
+import { navMain, navSolutions, navSpaces, site } from "@/data/site";
 
 const socials = [
   { label: "Instagram", href: site.social.instagram, icon: "/icons/instagram.svg" },
@@ -65,9 +65,19 @@ export default function Footer() {
                   {item.label}
                 </Link>
               ))}
-            <p className="pt-2 font-medium text-white">Soluciones</p>
+            <p className="pt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+              Por espacio
+            </p>
+            {navSpaces.map((item) => (
+              <Link key={item.href} href={item.href} className="hover:text-lukx-green">
+                {item.label}
+              </Link>
+            ))}
+            <p className="pt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+              Por solución
+            </p>
             {navSolutions.map((item) => (
-              <Link key={item.href} href={item.href} className="pl-2 hover:text-lukx-green">
+              <Link key={item.href} href={item.href} className="hover:text-lukx-green">
                 {item.label}
               </Link>
             ))}

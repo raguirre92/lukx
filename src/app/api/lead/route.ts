@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
 import { toOdooUtc } from "@/lib/cdmx";
 import { signLeadToken } from "@/lib/lead-token";
+import { CIUDADES, RANGOS_LUZ_META } from "@/lib/agendar-config";
 import {
   cityLabel,
   cleanComment,
@@ -104,6 +105,18 @@ export async function POST(request: Request) {
       ? record.respuestas as Record<string, unknown>
       : {};
     const cityRaw = cleanText(respuestas["Ciudad o municipio"] ?? record.ciudad, 80);
+    if (cityRaw && !CIUDADES.includes(cityRaw as (typeof CIUDADES)[number]) && cityRaw !== "Monterrey y área metropolitana" && cityRaw !== "Otra") {
+      return fail(400, "Elige tu ciudad.");
+    }
+    const recibo = cleanText(
+      record.recibo
+        ?? respuestas["¿Cuánto pagas de luz al bimestre, aproximadamente?"]
+        ?? respuestas["¿Cuánto pagas de luz al mes, aproximadamente?"],
+      80,
+    );
+    if (recibo && !RANGOS_LUZ_META.includes(recibo as (typeof RANGOS_LUZ_META)[number])) {
+      return fail(400, "Elige un rango de tu recibo.");
+    }
     const space = cleanText(
       respuestas["¿Dónde sería el proyecto?"] ?? respuestas["¿Para qué espacio es tu proyecto?"],
       160,
@@ -120,10 +133,12 @@ export async function POST(request: Request) {
       name,
       email,
       whatsapp,
-      city: cityRaw ? cityLabel(cityRaw) : "",
+      city: cityLabel(cityRaw),
+      cityChosen: Boolean(cityRaw),
       sector: sectorForPage(pagina, space),
       comment,
       solution,
+      recibo,
       contact,
       pendingFields: pendingFrom(record, respuestas, privacyAccepted),
     });

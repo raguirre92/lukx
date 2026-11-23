@@ -14,8 +14,11 @@ export const TAG_PANELES = 5;
 export const TAG_RESPALDO = 16;
 export const TAG_ILUMINACION = 14;
 export const TAG_CARGA = 19;
-export const SOLUTION_TAG_IDS = [TAG_PANELES, TAG_RESPALDO, TAG_ILUMINACION, TAG_CARGA] as const;
+export const TAG_OTRO = 20;
+export const SOLUTION_TAG_IDS = [TAG_PANELES, TAG_RESPALDO, TAG_ILUMINACION, TAG_CARGA, TAG_OTRO] as const;
 export const SOLUCION_RESPALDO = "Sistemas de respaldo";
+
+export type TipoVenta = "Solar" | "Respaldo" | "Iluminacion" | "Cargador";
 
 export type Sector = "Residencial" | "Comercial" | "Industrial";
 
@@ -46,8 +49,8 @@ const SLUG_TAGS: Record<string, number[]> = {
   "carga-flotilla": [TAG_CARGA],
   ambos: [TAG_PANELES, TAG_RESPALDO],
   "las dos": [TAG_PANELES, TAG_RESPALDO],
-  "no-seguro": [],
-  otro: [],
+  "no-seguro": [TAG_OTRO],
+  otro: [TAG_OTRO],
 };
 
 export function emptyPendingFields(): PendingLeadFields {
@@ -75,6 +78,7 @@ export function holdPendingFields(fields: PendingLeadFields): PendingLeadFields 
 
 export function cityLabel(value: string): string {
   const city = value.trim();
+  if (!city || city === "Otro" || city === "Otra") return "";
   if (city === "Monterrey y área metropolitana") return "Monterrey";
   return city;
 }
@@ -106,7 +110,7 @@ export function solutionTagIds(raw: string): number[] {
   }
   const slug = SLUG_TAGS[value];
   if (slug) return [...slug];
-  if (/no estoy seguro|todav[ií]a no|no lo s[eé]|no-seguro/.test(value)) return [];
+  if (/no estoy seguro|todav[ií]a no|no lo s[eé]|no-seguro|^otro$/.test(value)) return [TAG_OTRO];
   const tags = new Set<number>();
   if (value.includes("paneles")) tags.add(TAG_PANELES);
   if (value.includes("respaldo") || value.includes("bater")) tags.add(TAG_RESPALDO);
@@ -117,6 +121,16 @@ export function solutionTagIds(raw: string): number[] {
 
 export function solutionIncludesRespaldo(raw: string): boolean {
   return solutionTagIds(raw).includes(TAG_RESPALDO);
+}
+
+export function tipoVentaFor(raw: string): TipoVenta | "" {
+  const tags = solutionTagIds(raw);
+  if (!tags.length || tags.includes(TAG_OTRO)) return "";
+  if (tags.includes(TAG_PANELES)) return "Solar";
+  if (tags.includes(TAG_RESPALDO)) return "Respaldo";
+  if (tags.includes(TAG_ILUMINACION)) return "Iluminacion";
+  if (tags.includes(TAG_CARGA)) return "Cargador";
+  return "";
 }
 
 export function cleanComment(value: string): string {

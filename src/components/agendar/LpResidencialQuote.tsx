@@ -17,11 +17,10 @@ import type { Pag } from "@/content/agendar-copys-v2";
 const PAGE = "/lp/residencial";
 
 const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
-  "Menos de $2,000": "solar:bill-list-linear",
-  "$2,000–$5,000": "solar:bill-linear",
-  "$5,000–$10,000": "solar:chart-square-linear",
-  "Más de $10,000": "solar:graph-up-linear",
-  "No sé": "solar:question-circle-linear",
+  "Entre 0 y 3,000 pesos": "solar:bill-list-linear",
+  "Entre 3,001 y 6,000 pesos": "solar:bill-linear",
+  "Entre 6,001 y 10,000 pesos": "solar:chart-square-linear",
+  "Más de 10,000 pesos": "solar:graph-up-linear",
 };
 
 const INTERES_ICON: Record<(typeof INTERESES_CASA)[number], string> = {

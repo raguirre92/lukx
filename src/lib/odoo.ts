@@ -1,10 +1,11 @@
 import "server-only";
 
 import { BookingError, MSG, logBookingError, redactSecrets } from "@/lib/booking-error";
-import { formatOffsetIso, fromOdooUtc, toOdooUtc } from "@/lib/cdmx";
+import { formatCdmxDate, formatOffsetIso, fromOdooUtc, toOdooUtc } from "@/lib/cdmx";
 import {
   COMPANY_ID,
   MEDIUM_WEB_ID,
+  SOLUTION_TAG_IDS,
   SOLUCION_RESPALDO,
   SOURCE_WEB_ID,
   TAG_SCHEDULED,
@@ -13,6 +14,7 @@ import {
   holdPendingFields,
   solutionIncludesRespaldo,
   solutionTagIds,
+  tipoVentaFor,
   type PendingLeadFields,
 } from "@/lib/lead-mapping";
 import { mockExecute } from "@/lib/odoo-mock";
@@ -56,7 +58,10 @@ type LeadInput = {
   sector?: string;
   comment?: string;
   solution?: string;
+  recibo?: string;
   contact?: boolean;
+  /** True when the form sent a city, including Otro, so an empty city clears the field. */
+  cityChosen?: boolean;
   pendingFields: PendingLeadFields;
 };
 
@@ -360,29 +365,54 @@ async function staffPartner(userId: number): Promise<number> {
   return partnerId;
 }
 
-function partnerValues(input: LeadInput): Record<string, unknown> {
+type FoundPartner = {
+  id: number;
+  internal: boolean;
+  name: string;
+  email: string;
+  mobile: string;
+  companyId: number | null;
+};
+
+function partnerIsInternal(row: OdooRecord): boolean {
+  return asIdList(row.user_ids).length > 0;
+}
+
+function newPartnerValues(input: LeadInput): Record<string, unknown> {
   const vals: Record<string, unknown> = {
     name: input.name,
     email: input.email,
     company_id: COMPANY_ID,
   };
-  if (input.whatsapp) {
-    vals.phone = input.whatsapp;
-    vals.mobile = input.whatsapp;
-  }
+  if (input.whatsapp) vals.mobile = input.whatsapp;
   return vals;
 }
 
-function leadValues(input: LeadInput, partnerId: number, at: Date, tagIds: number[]): Record<string, unknown> {
+function emptyPartnerFill(input: LeadInput, row: FoundPartner): Record<string, unknown> {
+  const vals: Record<string, unknown> = {};
+  if (!row.name && input.name) vals.name = input.name;
+  if (!row.email && input.email) vals.email = input.email;
+  if (!row.mobile && input.whatsapp) vals.mobile = input.whatsapp;
+  if (!row.companyId) vals.company_id = COMPANY_ID;
+  return vals;
+}
+
+function leadValues(
+  input: LeadInput,
+  partnerId: number | null,
+  at: Date,
+  tagIds: number[],
+  clearSalesperson: boolean,
+): Record<string, unknown> {
   const comment = input.comment?.trim() ?? "";
+  const tipo = input.solution ? tipoVentaFor(input.solution) : "";
   const vals: Record<string, unknown> = {
-    name: `${input.contact ? "Mensaje web" : "Cita web"} – ${input.name}`,
+    name: input.name,
     type: "lead",
     company_id: COMPANY_ID,
     team_id: TEAM_ID,
     contact_name: input.name,
     email_from: input.email,
-    partner_id: partnerId,
     description: comment,
     source_id: SOURCE_WEB_ID,
     medium_id: MEDIUM_WEB_ID,
@@ -390,19 +420,26 @@ function leadValues(input: LeadInput, partnerId: number, at: Date, tagIds: numbe
     x_studio_tipo_de_campaa: "Sitio Web",
     x_etapa_lead_id: 1,
     x_fecha_hora_recibido: toOdooUtc(at),
+    x_studio_fecha_recibido: formatCdmxDate(at),
     tag_ids: [[6, 0, tagIds]],
   };
-  if (input.whatsapp) vals.phone = input.whatsapp;
+  if (clearSalesperson) vals.user_id = false;
+  if (partnerId) vals.partner_id = partnerId;
+  else vals.partner_id = false;
+  if (input.whatsapp) vals.mobile = input.whatsapp;
   if (input.city) vals.city = input.city;
+  else if (input.cityChosen) vals.city = false;
   if (input.sector) vals.x_studio_sector = input.sector;
   if (comment) vals.x_studio_mensaje_del_lead = comment;
+  if (input.recibo) vals.x_studio_gasto_en_recibo_de_luz = input.recibo;
+  if (tipo) vals.x_studio_tipo_venta = tipo;
   if (input.solution && solutionIncludesRespaldo(input.solution)) {
     vals.x_studio_solucin = SOLUCION_RESPALDO;
   }
   return vals;
 }
 
-async function findPartner(email: string, whatsapp: string): Promise<number | null> {
+async function findPartner(email: string, whatsapp: string): Promise<FoundPartner | null> {
   const domain: unknown[] = whatsapp
     ? ["|", "|", ["email", "=ilike", email], ["phone", "=", whatsapp], ["mobile", "=", whatsapp]]
     : [["email", "=ilike", email]];
@@ -410,21 +447,35 @@ async function findPartner(email: string, whatsapp: string): Promise<number | nu
     "res.partner",
     "search_read",
     [domain],
-    { fields: ["id"], limit: 1, order: "id asc" },
+    { fields: ["id", "name", "email", "mobile", "user_ids", "company_id"], limit: 20, order: "id asc" },
   );
-  return asId(rows[0]?.id);
+  const mapped = rows
+    .map((row) => {
+      const id = asId(row.id);
+      if (!id) return null;
+      return {
+        id,
+        internal: partnerIsInternal(row),
+        name: asText(row.name),
+        email: asText(row.email),
+        mobile: asText(row.mobile),
+        companyId: asId(row.company_id),
+      };
+    })
+    .filter((row): row is FoundPartner => row !== null);
+  return mapped.find((row) => !row.internal) ?? mapped[0] ?? null;
 }
 
-async function findOpenLead(partnerId: number, email: string): Promise<number | null> {
+async function findOpenLead(partnerId: number | null, email: string): Promise<number | null> {
   const wonField = await hasField("crm.lead", "won_status");
   const domain: unknown[] = [
     ["active", "=", true],
     ["source_id", "=", SOURCE_WEB_ID],
     wonField ? ["won_status", "!=", "won"] : ["probability", "<", 100],
-    "|",
-    ["partner_id", "=", partnerId],
     ["email_from", "=ilike", email],
   ];
+  if (partnerId) domain.push(["partner_id", "=", partnerId]);
+  else domain.push(["partner_id", "=", false]);
   const rows = await executeKw<OdooRecord[]>(
     "crm.lead",
     "search_read",
@@ -439,19 +490,23 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
   try {
     const at = new Date();
     const solutionTags = solutionTagIds(input.solution ?? "");
-    let partnerId = await findPartner(input.email, input.whatsapp);
-    const partner = partnerValues(input);
-    if (!partnerId) {
-      partnerId = await createRecord("res.partner", partner);
+    const found = await findPartner(input.email, input.whatsapp);
+    let partnerId: number | null = null;
+    if (found?.internal) {
+      partnerId = null;
+    } else if (!found) {
+      partnerId = await createRecord("res.partner", newPartnerValues(input));
     } else {
-      await writeRecord("res.partner", partnerId, partner);
+      partnerId = found.id;
+      const fill = emptyPartnerFill(input, found);
+      if (Object.keys(fill).length) await writeRecord("res.partner", found.id, fill);
     }
 
     let leadId = await findOpenLead(partnerId, input.email);
     if (!leadId) {
       leadId = await createRecord(
         "crm.lead",
-        leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags]),
+        leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags], true),
       );
     } else {
       const current = await executeKw<OdooRecord[]>(
@@ -465,10 +520,10 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
       await writeRecord(
         "crm.lead",
         leadId,
-        leadValues(input, partnerId, at, [appointment, ...solutionTags]),
+        leadValues(input, partnerId, at, [appointment, ...solutionTags], false),
       );
     }
-    return { leadId, partnerId };
+    return { leadId, partnerId: partnerId ?? 0 };
   } catch (err) {
     if (err instanceof BookingError) throw err;
     logBookingError("odoo", err);
@@ -479,33 +534,41 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
 export async function updateLeadSolution(input: {
   leadId: number;
   partnerId: number;
-  solution: string;
+  solution?: string;
+  recibo?: string;
 }): Promise<void> {
   try {
     const leads = await executeKw<OdooRecord[]>(
       "crm.lead",
       "search_read",
-      [[["id", "=", input.leadId], ["partner_id", "=", input.partnerId]]],
-      { fields: ["id"], limit: 1 },
+      [[["id", "=", input.leadId]]],
+      { fields: ["id", "partner_id"], limit: 1 },
     );
-    if (!leads[0]) throw new BookingError(401, MSG.expired);
-    const tags = solutionTagIds(input.solution);
-    const commands: unknown[] = [
-      [3, 5],
-      [3, 16],
-      [3, 14],
-      [3, 19],
-      [4, TAG_UNSCHEDULED],
-      ...tags.map((id) => [4, id]),
-    ];
-    await writeRecord("crm.lead", input.leadId, {
-      company_id: COMPANY_ID,
-      tag_ids: commands,
-    });
-    if (solutionIncludesRespaldo(input.solution)) {
+    const leadPartner = asId(leads[0]?.partner_id);
+    if (!leads[0] || (input.partnerId ? leadPartner !== input.partnerId : leadPartner !== null)) {
+      throw new BookingError(401, MSG.expired);
+    }
+    const tags = input.solution ? solutionTagIds(input.solution) : [];
+    const tipo = input.solution ? tipoVentaFor(input.solution) : "";
+    if (input.solution) {
+      const commands: unknown[] = [
+        ...SOLUTION_TAG_IDS.map((id) => [3, id]),
+        [4, TAG_UNSCHEDULED],
+        ...tags.map((id) => [4, id]),
+      ];
       await writeRecord("crm.lead", input.leadId, {
         company_id: COMPANY_ID,
-        x_studio_solucin: SOLUCION_RESPALDO,
+        tag_ids: commands,
+      });
+      const custom: Record<string, unknown> = { company_id: COMPANY_ID };
+      if (tipo) custom.x_studio_tipo_venta = tipo;
+      if (solutionIncludesRespaldo(input.solution)) custom.x_studio_solucin = SOLUCION_RESPALDO;
+      if (Object.keys(custom).length > 1) await writeRecord("crm.lead", input.leadId, custom);
+    }
+    if (input.recibo) {
+      await writeRecord("crm.lead", input.leadId, {
+        company_id: COMPANY_ID,
+        x_studio_gasto_en_recibo_de_luz: input.recibo,
       });
     }
   } catch (err) {
@@ -600,31 +663,30 @@ export async function bookWebSlot(input: {
     const leads = await executeKw<OdooRecord[]>(
       "crm.lead",
       "search_read",
-      [[["id", "=", input.leadId], ["partner_id", "=", input.partnerId]]],
+      [[["id", "=", input.leadId]]],
       { fields: ["contact_name", "partner_id"], limit: 1 },
     );
     const lead = leads[0];
     const leadPartner = asId(lead?.partner_id);
-    if (!lead || leadPartner !== input.partnerId) throw new BookingError(401, MSG.expired);
+    const tokenPartner = input.partnerId > 0 ? input.partnerId : null;
+    if (!lead || leadPartner !== tokenPartner) throw new BookingError(401, MSG.expired);
     const name = asText(lead.contact_name) || "Cliente";
-    const partners = [...new Set([config.staffPartnerId, input.partnerId])];
-    const eventId = asId(
-      await executeKw<number>("calendar.event", "create", [
-        {
-          name: `Asesoría Lukx – ${name}`,
-          start: toOdooUtc(new Date(chosen.start)),
-          stop: toOdooUtc(new Date(chosen.stop)),
-          duration: config.durationHours,
-          user_id: config.staffUserId,
-          partner_ids: [[6, 0, partners]],
-          appointment_type_id: config.id,
-          appointment_booker_id: input.partnerId,
-          opportunity_id: input.leadId,
-          company_id: COMPANY_ID,
-          description: "Llamada o videollamada",
-        },
-      ]),
-    );
+    const attendees = [config.staffPartnerId];
+    if (tokenPartner) attendees.push(tokenPartner);
+    const eventVals: Record<string, unknown> = {
+      name: `Asesoría Lukx – ${name}`,
+      start: toOdooUtc(new Date(chosen.start)),
+      stop: toOdooUtc(new Date(chosen.stop)),
+      duration: config.durationHours,
+      user_id: config.staffUserId,
+      partner_ids: [[6, 0, [...new Set(attendees)]]],
+      appointment_type_id: config.id,
+      opportunity_id: input.leadId,
+      company_id: COMPANY_ID,
+      description: "Llamada o videollamada",
+    };
+    if (tokenPartner) eventVals.appointment_booker_id = tokenPartner;
+    const eventId = asId(await executeKw<number>("calendar.event", "create", [eventVals]));
     if (!eventId) throw new BookingError(502, MSG.book);
 
     await writeRecord("crm.lead", input.leadId, {

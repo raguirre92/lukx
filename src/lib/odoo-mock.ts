@@ -91,7 +91,10 @@ function eq(left: unknown, right: unknown): boolean {
 
 function compare(record: Rec, field: string, op: string, value: unknown): boolean {
   const left = record[field];
-  if (op === "=" || op === "==") return eq(left, value);
+  if (op === "=" || op === "==") {
+    if (value === false || value === null) return left === false || left === null || left === undefined;
+    return eq(left, value);
+  }
   if (op === "!=") return !eq(left, value);
   if (op === "=ilike") {
     return String(left ?? "").toLowerCase() === String(value ?? "").toLowerCase();

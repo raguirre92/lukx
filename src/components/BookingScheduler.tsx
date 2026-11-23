@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
+import { CIUDADES } from "@/lib/agendar-config";
 import { captureAttribution, pushDataLayer } from "@/lib/attribution";
 import type { BookingPage } from "@/lib/booking-pages";
 
@@ -346,14 +347,18 @@ export default function BookingScheduler({
                 <label htmlFor="bk-city" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
                   Ciudad
                 </label>
-                <input
+                <select
                   id="bk-city"
                   required
                   value={city}
                   onChange={(event) => setCity(event.target.value)}
-                  placeholder="Monterrey"
                   className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
-                />
+                >
+                  <option value="">Elige tu ciudad</option>
+                  {CIUDADES.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
               </div>
             ) : null}
             {page?.extra ? (

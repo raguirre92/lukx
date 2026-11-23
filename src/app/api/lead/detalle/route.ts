@@ -40,13 +40,12 @@ export async function POST(request: Request) {
   if (interes && !INTERESES.has(interes)) return fail(400, "Elige qué te interesa.");
   if (!recibo && !interes) return fail(400, "Falta la respuesta para actualizar tu solicitud.");
 
-  if (!interes) return NextResponse.json({ ok: true });
-
   try {
     await updateLeadSolution({
       leadId: token.leadId,
       partnerId: token.partnerId,
-      solution: interes,
+      solution: interes || undefined,
+      recibo: recibo || undefined,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

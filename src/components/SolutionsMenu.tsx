@@ -225,11 +225,21 @@ export function SolutionsMega({ open, pathname, onOpenChange, onHoverStart, onHo
             <Image src={item.image} alt="" fill sizes="34vw" className="object-cover" priority />
           </div>
         ))}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent" />
+        <div
+          className="pointer-events-none absolute inset-0 z-[2]"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,0) 80%)",
+          }}
+          aria-hidden
+        />
         <Link href={current.href} tabIndex={-1} aria-hidden className="absolute inset-0 z-10" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-8">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-8"
+          style={{ textShadow: "0 1px 2px rgba(0,0,0,.7)" }}
+        >
           <p className="font-display text-[clamp(2.4rem,4vw,3.6rem)] leading-[0.9] text-white">{current.label}</p>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">{current.summary}</p>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/90">{current.summary}</p>
         </div>
       </div>
     </div>

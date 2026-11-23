@@ -77,32 +77,19 @@ const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
   "Más de 10,000 pesos": "solar:graph-up-linear",
 };
 
+const INTERES_CASA = ["Paneles solares", "Baterías de respaldo", "Las dos", "No estoy seguro"] as const;
+
 const INTERES_ICON: Record<(typeof INTERES_CASA)[number], string> = {
   "Paneles solares": "solar:sun-linear",
-  "Batería de respaldo": "solar:battery-charge-linear",
-  Ambos: "solar:layers-linear",
+  "Baterías de respaldo": "solar:battery-charge-linear",
+  "Las dos": "solar:layers-linear",
   "No estoy seguro": "solar:question-circle-linear",
 };
 
 const MOTIVOS = ["Pagar menos de luz", "Los apagones o tener respaldo", "Ambos"] as const;
-const PLAZOS = ["En los próximos 0–3 meses", "De 3 a 6 meses", "Solo estoy cotizando"] as const;
 const SI_NO = ["Sí", "No"] as const;
-const INTERES_CASA = ["Paneles solares", "Batería de respaldo", "Ambos", "No estoy seguro"] as const;
 
-const STEPS = [
-  "ciudad",
-  "recibo",
-  "interes",
-  "motivo",
-  "propietario",
-  "empresa",
-  "puesto",
-  "plazo",
-  "negocio",
-  "planta",
-  "paneles",
-  "cita",
-] as const;
+const STEPS = ["ciudad", "recibo", "interes", "paneles", "motivo", "propietario", "cita"] as const;
 
 type Phase = (typeof STEPS)[number];
 
@@ -110,14 +97,9 @@ const BUBBLES: Record<Phase, string> = {
   ciudad: "Con tu ciudad confirmamos que podemos atender tu casa.",
   recibo: "Con esto calculamos el tamaño aproximado de tu sistema.",
   interes: "Así te asignamos al especialista correcto.",
+  paneles: "Si ya tienes paneles, la asesoría se enfoca en el respaldo.",
   motivo: "Así vemos qué quieres resolver.",
   propietario: "Nos dice cómo plantear el proyecto de la casa.",
-  empresa: "Si el proyecto es de una empresa, lo anotamos.",
-  puesto: "Para saber con quién hablamos.",
-  plazo: "Para preparar la asesoría con el momento que tienes en mente.",
-  negocio: "El tipo de negocio todavía no tiene opciones cerradas. Escríbelo como lo llamarías.",
-  planta: "Si es una nave o una planta, cuéntanos de qué tipo.",
-  paneles: "Si ya tienes paneles, la asesoría se enfoca en el respaldo.",
   cita: "Elige el día y la hora. La asesoría es por llamada o videollamada.",
 };
 
@@ -214,41 +196,6 @@ function CardStep({
   );
 }
 
-function TextStep({
-  title,
-  note,
-  value,
-  onChange,
-  onContinue,
-  onBack,
-}: {
-  title: string;
-  note: string;
-  value: string;
-  onChange: (value: string) => void;
-  onContinue: () => void;
-  onBack: () => void;
-}) {
-  return (
-    <div className="mt-5">
-      <h2 className="font-display text-3xl leading-none text-lukx-charcoal md:text-4xl">{title}</h2>
-      <p className="mt-3 text-sm leading-relaxed text-lukx-muted">{note}</p>
-      <label className="mt-4 block text-sm">
-        <span className="sr-only">{title}</span>
-        <input value={value} onChange={(event) => onChange(event.target.value)} className={fieldClass} />
-      </label>
-      <div className="mt-4 flex gap-3">
-        <button type="button" onClick={onBack} className="text-sm font-semibold underline-offset-2 hover:underline">
-          Atrás
-        </button>
-        <button type="button" onClick={onContinue} className="btn-green">
-          Continuar
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function LpResidencialQuote({ pag }: { pag: Pag }) {
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("ciudad");
@@ -262,11 +209,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
   const [interes, setInteres] = useState("");
   const [motivo, setMotivo] = useState("");
   const [propietario, setPropietario] = useState("");
-  const [empresa, setEmpresa] = useState("");
-  const [puesto, setPuesto] = useState("");
-  const [plazo, setPlazo] = useState("");
-  const [negocio, setNegocio] = useState("");
-  const [planta, setPlanta] = useState("");
   const [paneles, setPaneles] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [attr, setAttr] = useState<Attribution | null>(null);
@@ -319,11 +261,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     interes?: string;
     motivo?: string;
     propietario?: string;
-    empresa?: string;
-    puesto?: string;
-    plazo?: string;
-    negocio?: string;
-    planta?: string;
     paneles?: string;
   } = {}) {
     const respuestas: Record<string, string> = {
@@ -336,22 +273,12 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     const chosenInteres = extra.interes ?? interes;
     const chosenMotivo = extra.motivo ?? motivo;
     const chosenPropietario = extra.propietario ?? propietario;
-    const chosenEmpresa = extra.empresa ?? empresa;
-    const chosenPuesto = extra.puesto ?? puesto;
-    const chosenPlazo = extra.plazo ?? plazo;
-    const chosenNegocio = extra.negocio ?? negocio;
-    const chosenPlanta = extra.planta ?? planta;
     const chosenPaneles = extra.paneles ?? paneles;
     if (chosenCity) respuestas["Ciudad o municipio"] = chosenCity;
     if (chosenRecibo) respuestas["¿Cuánto pagas de luz al bimestre, aproximadamente?"] = chosenRecibo;
     if (chosenInteres) respuestas["¿Qué te interesa?"] = chosenInteres;
     if (chosenMotivo) respuestas["¿Qué te motiva más?"] = chosenMotivo;
     if (chosenPropietario) respuestas["¿Eres dueño de la casa?"] = chosenPropietario;
-    if (chosenEmpresa) respuestas.Empresa = chosenEmpresa;
-    if (chosenPuesto) respuestas.Puesto = chosenPuesto;
-    if (chosenPlazo) respuestas["¿Cuándo planeas hacerlo?"] = chosenPlazo;
-    if (chosenNegocio) respuestas["Tipo de negocio"] = chosenNegocio;
-    if (chosenPlanta) respuestas["Tipo de planta o nave"] = chosenPlanta;
     if (chosenPaneles) respuestas["¿Ya tienes paneles solares?"] = chosenPaneles;
     return { respuestas, chosenCity, chosenRecibo, chosenInteres };
   }
@@ -362,11 +289,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     interes?: string;
     motivo?: string;
     propietario?: string;
-    empresa?: string;
-    puesto?: string;
-    plazo?: string;
-    negocio?: string;
-    planta?: string;
     paneles?: string;
   } = {}) {
     const attribution = attr ?? captureAttribution();
@@ -472,7 +394,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     try {
       const leadToken = await postLead(kind === "recibo" ? { recibo: value } : { interes: value });
       setToken(leadToken);
-      go(kind === "recibo" ? "interes" : "motivo");
+      go(kind === "recibo" ? "interes" : "paneles");
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos guardar tu respuesta.");
     } finally {
@@ -483,12 +405,12 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
 
   async function finishProfile(value: string) {
     if (busy.current || !token) return;
-    setPaneles(value);
+    setPropietario(value);
     setError(null);
     busy.current = true;
     setSubmitting(true);
     try {
-      const leadToken = await postLead({ paneles: value });
+      const leadToken = await postLead({ propietario: value });
       setToken(leadToken);
       go("cita");
     } catch (err) {
@@ -765,29 +687,14 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
                   </button>
                 </div>
               ) : null}
+              {phase === "paneles" ? (
+                <CardStep title="¿Ya tienes paneles solares?" name="paneles" options={SI_NO} value={paneles} disabled={submitting} onPick={(value) => { setPaneles(value); go("motivo"); }} onBack={() => go("interes")} />
+              ) : null}
               {phase === "motivo" ? (
-                <CardStep title="¿Qué te motiva más?" name="motivo" options={MOTIVOS} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("propietario"); }} onBack={() => go("interes")} />
+                <CardStep title="¿Qué te motiva más?" name="motivo" options={MOTIVOS} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("propietario"); }} onBack={() => go("paneles")} />
               ) : null}
               {phase === "propietario" ? (
-                <CardStep title="¿Eres dueño de la casa?" name="propietario" options={SI_NO} value={propietario} disabled={submitting} onPick={(value) => { setPropietario(value); go("empresa"); }} onBack={() => go("motivo")} />
-              ) : null}
-              {phase === "empresa" ? (
-                <TextStep title="Empresa" note="Nombre de tu empresa o negocio. Si no aplica, continúa." value={empresa} onChange={setEmpresa} onContinue={() => go("puesto")} onBack={() => go("propietario")} />
-              ) : null}
-              {phase === "puesto" ? (
-                <TextStep title="Puesto" note="¿Cuál es tu puesto?" value={puesto} onChange={setPuesto} onContinue={() => go("plazo")} onBack={() => go("empresa")} />
-              ) : null}
-              {phase === "plazo" ? (
-                <CardStep title="¿Cuándo planeas hacerlo?" name="plazo" options={PLAZOS} value={plazo} disabled={submitting} onPick={(value) => { setPlazo(value); go("negocio"); }} onBack={() => go("puesto")} />
-              ) : null}
-              {phase === "negocio" ? (
-                <TextStep title="Tipo de negocio" note="Las opciones todavía no están cerradas. Escríbelo como lo llamarías." value={negocio} onChange={setNegocio} onContinue={() => go("planta")} onBack={() => go("plazo")} />
-              ) : null}
-              {phase === "planta" ? (
-                <TextStep title="Tipo de planta o nave" note="Si no aplica a tu casa, continúa." value={planta} onChange={setPlanta} onContinue={() => go("paneles")} onBack={() => go("negocio")} />
-              ) : null}
-              {phase === "paneles" ? (
-                <CardStep title="¿Ya tienes paneles solares?" name="paneles" options={SI_NO} value={paneles} disabled={submitting} onPick={(value) => void finishProfile(value)} onBack={() => go("planta")} />
+                <CardStep title="¿Eres dueño de la casa?" name="propietario" options={SI_NO} value={propietario} disabled={submitting} onPick={(value) => void finishProfile(value)} onBack={() => go("motivo")} />
               ) : null}
               {phase === "cita" && token ? (
                 <div className="mt-5">
@@ -795,7 +702,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
                     resumeToken={token}
                     guestName={name}
                     trackingPage={PAGE}
-                    onBack={() => go("paneles")}
+                    onBack={() => go("propietario")}
                     onScheduled={() => {
                       setBooked(true);
                       pushDataLayer("schedule_appointment", { pagina: PAGE, ciudad: city === "Otro" ? "" : city });

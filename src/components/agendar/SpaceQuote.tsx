@@ -518,22 +518,6 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
           <div className="mt-10 border-t border-black/10 pt-8">
             <h3 className="font-display text-3xl leading-none">{landing.financingTitle}</h3>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-lukx-muted">{landing.financingText}</p>
-            <ul className="mt-5 flex flex-wrap items-center gap-4">
-              {[
-                ["/images/financiamiento/red-girasol.webp", "Red Girasol"],
-                ["/images/financiamiento/crediplata.webp", "Crediplata"],
-                ["/images/financiamiento/finsus.webp", "Finsus"],
-                ["/images/financiamiento/kam.webp", "KAM"],
-              ].map(([src, alt]) => (
-                <li key={alt} className="grid h-14 min-w-28 place-items-center bg-white px-3">
-                  <Image src={src} alt={alt} width={140} height={40} className="h-8 w-auto object-contain" />
-                </li>
-              ))}
-              <li className="flex h-14 items-center gap-2 border border-black/10 px-3 text-sm font-semibold">
-                <Icon icon="solar:card-linear" className="size-6 text-lukx-green-btn" aria-hidden />
-                Tarjeta de crédito
-              </li>
-            </ul>
             <a href="#agenda" className="btn-green mt-6">Agendar asesoría</a>
           </div>
         </div>

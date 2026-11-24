@@ -88,7 +88,7 @@ export default function HeroCarousel() {
           </div>
         </div>
 
-        <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 lg:block">
+        <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 -mb-10 md:-mb-14 lg:block">
           <ol className="hero-index border-t border-white/20">
             {navSolutions.map((s, i) => (
               <li key={s.href} className="border-b border-white/20">

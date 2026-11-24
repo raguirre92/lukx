@@ -115,7 +115,7 @@ const nextConfig: NextConfig = {
       source: "/lp/:path*",
       headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
     };
-    const agendar = ["/agendar/residencial", "/agendar/comercial", "/agendar/industrial", "/agendar/asesoria"].map((source) => ({
+    const agendar = ["/agendar/comercial", "/agendar/industrial", "/agendar/asesoria"].map((source) => ({
       source,
       headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
     }));

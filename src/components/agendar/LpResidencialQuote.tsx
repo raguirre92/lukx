@@ -13,62 +13,69 @@ import type { Pag } from "@/content/agendar-copys-v2";
 
 const PAGE = "/lp/residencial";
 
-const POINTS = [
-  "Un sistema dimensionado con tu consumo real, no un paquete estándar.",
-  "Paneles solares, respaldo con baterías o los dos: te decimos qué conviene.",
-  "Diseño e instalación con el mismo equipo.",
-];
-
-const INCLUDES = [
-  {
-    icon: "solar:sun-linear",
-    title: "Paneles solares",
-    text: "Proyecto fotovoltaico para tu casa, del diseño a la instalación.",
-  },
-  {
-    icon: "solar:battery-charge-linear",
-    title: "Baterías de respaldo",
-    text: "Proyecto de respaldo para que lo esencial de tu casa siga en marcha.",
-  },
-  {
-    icon: "solar:ruler-linear",
-    title: "A la medida de tu consumo",
-    text: "Un sistema dimensionado con tu consumo real, no un paquete estándar.",
-  },
-  {
-    icon: "solar:users-group-rounded-linear",
-    title: "Un solo equipo",
-    text: "Diseño e instalación con el mismo equipo.",
-  },
-];
+const SOLUTIONS = [
+  ["Paneles solares", "Genera tu propia energía y reduce lo que pagas a CFE. Dimensionamos el sistema según tu consumo y el espacio disponible en tu techo."],
+  ["Sistemas de respaldo", "Con baterías, tus equipos esenciales, como el refrigerador, el internet y la iluminación, siguen funcionando cuando se va la luz."],
+  ["Sistema integral", "Combina paneles y baterías: generas energía durante el día y la almacenas para usarla cuando la necesites."],
+] as const;
 
 const PROCESS = [
-  {
-    title: "Asesoría",
-    text: "En la llamada o videollamada vemos tu recibo de CFE, fotos o planos y lo que quieres resolver.",
-  },
-  {
-    title: "Diseño",
-    text: "Diseñamos el sistema con tu consumo real, no con un paquete estándar.",
-  },
-  {
-    title: "Instalación",
-    text: "El mismo equipo que diseñó el proyecto lo instala.",
-  },
-  {
-    title: "Seguimiento",
-    text: "Monitoreo y mantenimiento del sistema ya instalado.",
-  },
-];
+  ["Asesoría", "Analizamos tu consumo y lo que necesitas respaldar.", "solar:chat-round-dots-linear"],
+  ["Propuesta", "Con tu recibo de luz diseñamos el sistema y te presentamos la generación estimada y el retorno de inversión.", "solar:document-text-linear"],
+  ["Visita técnica", "Revisamos tu domicilio para confirmar el diseño y la instalación.", "solar:map-point-linear"],
+  ["Instalación y supervisión", "Instalamos tu sistema, verificamos su calidad y configuramos el monitoreo.", "solar:settings-linear"],
+  ["Trámite con CFE", "Gestionamos todo el trámite hasta la instalación de tu medidor bidireccional. Normalmente toma de 1 a 3 meses desde la firma.", "solar:bolt-linear"],
+] as const;
 
-const GALLERY = [
-  { src: "/images/2025-07-proyecto-rinconada-patos.jpg", alt: "Proyecto Rinconada Patos", title: "Rinconada Patos" },
-  { src: "/images/2025-07-proyecto-rinconada-patos-2.jpg", alt: "Detalle del proyecto Rinconada Patos", title: "Rinconada Patos" },
-  { src: "/images/2025-09-proyecto-rinconada-patos.jpg", alt: "Otra vista de Rinconada Patos", title: "Rinconada Patos" },
-  { src: "/images/2025-07-proyecto-rinconada-patos-3.jpg", alt: "Instalación en Rinconada Patos", title: "Rinconada Patos" },
-  { src: "/images/2025-09-1-4.jpg", alt: "Proyecto Noho", title: "Noho" },
-  { src: "/images/2025-07-4.jpg", alt: "Detalle del proyecto Noho", title: "Noho" },
-];
+const REVIEW_EXAMPLES = [
+  { image: "/images/residencial-casa-paneles.png", topic: "Paneles solares", quote: "Con mi recibo pude entender cuántos paneles necesitaba y qué esperar del sistema." },
+  { image: "/images/residencial-respaldo-detalle.png", topic: "Sistemas de respaldo", quote: "En la asesoría vimos qué equipos quería mantener encendidos cuando se va la luz." },
+  { image: "/images/residencial-tecnico-lukx.png", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
+] as const;
+
+function DemoReviews() {
+  const trackRef = useRef<HTMLUListElement>(null);
+
+  function move(direction: number) {
+    const track = trackRef.current;
+    const tile = track?.firstElementChild;
+    if (!track || !tile) return;
+
+    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.scrollBy({ left: direction * (tile.getBoundingClientRect().width + gap), behavior: reduceMotion ? "instant" : "smooth" });
+  }
+
+  return (
+    <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
+      <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-black/15 pb-6">
+          <div>
+            <p className="mb-2 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa</p>
+            <h2 id="demo-reviews-title" className="font-display text-4xl leading-none md:text-6xl">Experiencias en casa</h2>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" aria-label="Desplazar reseñas a la izquierda" onClick={() => move(-1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">←</button>
+            <button type="button" aria-label="Desplazar reseñas a la derecha" onClick={() => move(1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">→</button>
+          </div>
+        </div>
+      </div>
+      <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-[max(2rem,calc(50%-558px))] md:pl-[max(2rem,calc(50%-558px))]">
+        {REVIEW_EXAMPLES.flatMap((item) => [
+          <li key={item.topic} className="flex aspect-square w-[min(78vw,20rem)] shrink-0 snap-start flex-col border border-black/10 bg-lukx-light p-5 sm:p-6">
+            <span aria-hidden className="font-display text-5xl leading-none text-lukx-green-btn">“</span>
+            <blockquote className="mt-2 flex-1 text-base leading-relaxed sm:text-lg">{item.quote}</blockquote>
+            <p className="mt-4 border-t border-black/10 pt-3 text-xs font-semibold text-lukx-muted">{item.topic} · Reseña ficticia</p>
+          </li>,
+          <li key={item.image} aria-hidden className="relative aspect-square w-[min(78vw,20rem)] shrink-0 snap-start overflow-hidden">
+            <Image src={item.image} alt="" fill sizes="(max-width: 410px) 78vw, 320px" className="object-cover" />
+          </li>,
+        ])}
+      </ul>
+    </section>
+  );
+}
+
 
 const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
   "Entre 0 y 3,000 pesos": "solar:bill-list-linear",
@@ -86,10 +93,9 @@ const INTERES_ICON: Record<(typeof INTERES_CASA)[number], string> = {
   "No estoy seguro": "solar:question-circle-linear",
 };
 
-const MOTIVOS = ["Pagar menos de luz", "Los apagones o tener respaldo", "Ambos"] as const;
-const SI_NO = ["Sí", "No"] as const;
+const MOTIVOS = ["Pagar menos de luz", "Tener respaldo cuando se va la luz", "Ambos"] as const;
 
-const STEPS = ["ciudad", "recibo", "interes", "paneles", "motivo", "propietario", "cita"] as const;
+const STEPS = ["ciudad", "recibo", "interes", "motivo", "comentarios", "cita"] as const;
 
 type Phase = (typeof STEPS)[number];
 
@@ -97,24 +103,22 @@ const BUBBLES: Record<Phase, string> = {
   ciudad: "Con tu ciudad confirmamos que podemos atender tu casa.",
   recibo: "Con esto calculamos el tamaño aproximado de tu sistema.",
   interes: "Así te asignamos al especialista correcto.",
-  paneles: "Si ya tienes paneles, la asesoría se enfoca en el respaldo.",
   motivo: "Así vemos qué quieres resolver.",
-  propietario: "Nos dice cómo plantear el proyecto de la casa.",
+  comentarios: "Si tienes dudas o algo más que contarnos, puedes dejarlo aquí.",
   cita: "Elige el día y la hora. La asesoría es por llamada o videollamada.",
 };
 
 const fieldClass =
-  "w-full border border-black/15 bg-white px-3 py-3 text-base text-lukx-charcoal outline-none transition focus:border-lukx-green";
+  "lp-residential-field w-full border border-black/15 bg-white px-3 py-3 text-base text-lukx-charcoal outline-none transition focus:border-lukx-green";
 
 function AdvisorBubble({ text }: { text: string }) {
   return (
-    <div className="flex items-start gap-3" aria-live="polite">
+    <div className="flex items-center gap-3" aria-live="polite">
       <div className="grid size-11 shrink-0 place-items-center rounded-full bg-lukx-charcoal text-xs font-semibold tracking-wide text-white" aria-hidden>
         LX
       </div>
       <div className="quote-bubble min-w-0">
-        <p className="text-xs font-semibold text-lukx-charcoal">Asesora Lukx</p>
-        <p className="mt-1 rounded-2xl rounded-tl-md bg-lukx-light px-4 py-3 text-sm leading-relaxed text-lukx-charcoal">{text}</p>
+        <p className="rounded-2xl rounded-tl-md bg-lukx-light px-4 py-3 text-sm leading-relaxed text-lukx-charcoal">{text}</p>
       </div>
     </div>
   );
@@ -157,7 +161,7 @@ function ChoiceCards({
                   if (value === option) onPick(option);
                 }}
               />
-              <span className="flex min-h-[4.5rem] items-center gap-3 border-2 border-black/10 bg-white px-4 py-3 transition peer-checked:border-lukx-green-btn peer-checked:bg-[#f3faf4] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lukx-green">
+              <span className="flex min-h-[4.5rem] items-center gap-3 border-2 border-black/10 bg-white px-4 py-3 hover:border-lukx-green-btn hover:bg-[#f3faf4] motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 peer-checked:border-lukx-green-btn peer-checked:bg-[#f3faf4] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lukx-green">
                 <Icon icon={icons[option] ?? "solar:map-point-linear"} className="size-7 shrink-0 text-lukx-green-btn" aria-hidden />
                 <span className="text-base font-semibold text-lukx-charcoal">{option}</span>
               </span>
@@ -203,18 +207,37 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
-  const [privacy, setPrivacy] = useState(false);
+  const [privacy, setPrivacy] = useState(true);
   const [honeypot, setHoneypot] = useState("");
   const [recibo, setRecibo] = useState("");
   const [interes, setInteres] = useState("");
   const [motivo, setMotivo] = useState("");
-  const [propietario, setPropietario] = useState("");
-  const [paneles, setPaneles] = useState("");
+  const [comment, setComment] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [attr, setAttr] = useState<Attribution | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [booked, setBooked] = useState(false);
+  const [showMobileCta, setShowMobileCta] = useState(false);
+
+  useEffect(() => {
+    const hero = document.getElementById("agenda");
+    const final = document.getElementById("agenda-final");
+    if (!hero || !final) return;
+
+    let pastHero = false;
+    let finalVisible = false;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === hero) pastHero = entry.boundingClientRect.bottom <= 72;
+        if (entry.target === final) finalVisible = entry.isIntersecting;
+      }
+      setShowMobileCta(pastHero && !finalVisible);
+    }, { rootMargin: "-72px 0px 0px" });
+    observer.observe(hero);
+    observer.observe(final);
+    return () => observer.disconnect();
+  }, []);
   const tracked = useRef({ start: false, step2: false, lead: false });
   const busy = useRef(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -235,6 +258,13 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     if (!open && dialog.open) dialog.close();
     if (open) closeRef.current?.focus();
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !booked) return;
+
+    const timeout = window.setTimeout(() => setOpen(false), 5000);
+    return () => window.clearTimeout(timeout);
+  }, [open, booked]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -260,8 +290,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     recibo?: string;
     interes?: string;
     motivo?: string;
-    propietario?: string;
-    paneles?: string;
   } = {}) {
     const respuestas: Record<string, string> = {
       Nombre: name,
@@ -272,14 +300,11 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     const chosenRecibo = extra.recibo ?? recibo;
     const chosenInteres = extra.interes ?? interes;
     const chosenMotivo = extra.motivo ?? motivo;
-    const chosenPropietario = extra.propietario ?? propietario;
-    const chosenPaneles = extra.paneles ?? paneles;
     if (chosenCity) respuestas["Ciudad o municipio"] = chosenCity;
     if (chosenRecibo) respuestas["¿Cuánto pagas de luz al bimestre, aproximadamente?"] = chosenRecibo;
     if (chosenInteres) respuestas["¿Qué te interesa?"] = chosenInteres;
+    if (comment.trim()) respuestas.Comentarios = comment.trim();
     if (chosenMotivo) respuestas["¿Qué te motiva más?"] = chosenMotivo;
-    if (chosenPropietario) respuestas["¿Eres dueño de la casa?"] = chosenPropietario;
-    if (chosenPaneles) respuestas["¿Ya tienes paneles solares?"] = chosenPaneles;
     return { respuestas, chosenCity, chosenRecibo, chosenInteres };
   }
 
@@ -288,8 +313,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     recibo?: string;
     interes?: string;
     motivo?: string;
-    propietario?: string;
-    paneles?: string;
   } = {}) {
     const attribution = attr ?? captureAttribution();
     const { respuestas, chosenCity, chosenRecibo, chosenInteres } = profileAnswers(extra);
@@ -394,7 +417,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     try {
       const leadToken = await postLead(kind === "recibo" ? { recibo: value } : { interes: value });
       setToken(leadToken);
-      go(kind === "recibo" ? "interes" : "paneles");
+      go(kind === "recibo" ? "interes" : "motivo");
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos guardar tu respuesta.");
     } finally {
@@ -403,14 +426,13 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
     }
   }
 
-  async function finishProfile(value: string) {
+  async function finishProfile() {
     if (busy.current || !token) return;
-    setPropietario(value);
     setError(null);
     busy.current = true;
     setSubmitting(true);
     try {
-      const leadToken = await postLead({ propietario: value });
+      const leadToken = await postLead();
       setToken(leadToken);
       go("cita");
     } catch (err) {
@@ -424,45 +446,19 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
   const stepNumber = STEPS.indexOf(phase) + 1;
   const stepCount = STEPS.length;
 
-  return (
-    <article>
-      <section className="relative bg-lukx-black">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/2025-07-proyecto-rinconada-patos.jpg"
-            alt="Techo de una casa con paneles solares"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-          <HeroScrim />
-        </div>
-        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-4 px-4 pt-20 pb-6 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-8 lg:pt-[4.75rem] lg:pb-8">
-          <div className="max-w-xl text-white">
-            <h1 className="font-display text-[2rem] leading-[0.95] lg:text-[3.2rem]">{pag.h1}</h1>
-            <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{pag.sub}</p>
-            <ul className="mt-3 space-y-1.5">
-              {POINTS.map((point) => (
-                <li key={point} className="flex gap-2 text-sm leading-snug text-white">
-                  <Icon icon="solar:check-circle-bold" className="mt-0.5 size-5 shrink-0 text-lukx-green" aria-hidden />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <form id="agenda" onSubmit={onContact} onFocus={markStart} className="scroll-mt-20 bg-white p-4 shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
+  const contactForm = (id: string) => (
+    <form id={id} onSubmit={onContact} onFocus={markStart} className="scroll-mt-20 bg-white p-6 sm:p-8 shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lukx-muted">Agenda tu asesoría</p>
             <h2 className="mt-1 font-display text-2xl leading-none text-lukx-charcoal">Tus datos</h2>
             <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden>
-              <label htmlFor="lukx_hp">Sitio web</label>
-              <input id="lukx_hp" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
+              <label htmlFor={id + "-hp"}>Sitio web</label>
+              <input id={id + "-hp"} tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
             </div>
             {attr ? Object.entries(attr).map(([key, value]) => <input key={key} type="hidden" name={key} value={value} readOnly />) : null}
             <div className="mt-3 grid gap-2.5">
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-lukx-charcoal">Nombre</span>
-                <input ref={nameRef} required autoComplete="name" value={name} onFocus={markStart} onChange={(event) => setName(event.target.value)} className={fieldClass} />
+                <input ref={id === "agenda" ? nameRef : undefined} required autoComplete="name" value={name} onFocus={markStart} onChange={(event) => setName(event.target.value)} className={fieldClass} style={{ outline: "none" }} />
               </label>
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-lukx-charcoal">WhatsApp</span>
@@ -477,13 +473,18 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
                   value={whatsapp}
                   onFocus={markStart}
                   onChange={(event) => setWhatsapp(event.target.value.replace(/\D/g, "").slice(0, 10))}
-                  className={fieldClass}
+                  className={fieldClass} style={{ outline: "none" }}
                 />
               </label>
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-lukx-charcoal">Correo</span>
-                <input required type="email" autoComplete="email" value={email} onFocus={markStart} onChange={(event) => setEmail(event.target.value)} className={fieldClass} />
+                <input required type="email" autoComplete="email" value={email} onFocus={markStart} onChange={(event) => setEmail(event.target.value)} className={fieldClass} style={{ outline: "none" }} />
               </label>
+
+              {error && !open ? <p className="text-sm text-red-600" role="alert">{error}</p> : null}
+              <button type="submit" disabled={submitting} className="btn-green w-full disabled:opacity-50">
+                {submitting ? "Guardando…" : "Agendar asesoría"}
+              </button>
               <label className="flex items-start gap-3 text-sm text-lukx-charcoal">
                 <input type="checkbox" required checked={privacy} onChange={(event) => setPrivacy(event.target.checked)} className="mt-1 size-4 accent-lukx-green-btn" />
                 <span>
@@ -493,124 +494,152 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
                   </a>
                 </span>
               </label>
-              {error && !open ? <p className="text-sm text-red-600" role="alert">{error}</p> : null}
-              <button type="submit" disabled={submitting} className="btn-green w-full disabled:opacity-50">
-                {submitting ? "Guardando…" : "Continuar"}
-              </button>
             </div>
           </form>
+  );
+
+  return (
+    <article className={showMobileCta && !open ? "pb-20 md:pb-0" : undefined}>
+      <section className="relative bg-lukx-black">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/2025-07-proyecto-rinconada-patos.jpg"
+            alt="Techo de una casa con paneles solares"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <HeroScrim />
+        </div>
+        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-8 px-4 pt-28 pb-10 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
+          <div className="max-w-xl text-white lg:self-end">
+            <h1 className="font-display text-balance text-[2.5rem] leading-[0.95] sm:text-[3.5rem] lg:text-[4rem]">{pag.h1}</h1>
+            <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{pag.sub}</p>
+          </div>
+          {contactForm("agenda")}
         </div>
       </section>
 
-      <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1180px] items-center gap-10 px-4 md:px-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative min-h-[280px] overflow-hidden md:min-h-[420px]">
-            <Image src="/images/2025-12-Paneles-solares-carrusel-1-1.jpg" alt="Proyecto de paneles solares" fill className="object-cover" sizes="(min-width: 1024px) 40vw, 100vw" />
+      <section className="bg-white pt-14 pb-4 text-lukx-charcoal md:pt-20 md:pb-8">
+        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
+            <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
+              <Image src="/images/residencial-tecnico-lukx.png" alt="Imagen recreada a partir de una foto de un técnico junto a inversores solares" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
+            </div>
+            <div className="relative col-span-2 aspect-[4/3] overflow-hidden md:col-span-1">
+              <Image src="/images/residencial-respaldo-detalle.png" alt="Imagen recreada a partir de una instalación de respaldo de Lukx" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-center" />
+            </div>
+            <dl className="col-span-2 grid grid-cols-2 gap-2 md:col-span-1 md:gap-3">
+              <div className="flex flex-col-reverse justify-end bg-lukx-green-btn p-4 text-white sm:p-6">
+                <dt className="mt-1 text-sm font-semibold">años de experiencia</dt>
+                <dd className="font-display text-4xl leading-none sm:text-5xl">+15</dd>
+              </div>
+              <div className="flex min-h-32 flex-col-reverse justify-end bg-black p-4 text-white sm:p-6">
+                <dt className="mt-1 text-sm font-semibold">proyectos</dt>
+                <dd className="font-display text-4xl leading-none sm:text-5xl">+5,000</dd>
+              </div>
+            </dl>
           </div>
-          <div>
-            <h2 className="font-display text-4xl leading-none text-lukx-charcoal md:text-5xl">Qué incluye el proyecto</h2>
-            <ul className="mt-8 grid gap-6 sm:grid-cols-2">
-              {INCLUDES.map((item) => (
-                <li key={item.title} className="flex gap-3">
-                  <Icon icon={item.icon} className="size-8 shrink-0 text-lukx-green-btn" aria-hidden />
-                  <div>
-                    <p className="font-semibold text-lukx-charcoal">{item.title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-lukx-muted">{item.text}</p>
-                  </div>
+        </div>
+      </section>
+
+
+      <section className="bg-white py-16 text-lukx-charcoal md:py-24">
+        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+          <div className="grid gap-5 border-b border-black/15 pb-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:gap-12">
+            <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">Soluciones para tu hogar</h2>
+            <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema.</p>
+          </div>
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
+            <Image src="/images/residencial-casa-paneles.png" alt="Imagen ilustrativa de una casa con paneles solares visibles en el techo" width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
+            <ul className="divide-y divide-black/15 border-y border-black/15">
+              {SOLUTIONS.map(([title, copy]) => (
+                <li key={title} className="py-5 md:py-6">
+                  <h3 className="text-lg font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-lukx-muted">{copy}</p>
                 </li>
               ))}
             </ul>
           </div>
+          <p className="mt-6 text-xs leading-relaxed text-lukx-muted">Pregunta por nuestras opciones de financiamiento.</p>
         </div>
       </section>
 
-      <section className="bg-lukx-light py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1180px] gap-10 px-4 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <h2 className="font-display text-4xl leading-none text-lukx-charcoal md:text-5xl">Cómo funciona</h2>
-            <ol className="mt-8 space-y-6">
-              {PROCESS.map((step, index) => (
-                <li key={step.title} className="flex gap-4">
-                  <span className="grid size-10 shrink-0 place-items-center bg-lukx-charcoal font-display text-xl text-white">{index + 1}</span>
-                  <div>
-                    <p className="font-semibold text-lukx-charcoal">{step.title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-lukx-muted">{step.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+      <section className="bg-lukx-charcoal text-white">
+        <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="flex flex-col items-start justify-center px-4 py-14 md:px-8 lg:px-16 lg:py-20">
+            <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">Que tu casa siga funcionando cuando se va la luz</h2>
+            <p className="mt-5 max-w-md leading-relaxed text-white/85">Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo.</p>
+            <a href="/sistemas-de-respaldo-de-energia-en-baterias" className="btn-green mt-7">Más información</a>
           </div>
-          <div className="relative min-h-[280px] overflow-hidden md:min-h-[420px]">
-            <Image src="/images/2025-07-proyecto-rinconada-patos-2.jpg" alt="Casa con paneles solares" fill className="object-cover" sizes="(min-width: 1024px) 40vw, 100vw" />
-          </div>
+          <Image src="/images/residencial-respaldo-nocturno.png" alt="Escena ilustrativa de una casa iluminada cuando se va la luz" width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
         </div>
       </section>
 
-      <section className="bg-lukx-charcoal py-16 text-white md:py-24">
+      <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
         <div className="mx-auto max-w-[1180px] px-4 md:px-8">
-          <h2 className="font-display text-4xl leading-none md:text-5xl">Proyectos en casa</h2>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
-            Rinconada Patos y Noho, proyectos residenciales de Lukx.
-          </p>
-          <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {GALLERY.map((photo) => (
-              <li key={photo.src} className="relative min-h-[220px] overflow-hidden">
-                <Image src={photo.src} alt={photo.alt} fill className="object-cover" sizes="(min-width: 1024px) 33vw, 50vw" />
-                <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-4 text-sm font-semibold">{photo.title}</p>
+          <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">De tu asesoría a la instalación</h2>
+          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
+            {PROCESS.map(([title, copy, icon], index) => (
+              <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
+                <span className="grid size-12 place-items-center border border-lukx-green-btn bg-lukx-light text-lukx-green-btn" aria-hidden>
+                  <Icon icon={icon} className="size-6" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold text-lukx-green-btn" aria-hidden>{String(index + 1).padStart(2, "0")}</p>
+                  <h3 className="mt-2 text-lg leading-tight font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-lukx-muted">{copy}</p>
+                </div>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       </section>
+
+      {process.env.NODE_ENV === "development" ? <DemoReviews /> : null}
 
       <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1180px] gap-6 px-4 md:px-8 lg:grid-cols-2">
-          <article className="overflow-hidden bg-lukx-light">
-            <div className="relative h-64">
-              <Image src="/images/2025-05-847925520_241513079_1706x960.webp" alt="Paneles solares" fill className="object-cover" sizes="(min-width: 1024px) 50vw, 100vw" />
-            </div>
-            <div className="p-6 md:p-8">
-              <h2 className="font-display text-4xl leading-none text-lukx-charcoal">Paneles solares</h2>
-              <p className="mt-3 text-sm leading-relaxed text-lukx-muted md:text-base">
-                Proyecto fotovoltaico para tu casa, del diseño a la instalación. Con tu recibo de CFE vemos cuántos paneles hacen falta.
-              </p>
-            </div>
-          </article>
-          <article className="overflow-hidden bg-lukx-light">
-            <div className="relative h-64">
-              <Image src="/images/2025-10-baterias.jpg" alt="Baterías de respaldo" fill className="object-cover" sizes="(min-width: 1024px) 50vw, 100vw" />
-            </div>
-            <div className="p-6 md:p-8">
-              <h2 className="font-display text-4xl leading-none text-lukx-charcoal">Baterías de respaldo</h2>
-              <p className="mt-3 text-sm leading-relaxed text-lukx-muted md:text-base">
-                Si quieres mantener encendidos algunos equipos en los apagones, vemos si conviene sumar un respaldo. Los dos se pueden combinar.
-              </p>
-            </div>
-          </article>
+        <div className="mx-auto grid max-w-[1180px] gap-8 px-4 md:grid-cols-[0.75fr_1.25fr] md:gap-12 md:px-8">
+          <div className="flex flex-col items-start justify-between gap-8">
+            <h2 className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-6xl">Preguntas frecuentes</h2>
+          </div>
+          <FaqAccordion items={pag.faq.map((item) => ({ question: item.q, answer: item.a }))} />
         </div>
       </section>
 
-      <section className="bg-lukx-light py-16 md:py-24">
-        <div className="mx-auto max-w-3xl px-4 md:px-8">
-          <h2 className="font-display text-4xl leading-none text-lukx-charcoal md:text-5xl">Preguntas frecuentes</h2>
-          <div className="mt-8">
-            <FaqAccordion items={pag.faq.map((item) => ({ question: item.q, answer: item.a }))} />
+      <section id="agenda-final" className="relative isolate overflow-hidden bg-lukx-charcoal px-4 py-20 text-center text-white md:py-32">
+        <Image src="/images/residencial-paneles-detalle-concreto.png" alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
+        <div className="absolute inset-0 -z-10 bg-black/40" aria-hidden />
+        <div className="mx-auto max-w-2xl">
+          <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">Diseñemos la energía de tu casa</h2>
+          <p className="mx-auto mt-4 max-w-lg text-white/90">Agenda una asesoría sin costo con nuestro equipo. Analizamos tu consumo, resolvemos tus dudas y te recomendamos la solución adecuada para tu hogar.</p>
+          <a href="#agenda" className="btn-green mt-7">Agendar asesoría</a>
+        </div>
+      </section>
+
+      {showMobileCta && !open ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/10 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
+          <a href="#agenda" className="btn-green w-full">Agendar asesoría</a>
+        </div>
+      ) : null}
+
+
+      <footer className="bg-lukx-charcoal px-4 py-8 text-sm text-white/85 md:px-10 md:py-10">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
+          <address className="flex flex-col items-start gap-2 not-italic">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <a href={`tel:${site.phoneOfficeTel}`} className="underline">{site.phoneOffice}</a>
+              <a href={`mailto:${site.email}`} className="underline">{site.email}</a>
+            </div>
+            <span>{site.address}</span>
+          </address>
+          <div className="flex flex-col items-start gap-2 border-t border-white/15 pt-4 md:items-end md:border-0 md:pt-0">
+            <a href={site.privacyPdf} className="underline">Aviso de privacidad</a>
+            <span>© 2026 Lukx</span>
           </div>
         </div>
-      </section>
-
-      <section className="relative overflow-hidden bg-lukx-charcoal py-20 text-white md:py-28">
-        <Image src="/images/2025-09-proyecto-rinconada-patos.jpg" alt="" fill className="object-cover opacity-40" sizes="100vw" />
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center md:px-8">
-          <h2 className="font-display text-4xl leading-none md:text-6xl">Agenda tu asesoría</h2>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/85 md:text-base">
-            Deja tus datos y elige el día y la hora. La llamada o videollamada es con nuestro equipo.
-          </p>
-          <a href="#agenda" className="btn-green mt-8">
-            Continuar
-          </a>
-        </div>
-      </section>
+      </footer>
 
       <dialog
         ref={dialogRef}
@@ -626,8 +655,9 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
             <p id="lp-modal-title" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lukx-muted">
               {booked ? "Cita reservada" : `Paso ${stepNumber} de ${stepCount}`}
             </p>
-            <button ref={closeRef} type="button" onClick={closeModal} className="px-3 py-2 text-sm font-semibold text-lukx-charcoal">
-              Cerrar
+            <button ref={closeRef} type="button" onClick={closeModal} aria-label="Cerrar" className="group grid cursor-pointer place-items-center px-3 py-2 text-sm font-semibold text-lukx-charcoal">
+              <span aria-hidden className="col-start-1 row-start-1 group-hover:invisible">Cerrar</span>
+              <span aria-hidden className="pointer-events-none col-start-1 row-start-1 text-3xl leading-none opacity-0 group-hover:opacity-100 motion-safe:scale-75 motion-safe:transition-[opacity,scale] motion-safe:duration-150 motion-safe:ease-out motion-safe:group-hover:scale-100">×</span>
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
@@ -642,74 +672,80 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
                   </div>
                 </>
               )}
-              {phase === "ciudad" ? (
-                <div className="mt-5">
-                  <ChoiceCards
-                    name="ciudad"
-                    legend="¿En qué ciudad está tu casa?"
-                    options={CIUDADES}
-                    icons={{}}
-                    value={city}
-                    disabled={submitting}
-                    onPick={(value) => void pickCity(value)}
-                  />
-                </div>
-              ) : null}
-              {phase === "recibo" ? (
-                <div className="mt-5">
-                  <ChoiceCards
-                    name="recibo"
-                    legend="¿Cuánto pagas de luz al bimestre?"
-                    options={RANGOS_LUZ_RESIDENCIAL}
-                    icons={RANGO_ICON}
-                    value={recibo}
-                    disabled={submitting}
-                    onPick={(value) => void pickMapped("recibo", value)}
-                  />
-                  <button type="button" disabled={submitting} onClick={() => go("ciudad")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
-                    Atrás
-                  </button>
-                </div>
-              ) : null}
-              {phase === "interes" ? (
-                <div className="mt-5">
-                  <ChoiceCards
-                    name="interes"
-                    legend="¿Qué te interesa?"
-                    options={INTERES_CASA}
-                    icons={INTERES_ICON}
-                    value={interes}
-                    disabled={submitting}
-                    onPick={(value) => void pickMapped("interes", value)}
-                  />
-                  <button type="button" disabled={submitting} onClick={() => go("recibo")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
-                    Atrás
-                  </button>
-                </div>
-              ) : null}
-              {phase === "paneles" ? (
-                <CardStep title="¿Ya tienes paneles solares?" name="paneles" options={SI_NO} value={paneles} disabled={submitting} onPick={(value) => { setPaneles(value); go("motivo"); }} onBack={() => go("interes")} />
-              ) : null}
-              {phase === "motivo" ? (
-                <CardStep title="¿Qué te motiva más?" name="motivo" options={MOTIVOS} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("propietario"); }} onBack={() => go("paneles")} />
-              ) : null}
-              {phase === "propietario" ? (
-                <CardStep title="¿Eres dueño de la casa?" name="propietario" options={SI_NO} value={propietario} disabled={submitting} onPick={(value) => void finishProfile(value)} onBack={() => go("motivo")} />
-              ) : null}
-              {phase === "cita" && token ? (
-                <div className="mt-5">
-                  <BookingScheduler
-                    resumeToken={token}
-                    guestName={name}
-                    trackingPage={PAGE}
-                    onBack={() => go("propietario")}
-                    onScheduled={() => {
-                      setBooked(true);
-                      pushDataLayer("schedule_appointment", { pagina: PAGE, ciudad: city === "Otro" ? "" : city });
-                    }}
-                  />
-                </div>
-              ) : null}
+              <div key={phase} className="quote-step">
+                {phase === "ciudad" ? (
+                  <div className="mt-5">
+                    <ChoiceCards
+                      name="ciudad"
+                      legend="¿En qué ciudad está tu casa?"
+                      options={CIUDADES}
+                      icons={{}}
+                      value={city}
+                      disabled={submitting}
+                      onPick={(value) => void pickCity(value)}
+                    />
+                  </div>
+                ) : null}
+                {phase === "recibo" ? (
+                  <div className="mt-5">
+                    <ChoiceCards
+                      name="recibo"
+                      legend="¿Cuánto pagas de luz al bimestre?"
+                      options={RANGOS_LUZ_RESIDENCIAL}
+                      icons={RANGO_ICON}
+                      value={recibo}
+                      disabled={submitting}
+                      onPick={(value) => void pickMapped("recibo", value)}
+                    />
+                    <button type="button" disabled={submitting} onClick={() => go("ciudad")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
+                      Atrás
+                    </button>
+                  </div>
+                ) : null}
+                {phase === "interes" ? (
+                  <div className="mt-5">
+                    <ChoiceCards
+                      name="interes"
+                      legend="¿Qué te interesa?"
+                      options={INTERES_CASA}
+                      icons={INTERES_ICON}
+                      value={interes}
+                      disabled={submitting}
+                      onPick={(value) => void pickMapped("interes", value)}
+                    />
+                    <button type="button" disabled={submitting} onClick={() => go("recibo")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
+                      Atrás
+                    </button>
+                  </div>
+                ) : null}
+                {phase === "motivo" ? (
+                  <CardStep title="¿Qué te motiva más?" name="motivo" options={MOTIVOS} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("comentarios"); }} onBack={() => go("interes")} />
+                ) : null}
+                {phase === "comentarios" ? (
+                  <form className="mt-5" onSubmit={(event) => { event.preventDefault(); void finishProfile(); }}>
+                    <label htmlFor="lp-residential-comment" className="font-display text-4xl">¿Tienes alguna pregunta o comentario adicional?</label>
+                    <textarea id="lp-residential-comment" className={`${fieldClass} mt-4`} rows={4} maxLength={500} placeholder="Escribe aquí (opcional)" value={comment} disabled={submitting} onChange={(event) => setComment(event.target.value)} />
+                    <div className="mt-4 flex items-center gap-5">
+                      <button type="button" disabled={submitting} onClick={() => go("motivo")} className="text-sm font-semibold hover:underline disabled:opacity-40">Atrás</button>
+                      <button type="submit" disabled={submitting} className="btn-green disabled:opacity-40">Continuar</button>
+                    </div>
+                  </form>
+                ) : null}
+                {phase === "cita" && token ? (
+                  <div className="mt-5">
+                    <BookingScheduler
+                      resumeToken={token}
+                      guestName={name}
+                      trackingPage={PAGE}
+                      onBack={() => go("comentarios")}
+                      onScheduled={() => {
+                        setBooked(true);
+                        pushDataLayer("schedule_appointment", { pagina: PAGE, ciudad: city === "Otro" ? "" : city });
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </div>
               {error && open ? <p className="mt-4 text-sm text-red-600" role="alert">{error}</p> : null}
             </div>
           </div>

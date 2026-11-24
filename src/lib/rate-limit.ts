@@ -18,8 +18,10 @@ export function clientIp(request: Request): string {
   return request.headers.get("x-real-ip")?.trim().slice(0, 80) || "local";
 }
 
-/** True when the call is allowed. 8 writes / 10 min / IP. */
+/** Outside development, allow up to 8 writes per IP in 10 minutes. */
 export function allowLeadWrite(ip: string, now = Date.now()): boolean {
+  if (process.env.NODE_ENV === "development") return true;
+
   const windowMs = 10 * 60 * 1000;
   const limit = 8;
   const store = buckets();

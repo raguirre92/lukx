@@ -307,7 +307,12 @@ html.lenis { scroll-behavior: auto; }
 h1 .w, h2 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-top: 0.22em; padding-bottom: 0.08em; margin-top: -0.12em; margin-bottom: -0.04em; }
 h1 .w > span, h2 .w > span { display: inline-block; will-change: transform; }
 
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+.lp-residential-field:focus {
+  outline: none;
+  border-color: var(--lukx-green);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible:not(.lp-residential-field) {
   outline: 2px solid var(--lukx-green);
   outline-offset: 3px;
 }
@@ -346,11 +351,34 @@ h1 .w > span, h2 .w > span { display: inline-block; will-change: transform; }
 .quote-radio:focus-visible { outline: none; }
 
 dialog.lp-modal {
+  background-image: linear-gradient(to top, #cdeacb, #fff 75%);
   width: 100vw;
   height: 100dvh;
   max-width: none;
   max-height: none;
 }
+@keyframes lp-modal-enter {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.lp-modal[open] {
+    animation: lp-modal-enter 240ms ease-out both;
+  }
+}
+
 dialog.lp-modal::backdrop {
   background: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .quote-step {
+    animation: quote-step-enter 200ms ease-out both;
+  }
+}
+
+@keyframes quote-step-enter {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
 }

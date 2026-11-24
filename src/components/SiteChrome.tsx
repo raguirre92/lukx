@@ -10,7 +10,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   if (pathname.startsWith("/studio")) return children;
-  if (pathname.startsWith("/lp/") || pathname === "/lp") return <LeadChrome ads>{children}</LeadChrome>;
+  if (pathname.startsWith("/lp/") || pathname === "/lp") return <LeadChrome ads category={pathname === "/lp/residencial" ? "Residencial" : undefined}>{children}</LeadChrome>;
 
   return (
     <>

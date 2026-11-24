@@ -15,9 +15,11 @@ import { site } from "@/data/site";
 export default function LeadChrome({
   children,
   ads = false,
+  category,
 }: {
   children: React.ReactNode;
   ads?: boolean;
+  category?: string;
 }) {
   const logo = (
     <Image
@@ -39,7 +41,9 @@ export default function LeadChrome({
               {logo}
             </Link>
           )}
-          {ads ? (
+          {category ? (
+            <span className="text-sm text-[#f5f5f5]">{category}</span>
+          ) : ads ? (
             <a
               href={`tel:${ASESORIA_PHONE_TEL}`}
               onClick={() => pushDataLayer("click_telefono", { pagina: "ads" })}

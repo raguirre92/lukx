@@ -126,17 +126,6 @@ export default function HeroCarousel() {
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-label={paused ? "Reanudar carrusel" : "Pausar carrusel"}
-          className="grid h-9 w-9 place-items-center rounded-full border border-white/30 text-white transition hover:border-lukx-green hover:text-lukx-green"
-        >
-          <Icon icon={paused ? "solar:play-bold" : "solar:pause-bold"} width={14} aria-hidden />
-        </button>
-        <span className="hidden font-display text-lg tracking-wider text-white/70 sm:inline" aria-live="polite">
-          {String(index + 1).padStart(2, "0")} / {String(heroSlides.length).padStart(2, "0")} · {labels[index]}
-        </span>
       </div>
     </section>
   );

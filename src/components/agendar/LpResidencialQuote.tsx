@@ -28,9 +28,9 @@ const PROCESS = [
 ] as const;
 
 const REVIEW_EXAMPLES = [
-  { image: "/images/residencial-casa-paneles.png", topic: "Paneles solares", quote: "Con mi recibo pude entender cuántos paneles necesitaba y qué esperar del sistema." },
-  { image: "/images/residencial-respaldo-detalle.png", topic: "Sistemas de respaldo", quote: "En la asesoría vimos qué equipos quería mantener encendidos cuando se va la luz." },
-  { image: "/images/residencial-tecnico-lukx.png", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
+  { image: "/images/residencial-casa-paneles.webp", topic: "Paneles solares", quote: "Con mi recibo pude entender cuántos paneles necesitaba y qué esperar del sistema." },
+  { image: "/images/residencial-respaldo-detalle.webp", topic: "Sistemas de respaldo", quote: "En la asesoría vimos qué equipos quería mantener encendidos cuando se va la luz." },
+  { image: "/images/residencial-tecnico-lukx.webp", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
 ] as const;
 
 function DemoReviews() {
@@ -525,10 +525,10 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
         <div className="mx-auto max-w-[1180px] px-4 md:px-8">
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
-              <Image src="/images/residencial-tecnico-lukx.png" alt="Imagen recreada a partir de una foto de un técnico junto a inversores solares" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
+              <Image src="/images/residencial-tecnico-lukx.webp" alt="Imagen recreada a partir de una foto de un técnico junto a inversores solares" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
             </div>
             <div className="relative col-span-2 aspect-[4/3] overflow-hidden md:col-span-1">
-              <Image src="/images/residencial-respaldo-detalle.png" alt="Imagen recreada a partir de una instalación de respaldo de Lukx" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-center" />
+              <Image src="/images/residencial-respaldo-detalle.webp" alt="Imagen recreada a partir de una instalación de respaldo de Lukx" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-center" />
             </div>
             <dl className="col-span-2 grid grid-cols-2 gap-2 md:col-span-1 md:gap-3">
               <div className="flex flex-col-reverse justify-end bg-lukx-green-btn p-4 text-white sm:p-6">
@@ -552,7 +552,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
             <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema.</p>
           </div>
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
-            <Image src="/images/residencial-casa-paneles.png" alt="Imagen ilustrativa de una casa con paneles solares visibles en el techo" width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
+            <Image src="/images/residencial-casa-paneles.webp" alt="Imagen ilustrativa de una casa con paneles solares visibles en el techo" width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
             <ul className="divide-y divide-black/15 border-y border-black/15">
               {SOLUTIONS.map(([title, copy]) => (
                 <li key={title} className="py-5 md:py-6">
@@ -573,7 +573,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
             <p className="mt-5 max-w-md leading-relaxed text-white/85">Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo.</p>
             <a href="/sistemas-de-respaldo-de-energia-en-baterias" className="btn-green mt-7">Más información</a>
           </div>
-          <Image src="/images/residencial-respaldo-nocturno.png" alt="Escena ilustrativa de una casa iluminada cuando se va la luz" width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
+          <Image src="/images/residencial-respaldo-nocturno.webp" alt="Escena ilustrativa de una casa iluminada cuando se va la luz" width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
         </div>
       </section>
 
@@ -609,7 +609,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
       </section>
 
       <section id="agenda-final" className="relative isolate overflow-hidden bg-lukx-charcoal px-4 py-20 text-center text-white md:py-32">
-        <Image src="/images/residencial-paneles-detalle-concreto.png" alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
+        <Image src="/images/residencial-paneles-detalle-concreto.webp" alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 bg-black/40" aria-hidden />
         <div className="mx-auto max-w-2xl">
           <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">Diseñemos la energía de tu casa</h2>

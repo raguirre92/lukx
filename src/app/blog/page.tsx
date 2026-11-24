@@ -27,7 +27,7 @@ export default async function BlogPage() {
         image="/images/luz-1.jpg"
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <h2 className="font-display text-4xl text-lukx-charcoal md:text-5xl">Últimas publicaciones</h2>
         <div data-stagger className="mt-12 grid gap-8 sm:grid-cols-2">
           {posts.map((post) => (

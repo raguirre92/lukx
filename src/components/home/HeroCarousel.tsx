@@ -66,7 +66,7 @@ export default function HeroCarousel() {
         <HeroScrim />
       </div>
 
-      <div className="relative z-[3] mx-auto flex h-full max-w-[1400px] items-end gap-10 px-5 pb-16 md:px-10 md:pb-20">
+      <div className="site-container relative z-[3] flex h-full items-end gap-10 pb-16 md:pb-20">
         <div className="flex-1">
           <h1 className="font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
             <span className="hero-line block overflow-hidden"><span className="block">Energía e</span></span>
@@ -108,7 +108,7 @@ export default function HeroCarousel() {
         </nav>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 z-[4] mx-auto flex max-w-[1400px] items-center gap-4 px-5 pb-6 md:px-10">
+      <div className="site-container absolute inset-x-0 bottom-0 z-[4] flex items-center gap-4 pb-6">
         <div className="flex flex-1 gap-1.5" role="group" aria-label="Fotografías del carrusel">
           {heroSlides.map((_, i) => (
             <button

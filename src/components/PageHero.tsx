@@ -25,7 +25,7 @@ export default function PageHero({
     <section className="relative flex min-h-[62vh] items-end overflow-hidden bg-lukx-black pt-24 md:min-h-[76vh]">
       <Image src={image} alt="" fill priority className="kenburns object-cover object-center" sizes="100vw" />
       <HeroScrim />
-      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-5 pb-14 md:px-10 md:pb-20">
+      <div className="site-container relative z-10 w-full pb-14 md:pb-20">
         <p className="eyebrow lead-hero-copy">Lukx · Monterrey</p>
         <div className="lead-hero-copy">
           <h1 className="mt-5 max-w-5xl font-display text-[clamp(3rem,8vw,7rem)] leading-[1.08] text-white">{title}</h1>

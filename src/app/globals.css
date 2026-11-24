@@ -65,6 +65,46 @@ h3,
   }
 }
 
+/*
+  Site grid, taken from the respaldo band on /lp/residencial
+  ("Que tu casa siga funcionando" / Más información).
+
+  Frame: 1440px, centered, no outer padding.
+  Content inset, the text column's padding: 16px, 32px from 768px, 64px from 1024px.
+  At 1024px the band is two columns, 0.8fr / 1.2fr, with no gutter.
+  The photo sits flush to the frame; other sections use the same inset on both sides.
+*/
+.site-frame {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+.site-gutter {
+  padding-inline: 1rem;
+}
+
+.site-container {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  .site-gutter,
+  .site-container {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-gutter,
+  .site-container {
+    padding-inline: 4rem;
+  }
+}
+
 /* Header nav: explicit colors so links stay readable on the dark bar.
    :visited required — visited routes otherwise keep a dark inherited color. */
 header .nav-link,

@@ -11,7 +11,7 @@ const socials = [
 export default function Footer() {
   return (
     <footer className="bg-lukx-charcoal text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-4 md:px-8 md:py-16">
+      <div className="site-container grid gap-10 py-14 md:grid-cols-4 md:py-16">
         <div className="flex items-start">
           <Link href="/" aria-label="Lukx">
             <Image
@@ -104,7 +104,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-white/55 md:flex-row md:px-8">
+        <div className="site-container flex flex-col items-center justify-between gap-3 py-5 text-xs text-white/55 md:flex-row">
           <p>© {new Date().getFullYear()} Lukx. Todos los derechos reservados.</p>
           <div className="flex gap-4">
             <a href={site.privacyPdf} target="_blank" rel="noreferrer" className="hover:text-white">

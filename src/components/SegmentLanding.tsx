@@ -35,7 +35,7 @@ export default function SegmentLanding({
       />
 
       <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-8 lg:px-10">
+        <div className="site-container">
           <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-lukx-charcoal">
             Proyectos para este espacio
           </h2>
@@ -69,7 +69,7 @@ export default function SegmentLanding({
 
       {projects.length ? (
         <section className="bg-lukx-light py-16 md:py-24">
-          <div className="mx-auto max-w-[1400px] px-4 md:px-8 lg:px-10">
+          <div className="site-container">
             <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-lukx-charcoal">
               Proyectos de este tipo
             </h2>
@@ -89,7 +89,7 @@ export default function SegmentLanding({
       ) : null}
 
       <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto max-w-3xl px-4 md:px-8">
+        <div className="site-container">
           <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-lukx-charcoal">
             Preguntas frecuentes
           </h2>

@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function AboutStrip() {
   return (
     <section className="relative overflow-hidden bg-lukx-charcoal text-white">
-      <div className="mx-auto grid max-w-[1400px] items-center gap-10 px-4 py-16 md:grid-cols-2 md:gap-14 md:px-8 md:py-24 lg:px-10">
+      <div className="site-container grid items-center gap-10 py-16 md:grid-cols-2 md:gap-14 md:py-24">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#19b600] md:text-sm">
             ILUMINACIÓN Y ENERGÍA SOLAR

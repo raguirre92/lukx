@@ -35,7 +35,7 @@ export default function LeadChrome({
     <>
       <MotionProvider />
       <header className="fixed inset-x-0 top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:h-[72px] md:px-10">
+        <div className="site-container flex h-16 items-center justify-between md:h-[72px]">
           {ads ? logo : (
             <Link href="/" className="shrink-0" aria-label="Lukx inicio">
               {logo}

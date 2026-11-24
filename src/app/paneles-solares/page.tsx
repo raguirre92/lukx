@@ -68,7 +68,7 @@ export default async function PanelesSolaresPage() {
         image={paneles.hero.backgroundImage}
       />
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title="Soluciones personalizadas de energía solar" />
         <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">
           {paneles.headings[4]}
@@ -76,7 +76,7 @@ export default async function PanelesSolaresPage() {
       </section>
 
       <section className="bg-lukx-light py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="site-container">
           <SectionHeading title="Beneficios" align="center" />
           <div data-stagger className="mt-10 grid gap-5 md:grid-cols-2">
             {benefits.map((b) => (
@@ -89,7 +89,7 @@ export default async function PanelesSolaresPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <h2 className="font-display text-4xl text-lukx-charcoal">Este es el proceso:</h2>
         <ol className="mt-6 space-y-4">
           {process.map((step, i) => (
@@ -106,7 +106,7 @@ export default async function PanelesSolaresPage() {
 
       <ProjectsCarousel projects={projects} />
 
-      <section className="mx-auto max-w-3xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <h2 className="mb-6 font-display text-4xl text-lukx-charcoal">Preguntas frecuentes</h2>
         <FaqAccordion items={paneles.faqs} />
       </section>

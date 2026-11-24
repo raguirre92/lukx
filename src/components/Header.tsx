@@ -60,7 +60,7 @@ export default function Header() {
         tabIndex={-1}
         onClick={() => setSolutionsOpen(false)}
       />
-      <div className="relative z-30 mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-4 px-4 md:h-[88px] md:gap-6 md:px-8 xl:px-10">
+      <div className="site-container relative z-30 flex h-[72px] items-center justify-between gap-4 md:h-[88px] md:gap-6">
         <Link href="/" className="relative z-10 shrink-0">
           <Image
             src={site.logos.horizontalWhite}

@@ -21,7 +21,7 @@ export default function ContactCta({
   return (
     <section className="relative overflow-hidden bg-lukx-black text-white">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lukx-green to-transparent" />
-      <div className="mx-auto grid max-w-[1400px] gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+      <div className="site-container grid gap-12 py-20 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
         <div>
           <p className="eyebrow">{eyebrow}</p>
           <h2 className="mt-5 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[1.08]">{title}</h2>

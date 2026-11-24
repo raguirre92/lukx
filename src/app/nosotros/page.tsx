@@ -50,7 +50,7 @@ export default async function NosotrosPage() {
         image="/images/2025-07-9-1.jpg"
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <div data-stagger className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
             <SectionHeading title="Con más de 15 años de experiencia en soluciones solares" />
@@ -87,7 +87,7 @@ export default async function NosotrosPage() {
       </section>
 
       <section className="bg-lukx-light py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="site-container">
           <SectionHeading
             title="Por qué elegir Lukx"
             subtitle="En LUKX te ayudamos a tomar decisiones inteligentes en energía."
@@ -104,7 +104,7 @@ export default async function NosotrosPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+      <section className="site-container py-16 md:py-20">
         <SectionHeading title="Casos de éxito" />
         <div data-stagger className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.slice(0, 3).map((item) => (

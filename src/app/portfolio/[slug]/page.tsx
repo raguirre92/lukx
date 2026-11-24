@@ -54,7 +54,7 @@ export default async function PortfolioProjectPage({ params }: Props) {
         ctaHref="/agendar"
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-lukx-green">
@@ -129,7 +129,7 @@ export default async function PortfolioProjectPage({ params }: Props) {
 
       {related.length > 0 ? (
         <section className="bg-lukx-light">
-          <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="site-container py-16 md:py-20">
             <SectionHeading title="Más casos de éxito" />
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {related.map((item) => (

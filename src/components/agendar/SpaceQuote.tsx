@@ -428,7 +428,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
           />
           <HeroScrim />
         </div>
-        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-8 px-4 pt-28 pb-10 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
+        <div className="site-container relative z-10 grid items-start gap-8 pt-28 pb-10 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
           <div className="max-w-xl text-white lg:self-end">
             <h1 className="font-display text-balance text-[2rem] leading-[0.95] lg:text-[3.2rem]">{landing.h1}</h1>
             <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{landing.sub}</p>
@@ -448,7 +448,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       </section>
 
       <section className="bg-white pt-14 pb-4 text-lukx-charcoal md:pt-20 md:pb-8">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
               <Image src="/images/residencial-tecnico-lukx.webp" alt="Imagen recreada a partir de una foto de un técnico junto a inversores solares" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
@@ -472,7 +472,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
 
 
       <section className="bg-white py-16 text-lukx-charcoal md:py-24">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <div className="grid gap-5 border-b border-black/15 pb-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:gap-12">
             <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">{landing.solutionsTitle}</h2>
             <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">{landing.solutionsIntro}</p>
@@ -524,8 +524,8 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       </section>
 
       <section className="bg-lukx-charcoal text-white">
-        <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="flex flex-col items-start justify-center px-4 py-14 md:px-8 lg:px-16 lg:py-20">
+        <div className="site-frame grid lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="site-gutter flex flex-col items-start justify-center py-14 lg:py-20">
             <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{landing.backupTitle}</h2>
             <p className="mt-5 max-w-md leading-relaxed text-white/85">{landing.backupText}</p>
             <a href={landing.backupHref} className="btn-green mt-7">{landing.backupCta}</a>
@@ -535,7 +535,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       </section>
 
       <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">{landing.processTitle}</h2>
           <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {landing.process.map(({ title, text, icon }, index) => (
@@ -555,7 +555,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       </section>
 
       <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <h2 className="font-display text-4xl leading-none md:text-6xl">{landing.projectsTitle}</h2>
           <p className="mt-3 max-w-2xl text-sm text-lukx-muted">{landing.projectsText}</p>
           {landing.teamNote ? <p className="mt-4 max-w-2xl text-sm text-lukx-muted">{landing.teamNote}</p> : null}
@@ -573,7 +573,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       </section>
 
       <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1180px] gap-8 px-4 md:grid-cols-[0.75fr_1.25fr] md:gap-12 md:px-8">
+        <div className="site-container grid gap-8 md:grid-cols-[0.75fr_1.25fr] md:gap-12">
           <div className="flex flex-col items-start justify-between gap-8">
             <h2 className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-6xl">Preguntas frecuentes</h2>
           </div>
@@ -598,8 +598,8 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       ) : null}
 
 
-      <footer className="bg-lukx-charcoal px-4 py-8 text-sm text-white/85 md:px-10 md:py-10">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
+      <footer className="bg-lukx-charcoal py-8 text-sm text-white/85 md:py-10">
+        <div className="site-container flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
           <address className="flex flex-col items-start gap-2 not-italic">
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               <a href={`tel:${site.phoneOfficeTel}`} className="underline">{site.phoneOffice}</a>

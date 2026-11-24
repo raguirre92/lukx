@@ -22,7 +22,7 @@ export default function FaqsPage() {
         image="/images/2025-07-alternative-energy-ecological-concept.jpg"
       />
 
-      <section className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <SectionHeading
           title="Preguntas frecuentes"
           subtitle="Si no encuentras lo que buscas, contáctanos y te orientamos."

@@ -49,7 +49,7 @@ export default function ContactoPage() {
         secondaryLabel="Agendar asesoría"
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <div data-stagger className="grid gap-12 lg:grid-cols-2">
           <div>
             <SectionHeading

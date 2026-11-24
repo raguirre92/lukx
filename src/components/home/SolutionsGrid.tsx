@@ -4,8 +4,8 @@ import { agendarHref, solutions, spaces, type SpaceId } from "@/data/site";
 
 function solutionGridClass(count: number) {
   const base = "grid gap-3 lg:gap-4";
-  if (count <= 1) return `${base} mx-auto max-w-sm grid-cols-1`;
-  if (count === 2) return `${base} mx-auto max-w-4xl grid-cols-1 sm:grid-cols-2`;
+  if (count <= 1) return `${base} grid-cols-1`;
+  if (count === 2) return `${base} grid-cols-1 sm:grid-cols-2`;
   if (count === 3) return `${base} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`;
   return `${base} grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`;
 }
@@ -25,8 +25,8 @@ export default function SolutionsGrid({ segmento }: { segmento?: SpaceId }) {
 
   return (
     <section id="soluciones" className="scroll-mt-24 bg-white py-10 md:py-14">
-      <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6">
-        <div className="mb-6 flex flex-col gap-2 px-1 md:mb-8 md:flex-row md:items-end md:justify-between">
+      <div className="site-container">
+        <div className="mb-6 flex flex-col gap-2 md:mb-8 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-display text-[clamp(2rem,3vw,2.8rem)] leading-[1.08] text-lukx-charcoal">
               {space ? `Soluciones para ${space.title.toLowerCase()}` : "Nuestras soluciones"}

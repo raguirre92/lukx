@@ -21,7 +21,7 @@ export default function EstacionesDeCargaPage() {
         image={estaciones.hero.backgroundImage}
       />
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title={estaciones.mission.titleLines.join(" ")} />
         <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">
           {estaciones.mission.body}
@@ -29,7 +29,7 @@ export default function EstacionesDeCargaPage() {
       </section>
 
       <section className="bg-lukx-light py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="site-container">
           <SectionHeading title={estaciones.industries.title} align="center" />
           <div data-stagger className="mt-10 grid gap-5 md:grid-cols-2">
             {estaciones.industries.items.map((item) => (
@@ -51,7 +51,7 @@ export default function EstacionesDeCargaPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:px-8 md:py-16">
+      <section className="site-container grid items-center gap-10 py-14 md:grid-cols-2 md:py-16">
         <div>
           <SectionHeading title={estaciones.product.titleLines.join(" ")} />
           <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">

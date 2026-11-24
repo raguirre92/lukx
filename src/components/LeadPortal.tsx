@@ -19,7 +19,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
         id="calendario"
         className="scroll-mt-16 bg-lukx-light pt-24 md:scroll-mt-[72px] md:pt-28"
       >
-        <div className="mx-auto grid max-w-[1400px] gap-10 px-5 pb-14 md:grid-cols-2 md:items-start md:gap-12 md:px-10 md:pb-20 lg:gap-16 lg:px-14">
+        <div className="site-container grid gap-10 pb-14 md:grid-cols-2 md:items-start md:gap-12 md:pb-20 lg:gap-16">
           <div className="lead-hero-copy md:sticky md:top-28 md:self-start">
             <p className="font-display text-[clamp(3rem,7vw,4.5rem)] leading-[0.88] text-lukx-charcoal">
               LUKX
@@ -55,7 +55,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto grid max-w-[1400px] md:grid-cols-2">
+        <div className="site-frame grid md:grid-cols-2">
           <div className="relative min-h-[320px] md:min-h-[520px]">
             <Image
               src={copy.storyImage}
@@ -65,7 +65,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
-          <div className="flex flex-col justify-center px-5 py-14 md:px-12 md:py-20 lg:px-16">
+          <div className="site-gutter flex flex-col justify-center py-14 md:py-20">
             <h2 className="font-display text-[clamp(2.2rem,4vw,3.5rem)] leading-none text-lukx-charcoal">
               {copy.storyTitle}
             </h2>
@@ -88,7 +88,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
           sizes="100vw"
         />
         <HeroScrim />
-        <div className="relative z-10 flex min-h-[40vh] items-end px-5 py-12 md:min-h-[48vh] md:px-12 md:py-16 lg:px-16">
+        <div className="site-container relative z-10 flex min-h-[40vh] items-end py-12 md:min-h-[48vh] md:py-16">
           <p className="max-w-xl font-display text-[clamp(1.8rem,3.5vw,2.8rem)] leading-[1.05] text-white">
             {copy.bannerLine}
           </p>
@@ -96,7 +96,7 @@ export default function LeadPortal({ page }: { page: BookingPageId }) {
       </section>
 
       <section className="bg-lukx-black">
-        <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-8 px-5 py-14 md:flex-row md:items-center md:px-10 md:py-16 lg:px-14">
+        <div className="site-container flex flex-col items-start justify-between gap-8 py-14 md:flex-row md:items-center md:py-16">
           <div className="max-w-xl">
             <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-white">
               ¿Listo para empezar?

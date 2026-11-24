@@ -19,7 +19,7 @@ export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[
 
   return (
     <section id="proyectos" className="bg-lukx-charcoal py-16 text-white md:py-24">
-      <div className="mx-auto max-w-[1400px] px-4 md:px-8 lg:px-10">
+      <div className="site-container">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="font-display text-[1.6rem] leading-none text-white/55 md:text-[2rem]">

@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <PageHero title={title} subtitle="Artículos de esta categoría." image={posts[0]?.image || "/images/luz-1.jpg"} />
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <div className="grid gap-8 sm:grid-cols-2">
           {posts.map((post) => (
             <article key={post.slug}>

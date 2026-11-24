@@ -231,7 +231,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
 
   return (
     <article className={ads ? "bg-lukx-light" : ""}>
-      <section className={`mx-auto grid max-w-[1400px] gap-8 px-5 pb-12 md:px-10 ${ads ? "pt-24 md:pt-28" : "pt-28 md:pt-32"} lg:grid-cols-[1fr_1fr] lg:items-start`}>
+      <section className={`site-container grid gap-8 pb-12 ${ads ? "pt-24 md:pt-28" : "pt-28 md:pt-32"} lg:grid-cols-[1fr_1fr] lg:items-start`}>
         <div className={ads ? "order-2 lg:order-1" : ""}>
           <h1 className="font-display text-[clamp(2.4rem,5vw,4.2rem)] leading-[0.95] text-lukx-charcoal">{pag.h1}</h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-lukx-muted md:text-base">{pag.sub}</p>
@@ -256,7 +256,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
       </section>
 
       {pag.bloques.filter((bloque) => bloque.k === "lista" && bloque.lineas && !ads).map((bloque) => (
-        <section key={bloque.t} className="mx-auto max-w-[900px] px-5 py-8 md:px-8">
+        <section key={bloque.t} className="site-container py-8">
           <h2 className="font-display text-3xl text-lukx-charcoal">{bloque.lineas?.[0]?.startsWith("Título:") ? bloque.lineas[0].replace(/^Título:\s*/, "") : bloque.t}</h2>
           <ul className="mt-4 space-y-2 text-sm leading-relaxed text-lukx-muted">
             {(bloque.lineas?.[0]?.startsWith("Título:") ? bloque.lineas.slice(1) : bloque.lineas)?.filter((line) => !line.startsWith("[")).map((line) => {
@@ -272,7 +272,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
       ))}
 
       {pag.bloques.some((bloque) => bloque.k === "pasos") ? (
-        <section className="mx-auto grid max-w-[1000px] gap-4 px-5 py-8 md:grid-cols-3 md:px-8">
+        <section className="site-container grid gap-4 py-8 md:grid-cols-3">
           {comoFunciona.map((item) => (
             <div key={item.title} className="border border-black/10 p-4">
               <h2 className="text-base font-semibold text-lukx-charcoal">{item.title}</h2>
@@ -283,7 +283,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
       ) : null}
 
       {pag.faq.length ? (
-        <section className="mx-auto max-w-3xl px-5 py-10 md:px-8">
+        <section className="site-container py-10">
           <h2 className="font-display text-3xl text-lukx-charcoal">Preguntas frecuentes</h2>
           <div className="mt-6">
             <FaqAccordion items={pag.faq.map((item) => ({ question: item.q, answer: item.a }))} />
@@ -292,7 +292,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
       ) : null}
 
       {!ads && pag.ctaS.includes("WhatsApp") ? (
-        <p className="px-5 pb-10 text-center text-sm">
+        <p className="site-container pb-10 text-center text-sm">
           <a href={ASESORIA_WHATSAPP} target="_blank" rel="noreferrer" onClick={() => pushDataLayer("click_whatsapp", { pagina: pag.version })} className="text-lukx-green-btn underline">
             Prefiero escribir por WhatsApp
           </a>
@@ -300,12 +300,12 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
       ) : null}
 
       {ads ? (
-        <footer className="border-t border-black/10 px-5 py-6 text-center text-xs text-white/70 bg-lukx-charcoal">
+        <footer className="border-t border-black/10 bg-lukx-charcoal py-6 text-center text-xs text-white/70">
           <a href={site.privacyPdf} className="underline" target="_blank" rel="noreferrer">Aviso de privacidad</a>
           <span> · © {new Date().getFullYear()} Lukx</span>
         </footer>
       ) : (
-        <p className="px-5 pb-12 text-center">
+        <p className="site-container pb-12 text-center">
           <a href="#agenda" className="btn-green">{pag.ctaP}</a>
         </p>
       )}

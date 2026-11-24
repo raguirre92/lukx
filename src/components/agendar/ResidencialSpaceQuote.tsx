@@ -53,7 +53,7 @@ function DemoReviews({
 
   return (
     <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
-      <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+      <div className="site-container">
         <div className="flex flex-wrap items-end justify-between gap-5 border-b border-black/15 pb-6">
           <div>
             <p className="mb-2 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa</p>
@@ -65,7 +65,7 @@ function DemoReviews({
           </div>
         </div>
       </div>
-      <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-[max(2rem,calc(50%-558px))] md:pl-[max(2rem,calc(50%-558px))]">
+      <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-8 md:pr-8 md:pl-8 lg:scroll-pl-[max(4rem,calc(50%-656px))] lg:pr-16 lg:pl-[max(4rem,calc(50%-656px))]">
         {items.flatMap((item) => [
           <li key={item.topic} className="flex aspect-square w-[min(78vw,20rem)] shrink-0 snap-start flex-col border border-black/10 bg-lukx-light p-5 sm:p-6">
             <span aria-hidden className="font-display text-5xl leading-none text-lukx-green-btn">“</span>
@@ -542,7 +542,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
           />
           <HeroScrim />
         </div>
-        <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-8 px-4 pt-28 pb-10 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
+        <div className="site-container relative z-10 grid items-start gap-8 pt-28 pb-10 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
           <div className="max-w-xl text-white lg:self-end">
             <h1 className="font-display text-balance text-[2.5rem] leading-[0.95] sm:text-[3.5rem] lg:text-[4rem]">{h1}</h1>
             <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{sub}</p>
@@ -552,7 +552,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
       </section>
 
       <section className="bg-white pt-14 pb-4 text-lukx-charcoal md:pt-20 md:pb-8">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
               <Image src={content?.mosaicA ?? "/images/residencial-tecnico-lukx.webp"} alt={content?.mosaicAAlt ?? "Imagen recreada a partir de una foto de un técnico junto a inversores solares"} fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
@@ -576,7 +576,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
 
 
       <section className="bg-white py-16 text-lukx-charcoal md:py-24">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <div className="grid gap-5 border-b border-black/15 pb-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:gap-12">
             <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">{content?.solutionsTitle ?? "Soluciones para tu hogar"}</h2>
             <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">{content?.solutionsIntro ?? "Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema."}</p>
@@ -597,8 +597,8 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
       </section>
 
       <section className="bg-lukx-charcoal text-white">
-        <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="flex flex-col items-start justify-center px-4 py-14 md:px-8 lg:px-16 lg:py-20">
+        <div className="site-frame grid lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="site-gutter flex flex-col items-start justify-center py-14 lg:py-20">
             <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.backupTitle ?? "Que tu casa siga funcionando cuando se va la luz"}</h2>
             <p className="mt-5 max-w-md leading-relaxed text-white/85">{content?.backupText ?? "Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo."}</p>
             <a href="/sistemas-de-respaldo-de-energia-en-baterias" className="btn-green mt-7">Más información</a>
@@ -608,7 +608,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
       </section>
 
       <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
-        <div className="mx-auto max-w-[1180px] px-4 md:px-8">
+        <div className="site-container">
           <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">De tu asesoría a la instalación</h2>
           <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {processSteps.map(([title, copy, icon], index) => (
@@ -630,7 +630,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
       {process.env.NODE_ENV === "development" ? <DemoReviews title={content?.reviewsTitle} items={content?.reviews} /> : null}
 
       <section className="bg-white py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1180px] gap-8 px-4 md:grid-cols-[0.75fr_1.25fr] md:gap-12 md:px-8">
+        <div className="site-container grid gap-8 md:grid-cols-[0.75fr_1.25fr] md:gap-12">
           <div className="flex flex-col items-start justify-between gap-8">
             <h2 className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-6xl">Preguntas frecuentes</h2>
           </div>
@@ -655,8 +655,8 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
       ) : null}
 
 
-      <footer className="bg-lukx-charcoal px-4 py-8 text-sm text-white/85 md:px-10 md:py-10">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
+      <footer className="bg-lukx-charcoal py-8 text-sm text-white/85 md:py-10">
+        <div className="site-container flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
           <address className="flex flex-col items-start gap-2 not-italic">
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               <a href={`tel:${site.phoneOfficeTel}`} className="underline">{site.phoneOffice}</a>

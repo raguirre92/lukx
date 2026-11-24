@@ -6,6 +6,9 @@ import { Icon } from "@iconify/react";
 import BookingScheduler from "@/components/BookingScheduler";
 import FaqAccordion from "@/components/FaqAccordion";
 import HeroScrim from "@/components/HeroScrim";
+import ProjectGallery from "@/components/ProjectGallery";
+import ProjectsCarousel from "@/components/home/ProjectsCarousel";
+import ExitIntentLead from "@/components/agendar/ExitIntentLead";
 import { site } from "@/data/site";
 import { CIUDADES, RANGOS_LUZ_RESIDENCIAL } from "@/lib/agendar-config";
 import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
@@ -15,7 +18,6 @@ import type { SectorQuote } from "@/content/sector-quotes";
 const SOLUTIONS = [
   ["Paneles solares", "Genera tu propia energía y reduce lo que pagas a CFE. Dimensionamos el sistema según tu consumo y el espacio disponible en tu techo."],
   ["Sistemas de respaldo", "Con baterías, tus equipos esenciales, como el refrigerador, el internet y la iluminación, siguen funcionando cuando se va la luz."],
-  ["Sistema integral", "Combina paneles y baterías: generas energía durante el día y la almacenas para usarla cuando la necesites."],
 ] as const;
 
 const PROCESS = [
@@ -25,62 +27,6 @@ const PROCESS = [
   ["Instalación y supervisión", "Instalamos tu sistema, verificamos su calidad y configuramos el monitoreo.", "solar:settings-linear"],
   ["Trámite con CFE", "Gestionamos todo el trámite hasta la instalación de tu medidor bidireccional. Normalmente toma de 1 a 3 meses desde la firma.", "solar:bolt-linear"],
 ] as const;
-
-const REVIEW_EXAMPLES = [
-  { image: "/images/residencial-casa-paneles.webp", topic: "Paneles solares", quote: "Con mi recibo pude entender cuántos paneles necesitaba y qué esperar del sistema." },
-  { image: "/images/residencial-respaldo-detalle.webp", topic: "Sistemas de respaldo", quote: "En la asesoría vimos qué equipos quería mantener encendidos cuando se va la luz." },
-  { image: "/images/residencial-tecnico-lukx.webp", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
-] as const;
-
-function DemoReviews({
-  title = "Experiencias en casa",
-  items = REVIEW_EXAMPLES,
-}: {
-  title?: string;
-  items?: readonly { image: string; topic: string; quote: string }[];
-}) {
-  const trackRef = useRef<HTMLUListElement>(null);
-
-  function move(direction: number) {
-    const track = trackRef.current;
-    const tile = track?.firstElementChild;
-    if (!track || !tile) return;
-
-    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollBy({ left: direction * (tile.getBoundingClientRect().width + gap), behavior: reduceMotion ? "instant" : "smooth" });
-  }
-
-  return (
-    <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
-      <div className="site-container">
-        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-black/15 pb-6">
-          <div>
-            <p className="mb-2 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa</p>
-            <h2 id="demo-reviews-title" className="font-display text-4xl leading-none md:text-6xl">{title}</h2>
-          </div>
-          <div className="flex gap-2">
-            <button type="button" aria-label="Desplazar reseñas a la izquierda" onClick={() => move(-1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">←</button>
-            <button type="button" aria-label="Desplazar reseñas a la derecha" onClick={() => move(1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">→</button>
-          </div>
-        </div>
-      </div>
-      <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-8 md:pr-8 md:pl-8 lg:scroll-pl-[max(4rem,calc(50%-656px))] lg:pr-16 lg:pl-[max(4rem,calc(50%-656px))]">
-        {items.flatMap((item) => [
-          <li key={item.topic} className="flex aspect-square w-[min(78vw,20rem)] shrink-0 snap-start flex-col border border-black/10 bg-lukx-light p-5 sm:p-6">
-            <span aria-hidden className="font-display text-5xl leading-none text-lukx-green-btn">“</span>
-            <blockquote className="mt-2 flex-1 text-base leading-relaxed sm:text-lg">{item.quote}</blockquote>
-            <p className="mt-4 border-t border-black/10 pt-3 text-xs font-semibold text-lukx-muted">{item.topic} · Reseña ficticia</p>
-          </li>,
-          <li key={item.image} aria-hidden className="relative aspect-square w-[min(78vw,20rem)] shrink-0 snap-start overflow-hidden">
-            <Image src={item.image} alt="" fill sizes="(max-width: 410px) 78vw, 320px" className="object-cover" />
-          </li>,
-        ])}
-      </ul>
-    </section>
-  );
-}
-
 
 const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
   "Entre 0 y 3,000 pesos": "solar:bill-list-linear",
@@ -214,7 +160,27 @@ function CardStep({
   );
 }
 
-export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?: Pag; pagePath: string; content?: SectorQuote }) {
+type PortfolioSlide = {
+  imageAlt?: string;
+  gallery?: string[];
+  galleryAlts?: string[];
+  title: string;
+  slug: string;
+  image: string;
+  category?: string;
+};
+
+export default function ResidencialSpaceQuote({
+  pag,
+  pagePath,
+  content,
+  projects = [],
+}: {
+  pag?: Pag;
+  pagePath: string;
+  content?: SectorQuote;
+  projects?: PortfolioSlide[];
+}) {
   if (!content && !pag) throw new Error("Falta el contenido de la landing.");
   const h1 = content?.h1 ?? pag!.h1;
   const sub = content?.sub ?? pag!.sub;
@@ -232,6 +198,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
     ? Object.fromEntries(interests.map((option) => [option, interestIcon(option)]))
     : INTERES_ICON;
   const [open, setOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("ciudad");
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -271,6 +238,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
   const tracked = useRef({ start: false, step2: false, lead: false });
   const busy = useRef(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const contactDialogRef = useRef<HTMLDialogElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -280,6 +248,13 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setAttr(captured);
   }, []);
+
+  useEffect(() => {
+    const dialog = contactDialogRef.current;
+    if (!dialog) return;
+    if (contactOpen && !dialog.open) dialog.showModal();
+    if (!contactOpen && dialog.open) dialog.close();
+  }, [contactOpen]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -297,11 +272,11 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
   }, [open, booked]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = open || contactOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [open, contactOpen]);
 
   function markStart() {
     if (tracked.current.start) return;
@@ -313,6 +288,16 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
     setOpen(false);
     setError(null);
     nameRef.current?.focus();
+  }
+
+  function openQuote() {
+    if (token) {
+      setContactOpen(false);
+      setPhase(city ? "recibo" : "ciudad");
+      setOpen(true);
+      return;
+    }
+    setContactOpen(true);
   }
 
   function profileAnswers(extra: {
@@ -384,6 +369,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         pushDataLayer("form_step_2", { pagina: pagePath });
       }
       setPhase(city ? "recibo" : "ciudad");
+      setContactOpen(false);
       setOpen(true);
       return;
     }
@@ -406,6 +392,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         });
       }
       setPhase("ciudad");
+      setContactOpen(false);
       setOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos guardar tus datos.");
@@ -476,16 +463,29 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
   const stepNumber = STEPS.indexOf(phase) + 1;
   const stepCount = STEPS.length;
 
-  const contactForm = (id: string) => (
-    <form id={id} onSubmit={onContact} onFocus={markStart} className="scroll-mt-20 bg-white p-6 sm:p-8 shadow-[0_28px_80px_rgba(0,0,0,0.35)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lukx-muted">Agenda tu asesoría</p>
-            <h2 className="mt-1 font-display text-2xl leading-none text-lukx-charcoal">Tus datos</h2>
+  const contactForm = (id: string, modal = false) => (
+    <form id={id} onSubmit={onContact} onFocus={markStart} className={modal ? "p-6 sm:p-8" : "scroll-mt-20 bg-white p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] sm:p-8"}>
+            {modal ? (
+              <>
+                <span className="mb-5 block h-0.5 w-10 bg-lukx-green-btn" aria-hidden />
+                <div className="flex items-start justify-between gap-4">
+                  <h2 id={id + "-title"} data-no-split className="text-balance font-display text-4xl leading-none">Agenda tu asesoría</h2>
+                  <button type="button" onClick={() => setContactOpen(false)} aria-label="Cerrar" className="px-1 text-2xl leading-none text-lukx-charcoal">×</button>
+                </div>
+                <p className="mt-4 text-base leading-relaxed text-lukx-muted">Deja tus datos para continuar.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-lukx-muted">Agenda tu asesoría</p>
+                <h2 className="mt-1 font-display text-2xl leading-none text-lukx-charcoal">Tus datos</h2>
+              </>
+            )}
             <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden>
               <label htmlFor={id + "-hp"}>Sitio web</label>
               <input id={id + "-hp"} tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
             </div>
             {attr ? Object.entries(attr).map(([key, value]) => <input key={key} type="hidden" name={key} value={value} readOnly />) : null}
-            <div className="mt-3 grid gap-2.5">
+            <div className={modal ? "mt-4 grid gap-3" : "mt-3 grid gap-2.5"}>
               <label className="block text-sm">
                 <span className="mb-1.5 block font-medium text-lukx-charcoal">Nombre</span>
                 <input ref={id === "agenda" ? nameRef : undefined} required autoComplete="name" value={name} onFocus={markStart} onChange={(event) => setName(event.target.value)} className={fieldClass} style={{ outline: "none" }} />
@@ -530,11 +530,11 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
 
   return (
     <article className={showMobileCta && !open ? "pb-20 md:pb-0" : undefined}>
-      <section className="relative bg-lukx-black">
-        <div className="absolute inset-0">
+      <section className="relative flex min-h-[42rem] flex-col justify-end bg-lukx-black md:min-h-[46rem]">
+        <div className={content ? "absolute inset-0" : "absolute inset-x-0 top-[72px] bottom-0"}>
           <Image
-            src={content?.heroImage ?? "/images/2025-07-proyecto-rinconada-patos.jpg"}
-            alt={content?.heroAlt ?? "Techo de una casa con paneles solares"}
+            src={content?.heroImage ?? "/images/residencial-hero-fachada.webp"}
+            alt={content?.heroAlt ?? "Imagen ilustrativa de una casa de dos pisos con fachada, cochera y paneles solares en la azotea"}
             fill
             priority
             sizes="100vw"
@@ -542,7 +542,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
           />
           <HeroScrim />
         </div>
-        <div className="site-container relative z-10 grid items-start gap-8 pt-28 pb-10 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
+        <div className="site-container relative z-10 grid items-end gap-8 pt-28 pb-12 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pb-16">
           <div className="max-w-xl text-white lg:self-end">
             <h1 className="font-display text-balance text-[2.5rem] leading-[0.95] sm:text-[3.5rem] lg:text-[4rem]">{h1}</h1>
             <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{sub}</p>
@@ -551,7 +551,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         </div>
       </section>
 
-      <section className="bg-white pt-14 pb-4 text-lukx-charcoal md:pt-20 md:pb-8">
+      <section className="bg-white pt-10 pb-4 text-lukx-charcoal md:pt-14 md:pb-6">
         <div className="site-container">
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
@@ -574,16 +574,15 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         </div>
       </section>
 
-
-      <section className="bg-white py-16 text-lukx-charcoal md:py-24">
+      <section className="bg-white pt-12 pb-16 text-lukx-charcoal md:pt-16 md:pb-20">
         <div className="site-container">
           <div className="grid gap-5 border-b border-black/15 pb-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:gap-12">
-            <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">{content?.solutionsTitle ?? "Soluciones para tu hogar"}</h2>
-            <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">{content?.solutionsIntro ?? "Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema."}</p>
+            <h2 data-no-split className="max-w-xl text-balance font-display text-4xl leading-none md:text-5xl">{content?.solutionsTitle ?? "Soluciones para tu hogar"}</h2>
+            <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">{content?.solutionsIntro ?? "Reduce tu consumo de CFE o protege tus equipos esenciales cuando se va la luz."}</p>
           </div>
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
-            <Image src={content?.solutionImage ?? "/images/residencial-casa-paneles.webp"} alt={content?.solutionAlt ?? "Imagen ilustrativa de una casa con paneles solares visibles en el techo"} width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
-            <ul className="divide-y divide-black/15 border-y border-black/15">
+            <Image src={content?.solutionImage ?? "/images/2025-07-proyecto-rinconada-patos.jpg"} alt={content?.solutionAlt ?? "Paneles solares instalados sobre la azotea de una casa"} width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
+            <ul className={content ? "divide-y divide-black/15 border-y border-black/15" : "divide-y divide-black/15 border-t border-black/15"}>
               {solutions.map(([title, copy]) => (
                 <li key={title} className="py-5 md:py-6">
                   <h3 className="text-lg font-semibold">{title}</h3>
@@ -598,18 +597,20 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
 
       <section className="bg-lukx-charcoal text-white">
         <div className="site-frame grid lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="site-gutter flex flex-col items-start justify-center py-14 lg:py-20">
-            <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.backupTitle ?? "Que tu casa siga funcionando cuando se va la luz"}</h2>
+          <div className="site-gutter flex flex-col items-start justify-center py-12 lg:py-16">
+            <h2 data-no-split className="text-balance font-display text-4xl leading-none md:text-5xl">{content?.backupTitle ?? "Que tu casa siga funcionando cuando se va la luz"}</h2>
             <p className="mt-5 max-w-md leading-relaxed text-white/85">{content?.backupText ?? "Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo."}</p>
-            <a href="/sistemas-de-respaldo-de-energia-en-baterias" className="btn-green mt-7">Más información</a>
+            <button type="button" onClick={openQuote} className="btn-green mt-7">Más información</button>
           </div>
-          <Image src={content?.backupImage ?? "/images/residencial-respaldo-nocturno.webp"} alt={content?.backupAlt ?? "Escena ilustrativa de una casa iluminada cuando se va la luz"} width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
+          <div className="relative aspect-video lg:aspect-auto">
+            <Image src={content?.backupImage ?? "/images/residencial-respaldo-nocturno.webp"} alt={content?.backupAlt ?? "Escena ilustrativa de una casa iluminada cuando se va la luz"} fill sizes="(min-width: 1024px) 60vw, 100vw" className="object-cover" />
+          </div>
         </div>
       </section>
 
-      <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
+      <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-20">
         <div className="site-container">
-          <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">De tu asesoría a la instalación</h2>
+          <h2 data-no-split className="max-w-2xl text-balance font-display text-4xl leading-none md:text-5xl">De tu asesoría a la instalación</h2>
           <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {processSteps.map(([title, copy, icon], index) => (
               <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
@@ -627,12 +628,12 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         </div>
       </section>
 
-      {process.env.NODE_ENV === "development" ? <DemoReviews title={content?.reviewsTitle} items={content?.reviews} /> : null}
+      {projects.length ? (pagePath.startsWith("/lp/") ? <ProjectGallery projects={projects} /> : <ProjectsCarousel projects={projects} tone="light" />) : null}
 
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-white py-16 md:py-20">
         <div className="site-container grid gap-8 md:grid-cols-[0.75fr_1.25fr] md:gap-12">
           <div className="flex flex-col items-start justify-between gap-8">
-            <h2 className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-6xl">Preguntas frecuentes</h2>
+            <h2 data-no-split className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-5xl">Preguntas frecuentes</h2>
           </div>
           <FaqAccordion items={faqs.map((item) => ({ question: item.q, answer: item.a }))} />
         </div>
@@ -642,19 +643,20 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
         <Image src={content?.closeImage ?? "/images/residencial-paneles-detalle-concreto.webp"} alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 bg-black/40" aria-hidden />
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.closeTitle ?? "Diseñemos la energía de tu casa"}</h2>
+          <h2 data-no-split className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.closeTitle ?? "Diseñemos la energía de tu casa"}</h2>
           <p className="mx-auto mt-4 max-w-lg text-white/90">{content?.closeText ?? "Agenda una asesoría sin costo con nuestro equipo. Analizamos tu consumo, resolvemos tus dudas y te recomendamos la solución adecuada para tu hogar."}</p>
-          <a href="#agenda" className="btn-green mt-7">Agendar asesoría</a>
+          <button type="button" onClick={openQuote} className="btn-green mt-7">Agendar asesoría</button>
         </div>
       </section>
 
-      {showMobileCta && !open ? (
+      {showMobileCta && !open && !contactOpen ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/10 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
-          <a href="#agenda" className="btn-green w-full">Agendar asesoría</a>
+          <button type="button" onClick={openQuote} className="btn-green w-full">Agendar asesoría</button>
         </div>
       ) : null}
 
 
+      {pagePath.startsWith("/lp/") ? (
       <footer className="bg-lukx-charcoal py-8 text-sm text-white/85 md:py-10">
         <div className="site-container flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
           <address className="flex flex-col items-start gap-2 not-italic">
@@ -670,6 +672,22 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
           </div>
         </div>
       </footer>
+      ) : null}
+
+      <dialog
+        ref={contactDialogRef}
+        className="quote-contact bg-white text-lukx-charcoal"
+        aria-labelledby="agenda-modal-title"
+        onCancel={(event) => {
+          event.preventDefault();
+          setContactOpen(false);
+        }}
+        onClick={(event) => {
+          if (event.target === contactDialogRef.current) setContactOpen(false);
+        }}
+      >
+        {contactForm("agenda-modal", true)}
+      </dialog>
 
       <dialog
         ref={dialogRef}
@@ -781,6 +799,9 @@ export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?
           </div>
         </div>
       </dialog>
+      {pagePath.startsWith("/lp/") ? (
+        <ExitIntentLead pagePath={pagePath} linea={content?.linea ?? "residencial"} suspended={open || contactOpen || Boolean(token)} />
+      ) : null}
     </article>
   );
 }

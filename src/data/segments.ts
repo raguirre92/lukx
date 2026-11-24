@@ -182,7 +182,7 @@ export const segmentPages: Record<SpaceId, SegmentPage> = {
 // Sanity publicó estos proyectos sin categoría. La clasificación vive en el contenido local.
 const LOCAL_SEGMENTS: Record<string, SpaceId[]> = {
   "rinconada-patos": ["residencial"],
-  noho: ["residencial", "comercial"],
+  noho: ["residencial"],
   "bodegas-gp": ["industrial"],
   "grand-park": ["industrial"],
   "colegio-excelsior": ["comercial"],

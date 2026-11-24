@@ -412,6 +412,65 @@ dialog.lp-modal::backdrop {
   background: transparent;
 }
 
+dialog.quote-contact {
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+  overflow: auto;
+}
+dialog.quote-contact::backdrop {
+  background: rgba(16, 16, 16, 0.55);
+}
+@keyframes quote-contact-enter {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  dialog.quote-contact[open] {
+    animation: quote-contact-enter 480ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  }
+}
+dialog.exit-intent {
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+dialog.exit-intent::backdrop {
+  background: rgba(16, 16, 16, 0.55);
+}
+@keyframes exit-intent-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+  }
+}
+@keyframes exit-intent-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  dialog.exit-intent[open] {
+    animation: exit-intent-enter 480ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+  }
+  dialog.exit-intent[open]::backdrop {
+    animation: exit-intent-backdrop 280ms ease-out both;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .quote-step {
     animation: quote-step-enter 200ms ease-out both;

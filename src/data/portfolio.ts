@@ -59,7 +59,7 @@ const meta: Record<
     services: ["Diseño de iluminación", "Eficiencia energética", "Instalación"],
   },
   noho: {
-    category: "Comercial / Residencial",
+    category: "Residencial",
     summary: "Proyecto Noho — iluminación que destaca arquitectura y atmósfera.",
     description: [
       "Proyecto Noho, orientado a potenciar la estética y atmósfera del espacio mediante un diseño de iluminación estratégico.",

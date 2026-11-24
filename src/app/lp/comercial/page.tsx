@@ -1,4 +1,4 @@
-import ResidencialSpaceQuote from "@/components/agendar/ResidencialSpaceQuote";
+import SegmentLanding from "@/components/agendar/SegmentLanding";
 import { comercialQuote } from "@/content/sector-quotes";
 import { agendarMetadata, findPag } from "@/lib/agendar-metadata";
 
@@ -10,6 +10,8 @@ export const metadata = {
   description: comercialQuote.sub,
 };
 
+export const revalidate = 300;
+
 export default function Page() {
-  return <ResidencialSpaceQuote pag={route} pagePath="/lp/comercial" content={comercialQuote} />;
+  return <SegmentLanding segment="comercial" pagePath="/lp/comercial" />;
 }

@@ -184,7 +184,28 @@ const LOCAL_SEGMENTS: Record<string, SpaceId[]> = {
   "rinconada-patos": ["residencial"],
   noho: ["residencial", "comercial"],
   "bodegas-gp": ["industrial"],
+  "grand-park": ["industrial"],
+  "colegio-excelsior": ["comercial"],
+  ifpp: ["comercial"],
+  "parroquia-goretti": ["comercial"],
 };
+
+const SPACE_LABEL: Record<SpaceId, string> = {
+  residencial: "Residencial",
+  comercial: "Comercial",
+  industrial: "Industrial",
+};
+
+export function spaceLabelsFor(slug: string, category?: string): string[] {
+  const listed = LOCAL_SEGMENTS[slug];
+  if (listed?.length) return listed.map((id) => SPACE_LABEL[id]);
+  const value = (category || "").toLowerCase();
+  const labels: string[] = [];
+  if (value.includes("residencial")) labels.push(SPACE_LABEL.residencial);
+  if (value.includes("comercial")) labels.push(SPACE_LABEL.comercial);
+  if (value.includes("industrial")) labels.push(SPACE_LABEL.industrial);
+  return labels;
+}
 
 export function projectsForSegment<T extends { slug: string; category?: string }>(
   projects: T[],

@@ -1,4 +1,3 @@
-import ExperienceStrip from "@/components/home/ExperienceStrip";
 import BlogTeasers from "@/components/home/BlogTeasers";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import ProjectsCarousel from "@/components/home/ProjectsCarousel";
@@ -27,15 +26,15 @@ export default async function HomePage() {
       <SpaceChooser />
       <SolutionsGrid />
       <ProjectsCarousel projects={projects} />
-      <ExperienceStrip />
+      <BlogTeasers posts={posts} />
       <ContactCta
+        backgroundImage="/images/2025-07-banner-abajo.jpg"
         items={[
           "Revisamos tu caso: recibo, espacio o proyecto",
           "Te decimos qué solución conviene",
           "Armamos el siguiente paso: visita o propuesta",
         ]}
       />
-      <BlogTeasers posts={posts} />
     </>
   );
 }

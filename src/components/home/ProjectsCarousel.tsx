@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
+import { spaceLabelsFor } from "@/data/segments";
 
 type ProjectSlide = {
   title: string;
   slug: string;
   image: string;
+  category?: string;
 };
 
 export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[] }) {
@@ -54,7 +56,9 @@ export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[
           className="mt-10 flex gap-4 overflow-x-auto pb-2 md:gap-5"
           style={{ scrollbarWidth: "none" }}
         >
-          {projects.map((project) => (
+          {projects.map((project) => {
+            const labels = spaceLabelsFor(project.slug, project.category);
+            return (
             <Link
               key={project.slug}
               href={`/portfolio/${project.slug}`}
@@ -72,12 +76,18 @@ export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[
               </div>
               <div className="absolute inset-x-0 bottom-0 p-5">
                 <h3 className="font-display text-[1.9rem] leading-none">{project.title}</h3>
+                {labels.length ? (
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-green">
+                    {labels.join(" · ")}
+                  </p>
+                ) : null}
                 <span className="mt-3 inline-block text-[11px] font-semibold uppercase tracking-[0.14em] text-white underline decoration-lukx-green decoration-2 underline-offset-4">
                   Ver más
                 </span>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

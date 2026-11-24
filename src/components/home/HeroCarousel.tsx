@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import HeroScrim from "@/components/HeroScrim";
-import { heroSlides, navSolutions } from "@/data/site";
+import { heroSlides } from "@/data/site";
 
 const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
 
@@ -31,8 +31,7 @@ export default function HeroCarousel() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
       tl.from(".hero-line > span", { yPercent: 115, duration: 1.2, stagger: 0.12, delay: 0.15 })
-        .from(".hero-fade", { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.1 }, "-=0.7")
-        .from(".hero-index li", { x: 24, autoAlpha: 0, duration: 0.7, stagger: 0.06 }, "-=0.8");
+        .from(".hero-fade", { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.1 }, "-=0.7");
     }, root);
     return () => ctx.revert();
   }, []);
@@ -87,25 +86,6 @@ export default function HeroCarousel() {
             </Link>
           </div>
         </div>
-
-        <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 -mb-10 md:-mb-14 lg:block">
-          <ol className="hero-index border-t border-white/20">
-            {navSolutions.map((s, i) => (
-              <li key={s.href} className="border-b border-white/20">
-                <Link
-                  href={s.href}
-                  className="group flex items-center justify-between py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white/75 transition-colors hover:text-white focus-visible:text-white"
-                >
-                  <span>
-                    <span className="mr-3 font-display text-base tracking-normal text-lukx-green">0{i + 1}</span>
-                    {s.label}
-                  </span>
-                  <Icon icon="solar:arrow-right-up-linear" width={16} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </nav>
       </div>
 
       <div className="site-container absolute inset-x-0 bottom-0 z-[4] flex items-center gap-4 pb-6">

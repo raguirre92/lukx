@@ -8,6 +8,7 @@ type ContactCtaProps = {
   primaryHref?: string;
   primaryLabel?: string;
   items?: string[];
+  backgroundImage?: string;
 };
 
 export default function ContactCta({
@@ -17,11 +18,16 @@ export default function ContactCta({
   primaryHref = "/agendar",
   primaryLabel = "Agendar asesoría",
   items,
+  backgroundImage,
 }: ContactCtaProps) {
   return (
-    <section className="relative overflow-hidden bg-lukx-black text-white">
+    <section
+      className="relative overflow-hidden bg-lukx-black bg-cover bg-center text-white"
+      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined}
+    >
+      {backgroundImage ? <div className="absolute inset-0 bg-black/55" aria-hidden /> : null}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lukx-green to-transparent" />
-      <div className="site-container grid gap-12 py-20 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+      <div className="site-container relative grid gap-12 py-20 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
         <div>
           <p className="eyebrow">{eyebrow}</p>
           <h2 className="mt-5 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[1.08]">{title}</h2>

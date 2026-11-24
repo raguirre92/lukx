@@ -1,17 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Icon } from "@iconify/react";
 import { spaces } from "@/data/site";
 
 export default function SpaceChooser() {
   return (
     <section id="espacios" className="scroll-mt-24 bg-white py-16 md:py-24">
       <div className="site-container">
-        <h2 className="font-display text-center text-[clamp(2.4rem,4vw,3.5rem)] leading-[1.08] text-lukx-charcoal">
-          ¿Qué espacio quieres resolver?
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-relaxed text-lukx-muted md:text-base">
-          Casa, negocio o planta. Entra al espacio y conoce los proyectos que diseñamos e instalamos ahí.
-        </p>
+        <div className="grid items-start gap-6 md:grid-cols-2 md:gap-16">
+          <h2 className="min-w-0 text-balance font-display text-[clamp(2.4rem,3.6vw,3.5rem)] leading-[0.95] text-lukx-charcoal">
+            +15 años siendo tu asesor en iluminación y energía solar
+          </h2>
+          <div className="min-w-0 md:pt-2">
+            <p className="text-sm leading-relaxed text-lukx-muted md:text-base">
+              Diseñamos soluciones de iluminación y energía según lo que cada cliente necesita, uniendo diseño, funcionalidad y ahorro.
+            </p>
+            <Link href="/nosotros" className="group/link mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-lukx-green-btn transition-colors hover:text-lukx-green">
+              Conócenos
+              <Icon icon="solar:arrow-right-linear" width={16} className="transition-transform duration-200 group-hover/link:translate-x-1" aria-hidden />
+            </Link>
+          </div>
+        </div>
         <div data-stagger className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3 md:gap-5">
           {spaces.map((space) => (
             <Link

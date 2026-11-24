@@ -5,9 +5,9 @@ import { spaces } from "@/data/site";
 
 export default function SpaceChooser() {
   return (
-    <section id="espacios" className="scroll-mt-24 bg-white py-16 md:py-24">
+    <section id="espacios" className="scroll-mt-24 bg-white pt-12 pb-6 md:pt-16 md:pb-8">
       <div className="site-container">
-        <div className="grid items-start gap-6 md:grid-cols-2 md:gap-16">
+        <div className="grid items-start gap-5 md:grid-cols-2 md:gap-10">
           <h2 className="min-w-0 text-balance font-display text-[clamp(2.4rem,3.6vw,3.5rem)] leading-[0.95] text-lukx-charcoal">
             +15 años siendo tu asesor en iluminación y energía solar
           </h2>
@@ -21,7 +21,7 @@ export default function SpaceChooser() {
             </Link>
           </div>
         </div>
-        <div data-stagger className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3 md:gap-5">
+        <div data-stagger className="mt-8 grid gap-4 md:mt-10 md:grid-cols-3 md:gap-5">
           {spaces.map((space) => (
             <Link
               key={space.id}

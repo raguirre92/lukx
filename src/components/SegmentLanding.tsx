@@ -39,10 +39,7 @@ export default function SegmentLanding({
           <h2 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none text-lukx-charcoal">
             Proyectos para este espacio
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-lukx-muted md:text-base">
-            Diseñamos e instalamos cada uno. Elige el que quieres conocer.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 md:mt-8 lg:grid-cols-4">
             {page.solutions.map((item) => (
               <Link
                 key={item.id}

@@ -20,7 +20,7 @@ export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[
   };
 
   return (
-    <section id="proyectos" className="bg-lukx-charcoal py-16 text-white md:py-24">
+    <section id="proyectos" className="bg-lukx-charcoal py-10 text-white md:py-14">
       <div className="site-container">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -53,7 +53,7 @@ export default function ProjectsCarousel({ projects }: { projects: ProjectSlide[
 
         <div
           ref={scroller}
-          className="mt-10 flex gap-4 overflow-x-auto pb-2 md:gap-5"
+          className="mt-8 flex gap-4 overflow-x-auto pb-2 md:gap-5"
           style={{ scrollbarWidth: "none" }}
         >
           {projects.map((project) => {

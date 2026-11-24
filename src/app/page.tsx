@@ -28,6 +28,7 @@ export default async function HomePage() {
       <ProjectsCarousel projects={projects} />
       <BlogTeasers posts={posts} />
       <ContactCta
+        eyebrow=""
         backgroundImage="/images/2025-07-banner-abajo.jpg"
         items={[
           "Revisamos tu caso: recibo, espacio o proyecto",

@@ -10,6 +10,7 @@ import { site } from "@/data/site";
 import { CIUDADES, RANGOS_LUZ_RESIDENCIAL } from "@/lib/agendar-config";
 import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
 import type { Pag } from "@/content/agendar-copys-v2";
+import type { SectorQuote } from "@/content/sector-quotes";
 
 const SOLUTIONS = [
   ["Paneles solares", "Genera tu propia energía y reduce lo que pagas a CFE. Dimensionamos el sistema según tu consumo y el espacio disponible en tu techo."],
@@ -31,7 +32,13 @@ const REVIEW_EXAMPLES = [
   { image: "/images/residencial-tecnico-lukx.webp", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
 ] as const;
 
-function DemoReviews() {
+function DemoReviews({
+  title = "Experiencias en casa",
+  items = REVIEW_EXAMPLES,
+}: {
+  title?: string;
+  items?: readonly { image: string; topic: string; quote: string }[];
+}) {
   const trackRef = useRef<HTMLUListElement>(null);
 
   function move(direction: number) {
@@ -50,7 +57,7 @@ function DemoReviews() {
         <div className="flex flex-wrap items-end justify-between gap-5 border-b border-black/15 pb-6">
           <div>
             <p className="mb-2 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa</p>
-            <h2 id="demo-reviews-title" className="font-display text-4xl leading-none md:text-6xl">Experiencias en casa</h2>
+            <h2 id="demo-reviews-title" className="font-display text-4xl leading-none md:text-6xl">{title}</h2>
           </div>
           <div className="flex gap-2">
             <button type="button" aria-label="Desplazar reseñas a la izquierda" onClick={() => move(-1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">←</button>
@@ -59,7 +66,7 @@ function DemoReviews() {
         </div>
       </div>
       <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-[max(2rem,calc(50%-558px))] md:pl-[max(2rem,calc(50%-558px))]">
-        {REVIEW_EXAMPLES.flatMap((item) => [
+        {items.flatMap((item) => [
           <li key={item.topic} className="flex aspect-square w-[min(78vw,20rem)] shrink-0 snap-start flex-col border border-black/10 bg-lukx-light p-5 sm:p-6">
             <span aria-hidden className="font-display text-5xl leading-none text-lukx-green-btn">“</span>
             <blockquote className="mt-2 flex-1 text-base leading-relaxed sm:text-lg">{item.quote}</blockquote>
@@ -105,6 +112,15 @@ const BUBBLES: Record<Phase, string> = {
   comentarios: "Si tienes dudas o algo más que contarnos, puedes dejarlo aquí.",
   cita: "Elige el día y la hora. La asesoría es por llamada o videollamada.",
 };
+
+function interestIcon(option: string) {
+  const value = option.toLowerCase();
+  if (value.includes("ambos") || value.includes("las dos")) return "solar:layers-linear";
+  if (value.includes("respaldo") || value.includes("bater")) return "solar:battery-charge-linear";
+  if (value.includes("panel") || value.includes("generaci") || value.includes("solar")) return "solar:sun-linear";
+  if (value.includes("no ") || value.includes("aún") || value.includes("aun")) return "solar:question-circle-linear";
+  return "solar:map-point-linear";
+}
 
 const fieldClass =
   "lp-residential-field w-full border border-black/15 bg-white px-3 py-3 text-base text-lukx-charcoal outline-none transition focus:border-lukx-green";
@@ -198,7 +214,23 @@ function CardStep({
   );
 }
 
-export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pagePath: string }) {
+export default function ResidencialSpaceQuote({ pag, pagePath, content }: { pag?: Pag; pagePath: string; content?: SectorQuote }) {
+  if (!content && !pag) throw new Error("Falta el contenido de la landing.");
+  const h1 = content?.h1 ?? pag!.h1;
+  const sub = content?.sub ?? pag!.sub;
+  const faqs = content?.faqs ?? pag!.faq;
+  const solutions = content?.solutions ?? SOLUTIONS;
+  const processSteps = content?.process ?? PROCESS;
+  const interests = content?.interests ?? INTERES_CASA;
+  const motives = content?.motives ?? MOTIVOS;
+  const cityLegend = content?.cityLegend ?? "¿En qué ciudad está tu casa?";
+  const reciboLegend = content?.reciboLegend ?? "¿Cuánto pagas de luz al bimestre?";
+  const bubbles: Record<Phase, string> = content
+    ? { ...BUBBLES, ciudad: content.cityBubble, recibo: content.reciboBubble }
+    : BUBBLES;
+  const interesIcons: Record<string, string> = content
+    ? Object.fromEntries(interests.map((option) => [option, interestIcon(option)]))
+    : INTERES_ICON;
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("ciudad");
   const [name, setName] = useState("");
@@ -366,7 +398,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
       if (!tracked.current.lead) {
         tracked.current.lead = true;
         pushDataLayer("generate_lead", {
-          linea: "residencial",
+          linea: content?.linea ?? "residencial",
           necesidad: "",
           ciudad: "",
           tiene_paneles: "",
@@ -501,8 +533,8 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
       <section className="relative bg-lukx-black">
         <div className="absolute inset-0">
           <Image
-            src="/images/2025-07-proyecto-rinconada-patos.jpg"
-            alt="Techo de una casa con paneles solares"
+            src={content?.heroImage ?? "/images/2025-07-proyecto-rinconada-patos.jpg"}
+            alt={content?.heroAlt ?? "Techo de una casa con paneles solares"}
             fill
             priority
             sizes="100vw"
@@ -512,8 +544,8 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
         </div>
         <div className="relative z-10 mx-auto grid max-w-[1180px] items-start gap-8 px-4 pt-28 pb-10 md:px-8 lg:grid-cols-[1.1fr_minmax(0,26rem)] lg:gap-12 lg:pt-32 lg:pb-16">
           <div className="max-w-xl text-white lg:self-end">
-            <h1 className="font-display text-balance text-[2.5rem] leading-[0.95] sm:text-[3.5rem] lg:text-[4rem]">{pag.h1}</h1>
-            <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{pag.sub}</p>
+            <h1 className="font-display text-balance text-[2.5rem] leading-[0.95] sm:text-[3.5rem] lg:text-[4rem]">{h1}</h1>
+            <p className="mt-2 max-w-md text-sm leading-snug text-white/90">{sub}</p>
           </div>
           {contactForm("agenda")}
         </div>
@@ -523,10 +555,10 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
         <div className="mx-auto max-w-[1180px] px-4 md:px-8">
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="relative col-span-2 min-h-64 md:col-span-1 md:row-span-2 md:min-h-[440px]">
-              <Image src="/images/residencial-tecnico-lukx.webp" alt="Imagen recreada a partir de una foto de un técnico junto a inversores solares" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
+              <Image src={content?.mosaicA ?? "/images/residencial-tecnico-lukx.webp"} alt={content?.mosaicAAlt ?? "Imagen recreada a partir de una foto de un técnico junto a inversores solares"} fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
             </div>
             <div className="relative col-span-2 aspect-[4/3] overflow-hidden md:col-span-1">
-              <Image src="/images/residencial-respaldo-detalle.webp" alt="Imagen recreada a partir de una instalación de respaldo de Lukx" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-center" />
+              <Image src={content?.mosaicB ?? "/images/residencial-respaldo-detalle.webp"} alt={content?.mosaicBAlt ?? "Imagen recreada a partir de una instalación de respaldo de Lukx"} fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-center" />
             </div>
             <dl className="col-span-2 grid grid-cols-2 gap-2 md:col-span-1 md:gap-3">
               <div className="flex flex-col-reverse justify-end bg-lukx-green-btn p-4 text-white sm:p-6">
@@ -546,13 +578,13 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
       <section className="bg-white py-16 text-lukx-charcoal md:py-24">
         <div className="mx-auto max-w-[1180px] px-4 md:px-8">
           <div className="grid gap-5 border-b border-black/15 pb-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:gap-12">
-            <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">Soluciones para tu hogar</h2>
-            <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema.</p>
+            <h2 className="max-w-xl text-balance font-display text-4xl leading-none md:text-6xl">{content?.solutionsTitle ?? "Soluciones para tu hogar"}</h2>
+            <p className="max-w-md text-sm leading-relaxed text-lukx-muted md:text-base">{content?.solutionsIntro ?? "Reduce tu consumo de CFE, protege tus equipos esenciales cuando se va la luz o integra ambas soluciones en un solo sistema."}</p>
           </div>
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
-            <Image src="/images/residencial-casa-paneles.webp" alt="Imagen ilustrativa de una casa con paneles solares visibles en el techo" width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
+            <Image src={content?.solutionImage ?? "/images/residencial-casa-paneles.webp"} alt={content?.solutionAlt ?? "Imagen ilustrativa de una casa con paneles solares visibles en el techo"} width={1448} height={1086} sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[4/3] w-full self-start object-cover" />
             <ul className="divide-y divide-black/15 border-y border-black/15">
-              {SOLUTIONS.map(([title, copy]) => (
+              {solutions.map(([title, copy]) => (
                 <li key={title} className="py-5 md:py-6">
                   <h3 className="text-lg font-semibold">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-lukx-muted">{copy}</p>
@@ -567,11 +599,11 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
       <section className="bg-lukx-charcoal text-white">
         <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.8fr_1.2fr]">
           <div className="flex flex-col items-start justify-center px-4 py-14 md:px-8 lg:px-16 lg:py-20">
-            <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">Que tu casa siga funcionando cuando se va la luz</h2>
-            <p className="mt-5 max-w-md leading-relaxed text-white/85">Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo.</p>
+            <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.backupTitle ?? "Que tu casa siga funcionando cuando se va la luz"}</h2>
+            <p className="mt-5 max-w-md leading-relaxed text-white/85">{content?.backupText ?? "Piensa en lo que no puede apagarse en tu casa. Con esa lista puedes saber qué necesitas respaldar y por cuánto tiempo."}</p>
             <a href="/sistemas-de-respaldo-de-energia-en-baterias" className="btn-green mt-7">Más información</a>
           </div>
-          <Image src="/images/residencial-respaldo-nocturno.webp" alt="Escena ilustrativa de una casa iluminada cuando se va la luz" width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
+          <Image src={content?.backupImage ?? "/images/residencial-respaldo-nocturno.webp"} alt={content?.backupAlt ?? "Escena ilustrativa de una casa iluminada cuando se va la luz"} width={1672} height={941} sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-video h-full w-full object-cover lg:aspect-auto" />
         </div>
       </section>
 
@@ -579,7 +611,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
         <div className="mx-auto max-w-[1180px] px-4 md:px-8">
           <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">De tu asesoría a la instalación</h2>
           <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
-            {PROCESS.map(([title, copy, icon], index) => (
+            {processSteps.map(([title, copy, icon], index) => (
               <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
                 <span className="grid size-12 place-items-center border border-lukx-green-btn bg-lukx-light text-lukx-green-btn" aria-hidden>
                   <Icon icon={icon} className="size-6" />
@@ -595,23 +627,23 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
         </div>
       </section>
 
-      {process.env.NODE_ENV === "development" ? <DemoReviews /> : null}
+      {process.env.NODE_ENV === "development" ? <DemoReviews title={content?.reviewsTitle} items={content?.reviews} /> : null}
 
       <section className="bg-white py-16 md:py-24">
         <div className="mx-auto grid max-w-[1180px] gap-8 px-4 md:grid-cols-[0.75fr_1.25fr] md:gap-12 md:px-8">
           <div className="flex flex-col items-start justify-between gap-8">
             <h2 className="text-balance font-display text-4xl leading-none text-lukx-charcoal md:text-6xl">Preguntas frecuentes</h2>
           </div>
-          <FaqAccordion items={pag.faq.map((item) => ({ question: item.q, answer: item.a }))} />
+          <FaqAccordion items={faqs.map((item) => ({ question: item.q, answer: item.a }))} />
         </div>
       </section>
 
       <section id="agenda-final" className="relative isolate overflow-hidden bg-lukx-charcoal px-4 py-20 text-center text-white md:py-32">
-        <Image src="/images/residencial-paneles-detalle-concreto.webp" alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
+        <Image src={content?.closeImage ?? "/images/residencial-paneles-detalle-concreto.webp"} alt="" fill sizes="100vw" className="-z-20 object-cover object-center" />
         <div className="absolute inset-0 -z-10 bg-black/40" aria-hidden />
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">Diseñemos la energía de tu casa</h2>
-          <p className="mx-auto mt-4 max-w-lg text-white/90">Agenda una asesoría sin costo con nuestro equipo. Analizamos tu consumo, resolvemos tus dudas y te recomendamos la solución adecuada para tu hogar.</p>
+          <h2 className="text-balance font-display text-4xl leading-none md:text-6xl">{content?.closeTitle ?? "Diseñemos la energía de tu casa"}</h2>
+          <p className="mx-auto mt-4 max-w-lg text-white/90">{content?.closeText ?? "Agenda una asesoría sin costo con nuestro equipo. Analizamos tu consumo, resolvemos tus dudas y te recomendamos la solución adecuada para tu hogar."}</p>
           <a href="#agenda" className="btn-green mt-7">Agendar asesoría</a>
         </div>
       </section>
@@ -666,7 +698,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
                     <div className="quote-bar h-full bg-lukx-green" style={{ width: `${(stepNumber / stepCount) * 100}%` }} />
                   </div>
                   <div className="mt-5">
-                    <AdvisorBubble text={BUBBLES[phase]} />
+                    <AdvisorBubble text={bubbles[phase]} />
                   </div>
                 </>
               )}
@@ -675,7 +707,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
                   <div className="mt-5">
                     <ChoiceCards
                       name="ciudad"
-                      legend="¿En qué ciudad está tu casa?"
+                      legend={cityLegend}
                       options={CIUDADES}
                       icons={{}}
                       value={city}
@@ -688,7 +720,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
                   <div className="mt-5">
                     <ChoiceCards
                       name="recibo"
-                      legend="¿Cuánto pagas de luz al bimestre?"
+                      legend={reciboLegend}
                       options={RANGOS_LUZ_RESIDENCIAL}
                       icons={RANGO_ICON}
                       value={recibo}
@@ -705,8 +737,8 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
                     <ChoiceCards
                       name="interes"
                       legend="¿Qué te interesa?"
-                      options={INTERES_CASA}
-                      icons={INTERES_ICON}
+                      options={interests}
+                      icons={interesIcons}
                       value={interes}
                       disabled={submitting}
                       onPick={(value) => void pickMapped("interes", value)}
@@ -717,7 +749,7 @@ export default function ResidencialSpaceQuote({ pag, pagePath }: { pag: Pag; pag
                   </div>
                 ) : null}
                 {phase === "motivo" ? (
-                  <CardStep title="¿Qué te motiva más?" name="motivo" options={MOTIVOS} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("comentarios"); }} onBack={() => go("interes")} />
+                  <CardStep title="¿Qué te motiva más?" name="motivo" options={motives} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("comentarios"); }} onBack={() => go("interes")} />
                 ) : null}
                 {phase === "comentarios" ? (
                   <form className="mt-5" onSubmit={(event) => { event.preventDefault(); void finishProfile(); }}>

@@ -1,15 +1,15 @@
-import SpaceQuote from "@/components/agendar/SpaceQuote";
+import ResidencialSpaceQuote from "@/components/agendar/ResidencialSpaceQuote";
+import { industrialQuote } from "@/content/sector-quotes";
 import { agendarMetadata, findPag } from "@/lib/agendar-metadata";
-import { industrialLanding } from "@/content/space-landings";
 
 const route = findPag("/agendar/industrial");
 
 export const metadata = {
   ...agendarMetadata(route),
-  title: { absolute: industrialLanding.pageTitle },
-  description: industrialLanding.meta,
+  title: { absolute: "Energía solar y respaldo para naves y plantas industriales | Lukx" },
+  description: industrialQuote.sub,
 };
 
 export default function Page() {
-  return <SpaceQuote pagePath="/agendar/industrial" />;
+  return <ResidencialSpaceQuote pag={route} pagePath="/agendar/industrial" content={industrialQuote} />;
 }

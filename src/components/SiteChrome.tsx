@@ -16,7 +16,9 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       ? "Comercial"
       : pathname === "/lp/industrial"
         ? "Industrial"
-        : undefined;
+        : pathname === "/lp/asesoria"
+          ? "Asesoría"
+          : undefined;
   if (pathname.startsWith("/lp/") || pathname === "/lp") return <LeadChrome ads category={lpCategory}>{children}</LeadChrome>;
 
   return (

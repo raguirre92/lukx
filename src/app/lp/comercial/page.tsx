@@ -1,15 +1,15 @@
-import SpaceQuote from "@/components/agendar/SpaceQuote";
+import ResidencialSpaceQuote from "@/components/agendar/ResidencialSpaceQuote";
+import { comercialQuote } from "@/content/sector-quotes";
 import { agendarMetadata, findPag } from "@/lib/agendar-metadata";
-import { comercialLanding } from "@/content/space-landings";
 
 const route = findPag("/lp/comercial");
 
 export const metadata = {
   ...agendarMetadata(route),
-  title: { absolute: comercialLanding.pageTitle },
-  description: comercialLanding.meta,
+  title: { absolute: "Paneles solares y respaldo para tu negocio en Monterrey | Lukx" },
+  description: comercialQuote.sub,
 };
 
 export default function Page() {
-  return <SpaceQuote pagePath="/lp/comercial" />;
+  return <ResidencialSpaceQuote pag={route} pagePath="/lp/comercial" content={comercialQuote} />;
 }

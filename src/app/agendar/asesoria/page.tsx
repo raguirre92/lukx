@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import SpaceQuote from "@/components/agendar/SpaceQuote";
+import ResidencialSpaceQuote from "@/components/agendar/ResidencialSpaceQuote";
+import { asesoriaQuote } from "@/content/sector-quotes";
 import { brandedPage } from "@/lib/seo";
-import { generalLanding } from "@/content/space-landings";
-
-const landing = generalLanding("agendar");
 
 export const metadata: Metadata = {
   ...brandedPage({
-    title: landing.pageTitle,
-    description: landing.meta,
+    title: "Energía solar y respaldo para casas, negocios e industrias | Lukx",
+    description: asesoriaQuote.sub,
     path: "/agendar/asesoria",
     absolute: true,
   }),
@@ -16,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <SpaceQuote pagePath="/agendar/asesoria" />;
+  return <ResidencialSpaceQuote pagePath="/agendar/asesoria" content={asesoriaQuote} />;
 }

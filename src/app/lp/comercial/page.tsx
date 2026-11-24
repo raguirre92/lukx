@@ -1,10 +1,15 @@
-import AgendarScreen from "@/components/agendar/AgendarScreen";
+import SpaceQuote from "@/components/agendar/SpaceQuote";
 import { agendarMetadata, findPag } from "@/lib/agendar-metadata";
+import { comercialLanding } from "@/content/space-landings";
 
-const pag = findPag("/lp/comercial");
+const route = findPag("/lp/comercial");
 
-export const metadata = agendarMetadata(pag);
+export const metadata = {
+  ...agendarMetadata(route),
+  title: { absolute: comercialLanding.pageTitle },
+  description: comercialLanding.meta,
+};
 
 export default function Page() {
-  return <AgendarScreen pag={pag} />;
+  return <SpaceQuote pagePath="/lp/comercial" />;
 }

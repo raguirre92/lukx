@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { BookingError, MSG, logBookingError } from "@/lib/booking-error";
 import { toOdooUtc } from "@/lib/cdmx";
 import { signLeadToken } from "@/lib/lead-token";
-import { CIUDADES, RANGOS_LUZ_META } from "@/lib/agendar-config";
+import { CIUDADES, RANGOS_RECIBO_ACEPTADOS } from "@/lib/agendar-config";
 import {
   cityLabel,
   cleanComment,
@@ -50,9 +50,12 @@ function pendingFrom(record: Record<string, unknown>, respuestas: Record<string,
   pick("empresa", respuestas.Empresa);
   pick("puesto", respuestas.Puesto);
   pick("plazo", respuestas["¿Cuándo planeas hacerlo?"]);
-  pick("tipoNegocio", respuestas["Tipo de negocio"], record.tipoNegocio);
-  pick("tipoPlanta", respuestas["Tipo de planta"], respuestas["Tipo de planta o nave"], respuestas["Tipo de planta/nave"], record.tipoPlanta);
-  pick("decideCompra", respuestas["¿Eres quien decide la compra?"]);
+  pick("tipoNegocio", respuestas["Tipo de negocio"], respuestas["¿Qué tipo de negocio tienes?"], record.tipoNegocio);
+  pick("tipoPlanta", respuestas["Tipo de planta"], respuestas["Tipo de planta o nave"], respuestas["¿Qué tipo de instalación tienes?"], respuestas["Tipo de planta/nave"], record.tipoPlanta);
+  pick("decideCompra", respuestas["¿Eres quien decide la compra?"], respuestas["¿El inmueble es propio o rentado?"], respuestas["¿Eres propietario o administras el inmueble?"]);
+  pick("tarifaCfe", respuestas["¿Qué tarifa de CFE tienes?"]);
+  pick("rol", respuestas["¿Cuál es tu rol?"]);
+  pick("espacio", respuestas["¿Para qué tipo de espacio es?"]);
   pick("tamanoNave", respuestas["Tamaño aproximado de la nave o del consumo"]);
   pick("landing", atribucion.landing);
   pick("referrer", atribucion.referrer);
@@ -120,14 +123,17 @@ export async function POST(request: Request) {
     const recibo = cleanText(
       record.recibo
         ?? respuestas["¿Cuánto pagas de luz al bimestre, aproximadamente?"]
-        ?? respuestas["¿Cuánto pagas de luz al mes, aproximadamente?"],
+        ?? respuestas["¿Cuánto pagas de luz al mes, aproximadamente?"]
+        ?? respuestas["¿Cuánto pagas de luz, aproximadamente?"],
       80,
     );
-    if (recibo && !RANGOS_LUZ_META.includes(recibo as (typeof RANGOS_LUZ_META)[number])) {
+    if (recibo && !RANGOS_RECIBO_ACEPTADOS.includes(recibo as (typeof RANGOS_RECIBO_ACEPTADOS)[number])) {
       return fail(400, "Elige un rango de tu recibo.");
     }
     const space = cleanText(
-      respuestas["¿Dónde sería el proyecto?"] ?? respuestas["¿Para qué espacio es tu proyecto?"],
+      respuestas["¿Dónde sería el proyecto?"]
+        ?? respuestas["¿Para qué espacio es tu proyecto?"]
+        ?? respuestas["¿Para qué tipo de espacio es?"],
       160,
     );
     const solution = cleanText(

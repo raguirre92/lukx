@@ -33,6 +33,9 @@ export type PendingLeadFields = {
   tipoPlanta: string;
   decideCompra: string;
   tamanoNave: string;
+  tarifaCfe: string;
+  rol: string;
+  espacio: string;
   avisoPrivacidadEn: string;
   landing: string;
   referrer: string;
@@ -74,6 +77,9 @@ export function emptyPendingFields(): PendingLeadFields {
     tipoPlanta: "",
     decideCompra: "",
     tamanoNave: "",
+    tarifaCfe: "",
+    rol: "",
+    espacio: "",
     avisoPrivacidadEn: "",
     landing: "",
     referrer: "",
@@ -104,8 +110,9 @@ export function cityLabel(value: string): string {
 export function sectorFromSpace(space: string): Sector | "" {
   const value = space.trim().toLowerCase();
   if (!value || value === "otro" || value.startsWith("otro")) return "";
-  if (value.startsWith("casa") || value.includes("residencial")) return "Residencial";
-  if (value.startsWith("negocio") || value.includes("comercial") || value.includes("oficina")) return "Comercial";
+  if (/no estoy|a[uú]n no/.test(value)) return "";
+  if (value.startsWith("casa") || value.includes("mi casa") || value.includes("residencial")) return "Residencial";
+  if (value.startsWith("negocio") || value.includes("mi negocio") || value.includes("comercial") || value.includes("oficina")) return "Comercial";
   if (value.includes("industria") || value.includes("nave") || value.includes("bodega") || value.includes("planta")) {
     return "Industrial";
   }
@@ -128,8 +135,9 @@ export function solutionTagIds(raw: string): number[] {
   }
   const slug = SLUG_TAGS[value];
   if (slug) return [...slug];
-  if (/no estoy seguro|todav[ií]a no|no lo s[eé]|no-seguro|^otro$/.test(value)) return [TAG_OTRO];
+  if (/no estoy seguro|a[uú]n no lo s[eé]|todav[ií]a no|no lo s[eé]|no-seguro|^otro$/.test(value)) return [TAG_OTRO];
   const tags = new Set<number>();
+  if (value.includes("pagar menos") || value.includes("generaci")) tags.add(TAG_PANELES);
   if (value.includes("paneles")) tags.add(TAG_PANELES);
   if (value.includes("respaldo") || value.includes("bater")) tags.add(TAG_RESPALDO);
   if (value.includes("iluminaci")) tags.add(TAG_ILUMINACION);

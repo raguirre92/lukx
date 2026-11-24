@@ -115,13 +115,18 @@ const nextConfig: NextConfig = {
       source: "/lp/:path*",
       headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
     };
-    if (process.env.VERCEL_ENV === "production") return [lp];
+    const agendar = ["/agendar/residencial", "/agendar/comercial", "/agendar/industrial", "/agendar/asesoria"].map((source) => ({
+      source,
+      headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+    }));
+    if (process.env.VERCEL_ENV === "production") return [lp, ...agendar];
     return [
       {
         source: "/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
       lp,
+      ...agendar,
     ];
   },
   turbopack: {

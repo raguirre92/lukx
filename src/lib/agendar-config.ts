@@ -34,6 +34,37 @@ export const RANGOS_LUZ_META = [
 export const RANGOS_LUZ: readonly string[] = RANGOS_LUZ_META;
 export const RANGOS_LUZ_RESIDENCIAL = RANGOS_LUZ_META;
 
+export const RANGOS_LUZ_COMERCIAL = [
+  "Menos de $5,000",
+  "$5,000 a $15,000",
+  "$15,000 a $50,000",
+  "Más de $50,000",
+  "No lo sé",
+] as const;
+
+export const RANGOS_LUZ_INDUSTRIAL = [
+  "Menos de $50,000",
+  "$50,000 a $150,000",
+  "$150,000 a $500,000",
+  "Más de $500,000",
+  "No lo sé",
+] as const;
+
+export const RANGOS_LUZ_GENERAL = [
+  "Menos de $2,000 al bimestre",
+  "$2,000 a $6,000 al bimestre",
+  "Más de $6,000 al bimestre",
+  "Pago más de $15,000 al mes",
+  "No lo sé",
+] as const;
+
+export const RANGOS_RECIBO_ACEPTADOS = [
+  ...RANGOS_LUZ_META,
+  ...RANGOS_LUZ_COMERCIAL,
+  ...RANGOS_LUZ_INDUSTRIAL,
+  ...RANGOS_LUZ_GENERAL,
+] as const;
+
 export const INTERESES_CASA = [
   "Paneles solares",
   "Baterías de respaldo",

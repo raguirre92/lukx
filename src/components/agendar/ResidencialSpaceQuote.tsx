@@ -663,7 +663,7 @@ export default function ResidencialSpaceQuote({
                   </div>
                 </>
               )}
-              <div key={phase} ref={questionRef} tabIndex={-1} role="group" aria-label={question?.title ?? (phase === "cita" ? "Agenda tu asesoría" : "Comentarios")} className="quote-step outline-none">
+              <div key={phase} ref={questionRef} tabIndex={-1} role="group" aria-label={question?.title ?? (phase === "cita" ? "Agenda tu asesoría" : "Comentarios")} className="quote-step outline-none" style={{ outline: "none" }}>
                 {question ? <QuestionStep key={phase} question={question} value={answers[question.id]} disabled={submitting} onPick={(value) => void pickQuestion(question.id, value)} onBack={stepNumber > 1 ? () => go(phases[stepNumber - 2]) : undefined} /> : null}
                 {phase === "comentarios" ? (
                   <form className="mt-5" onSubmit={(event) => { event.preventDefault(); void finishProfile(); }}>

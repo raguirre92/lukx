@@ -11,6 +11,14 @@ import {
   type PendingLeadFields,
 } from "@/lib/lead-mapping";
 import { saveWebLead } from "@/lib/odoo";
+import {
+  SOLUTION_WEB_FIELDS,
+  answerFields,
+  formularioFor,
+  pageField,
+  trackingFields,
+  type WebFields,
+} from "@/lib/web-answers";
 import { normalizeEmailAddress, normalizePersonName, normalizeWhatsAppMx } from "@/lib/phone";
 import { allowLeadWrite, clientIp } from "@/lib/rate-limit";
 
@@ -144,6 +152,18 @@ export async function POST(request: Request) {
     const comment = cleanComment(rawComment);
     if (contact && !comment) return fail(400, "Escribe tu mensaje.");
 
+    const replaceSolutionDetails = record.replaceSolutionDetails === true && ["Paneles solares", "Sistemas de respaldo", "Ambos", "Iluminación", "Estaciones de carga"].includes(solution);
+    const tracking = trackingFields(record);
+    const webFields: WebFields = { ...answerFields(respuestas, recibo) };
+    if (replaceSolutionDetails) {
+      for (const field of SOLUTION_WEB_FIELDS) if (!(field in webFields)) webFields[field] = false;
+    }
+    const formulario = formularioFor(record.formulario, contact);
+    if (formulario) webFields.x_web_formulario = formulario;
+    const page = pageField(pagina);
+    if (page) webFields.x_web_pagina = page;
+    Object.assign(webFields, tracking.fields);
+
     const saved = await saveWebLead({
       name,
       email,
@@ -154,9 +174,12 @@ export async function POST(request: Request) {
       comment,
       solution,
       recibo,
-      replaceSolutionDetails: record.replaceSolutionDetails === true && ["Paneles solares", "Sistemas de respaldo", "Ambos", "Iluminación", "Estaciones de carga"].includes(solution),
+      replaceSolutionDetails,
       contact,
       pendingFields: pendingFrom(record, respuestas, privacyAccepted),
+      webFields,
+      utmCampaign: tracking.utmCampaign,
+      privacyAcceptedAt: privacyAccepted ? toOdooUtc(new Date()) : "",
     });
     const leadToken = signLeadToken(saved.leadId, saved.partnerId);
     return NextResponse.json({ leadToken });

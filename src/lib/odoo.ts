@@ -20,6 +20,7 @@ import {
 import { mockExecute } from "@/lib/odoo-mock";
 import type { BusyInterval, SlotWindow } from "@/lib/slots";
 import { generateSlots } from "@/lib/slots";
+import { textToHtml, type WebFields } from "@/lib/web-answers";
 import { encodeMethodCall, parseMethodResponse } from "@/lib/xmlrpc";
 
 const MODELS = new Set([
@@ -29,6 +30,7 @@ const MODELS = new Set([
   "calendar.event",
   "appointment.type",
   "appointment.slot",
+  "utm.campaign",
 ]);
 
 const METHODS = new Set(["search_read", "create", "write", "fields_get"]);
@@ -65,6 +67,12 @@ type LeadInput = {
   /** True when the form sent a city, including Otro, so an empty city clears the field. */
   cityChosen?: boolean;
   pendingFields: PendingLeadFields;
+  /** x_web_* values; false clears a field, missing keys are left untouched. */
+  webFields?: WebFields;
+  /** Raw utm_campaign, matched or created as utm.campaign. */
+  utmCampaign?: string;
+  /** Odoo UTC datetime when the privacy notice was accepted; written once per lead. */
+  privacyAcceptedAt?: string;
 };
 
 export type PublicSlot = { start: string; stop: string };
@@ -74,6 +82,7 @@ type Memory = {
   typeCache?: { at: number; config: TypeConfig };
   fields?: { showAs?: boolean; wonStatus?: boolean };
   tags?: { open?: number; booked?: number };
+  campaigns?: Record<string, number>;
   staff?: { userId: number; partnerId: number };
 };
 
@@ -183,47 +192,58 @@ function isCustomFieldFault(fault: string): boolean {
   return /x_[a-z0-9_]+/i.test(fault) || /invalid field|unknown field|does not exist|unexpected keyword/i.test(fault);
 }
 
-function withoutCustomFields(vals: Record<string, unknown>): Record<string, unknown> {
+function withoutFields(vals: Record<string, unknown>, prefix: string): Record<string, unknown> {
   const plain: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(vals)) {
-    if (!key.startsWith("x_")) plain[key] = value;
+    if (!key.startsWith(prefix)) plain[key] = value;
   }
   return plain;
 }
 
+/**
+ * Payloads to try in order when Odoo rejects custom fields: first without the
+ * newer x_web_* fields so the core x_studio_* data survives, then without any x_.
+ */
+function customFallbacks(vals: Record<string, unknown>): Record<string, unknown>[] {
+  const keys = Object.keys(vals);
+  const steps: Record<string, unknown>[] = [];
+  if (keys.some((key) => key.startsWith("x_web_"))) steps.push(withoutFields(vals, "x_web_"));
+  if (keys.some((key) => key.startsWith("x_") && !key.startsWith("x_web_"))) steps.push(withoutFields(vals, "x_"));
+  return steps;
+}
+
+async function withCustomFallback<T>(vals: Record<string, unknown>, run: (payload: Record<string, unknown>) => Promise<T>): Promise<T> {
+  const fallbacks = customFallbacks(vals);
+  let payload = vals;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await run(payload);
+    } catch (err) {
+      const next = fallbacks[attempt];
+      if (!next || !isCustomFieldFault(faultOf(err))) throw err;
+      const keepsCore = Object.keys(next).some((key) => key.startsWith("x_"));
+      console.error(`[odoo] campos ${keepsCore ? "x_web_" : "x_"} rechazados; se reintenta sin ellos`);
+      logBookingError("odoo-x", faultOf(err));
+      payload = next;
+    }
+  }
+}
+
 async function createRecord(model: string, vals: Record<string, unknown>): Promise<number> {
-  const run = async (payload: Record<string, unknown>) => {
+  return withCustomFallback(vals, async (payload) => {
     const created = await executeKw<number>(model, "create", [payload]);
     const id = asId(created);
     if (!id) throw new BookingError(502, MSG.save);
     return id;
-  };
-  try {
-    return await run(vals);
-  } catch (err) {
-    const custom = Object.keys(vals).some((key) => key.startsWith("x_"));
-    if (!custom || !isCustomFieldFault(faultOf(err))) throw err;
-    console.error("[odoo] campos x_ rechazados; se reintenta sin ellos");
-    logBookingError("odoo-x", faultOf(err));
-    return run(withoutCustomFields(vals));
-  }
+  });
 }
 
 async function writeRecord(model: string, id: number, vals: Record<string, unknown>): Promise<void> {
-  const run = async (payload: Record<string, unknown>) => {
+  await withCustomFallback(vals, async (payload) => {
     if (!Object.keys(payload).length) return;
     const wrote = await executeKw<boolean>(model, "write", [[id], payload]);
     if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.save);
-  };
-  try {
-    await run(vals);
-  } catch (err) {
-    const custom = Object.keys(vals).some((key) => key.startsWith("x_"));
-    if (!custom || !isCustomFieldFault(faultOf(err))) throw err;
-    console.error("[odoo] campos x_ rechazados; se reintenta sin ellos");
-    logBookingError("odoo-x", faultOf(err));
-    await run(withoutCustomFields(vals));
-  }
+  });
 }
 
 function asId(value: unknown): number | null {
@@ -415,7 +435,6 @@ function leadValues(
     team_id: TEAM_ID,
     contact_name: input.name,
     email_from: input.email,
-    description: comment,
     source_id: SOURCE_WEB_ID,
     medium_id: MEDIUM_WEB_ID,
     x_studio_de_dnde_llego: "Sitio Web",
@@ -432,7 +451,11 @@ function leadValues(
   if (input.city) vals.city = input.city;
   else if (input.cityChosen) vals.city = false;
   if (input.sector) vals.x_studio_sector = input.sector;
-  if (comment) vals.x_studio_mensaje_del_lead = comment;
+  if (comment) {
+    // Without a comment the description is left alone, so a later short form never wipes it.
+    vals.description = textToHtml(comment);
+    vals.x_studio_mensaje_del_lead = comment;
+  }
   if (input.recibo) vals.x_studio_gasto_en_recibo_de_luz = input.recibo;
   else if (input.replaceSolutionDetails) vals.x_studio_gasto_en_recibo_de_luz = false;
   if (tipo) vals.x_studio_tipo_venta = tipo;
@@ -441,7 +464,39 @@ function leadValues(
   } else if (input.replaceSolutionDetails) {
     vals.x_studio_solucin = false;
   }
+  for (const [key, value] of Object.entries(input.webFields ?? {})) {
+    if (key.startsWith("x_web_") && (value === false || value)) vals[key] = value;
+  }
   return vals;
+}
+
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/** Finds utm.campaign by name (case-insensitive) or creates it. Never blocks the lead. */
+async function campaignFor(raw: string | undefined): Promise<number | null> {
+  const name = raw?.trim().slice(0, 100) ?? "";
+  if (!name) return null;
+  const box = mem();
+  box.campaigns ??= {};
+  const cacheKey = name.toLowerCase();
+  if (box.campaigns[cacheKey]) return box.campaigns[cacheKey];
+  try {
+    const rows = await executeKw<OdooRecord[]>(
+      "utm.campaign",
+      "search_read",
+      [[["name", "=ilike", escapeLike(name)]]],
+      { fields: ["id"], limit: 1, order: "id asc" },
+    );
+    let id = asId(rows[0]?.id);
+    if (!id) id = asId(await executeKw<number>("utm.campaign", "create", [{ name, title: name }]));
+    if (id) box.campaigns[cacheKey] = id;
+    return id;
+  } catch (err) {
+    logBookingError("odoo-utm", faultOf(err));
+    return null;
+  }
 }
 
 async function findPartner(email: string, whatsapp: string): Promise<FoundPartner | null> {
@@ -490,6 +545,22 @@ async function findOpenLead(partnerId: number | null, email: string): Promise<nu
   return asId(rows[0]?.id);
 }
 
+/** Keeps the first acceptance time; if the field can't be read, it is not overwritten. */
+async function privacyAlreadyAccepted(leadId: number): Promise<boolean> {
+  try {
+    const rows = await executeKw<OdooRecord[]>(
+      "crm.lead",
+      "search_read",
+      [[["id", "=", leadId]]],
+      { fields: ["x_web_aviso_privacidad"], limit: 1 },
+    );
+    return Boolean(rows[0]?.x_web_aviso_privacidad);
+  } catch (err) {
+    logBookingError("odoo-x", faultOf(err));
+    return true;
+  }
+}
+
 export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; partnerId: number }> {
   holdPendingFields(input.pendingFields);
   try {
@@ -507,12 +578,13 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
       if (Object.keys(fill).length) await writeRecord("res.partner", found.id, fill);
     }
 
+    const campaignId = await campaignFor(input.utmCampaign);
     let leadId = await findOpenLead(partnerId, input.email);
     if (!leadId) {
-      leadId = await createRecord(
-        "crm.lead",
-        leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags], true),
-      );
+      const vals = leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags], true);
+      if (campaignId) vals.campaign_id = campaignId;
+      if (input.privacyAcceptedAt) vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
+      leadId = await createRecord("crm.lead", vals);
     } else {
       const current = await executeKw<OdooRecord[]>(
         "crm.lead",
@@ -522,11 +594,12 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
       );
       const existing = asIdList(current[0]?.tag_ids);
       const appointment = existing.includes(TAG_SCHEDULED) ? TAG_SCHEDULED : TAG_UNSCHEDULED;
-      await writeRecord(
-        "crm.lead",
-        leadId,
-        leadValues(input, partnerId, at, [appointment, ...solutionTags], false),
-      );
+      const vals = leadValues(input, partnerId, at, [appointment, ...solutionTags], false);
+      if (campaignId) vals.campaign_id = campaignId;
+      if (input.privacyAcceptedAt && !(await privacyAlreadyAccepted(leadId))) {
+        vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
+      }
+      await writeRecord("crm.lead", leadId, vals);
     }
     return { leadId, partnerId: partnerId ?? 0 };
   } catch (err) {

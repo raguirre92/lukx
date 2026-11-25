@@ -108,6 +108,7 @@ export default function ExitIntentLead({
           privacyAccepted: privacy,
           lukx_hp: honeypot,
           pagina: pagePath,
+          formulario: "salida",
           respuestas: { Origen: "Intención de salida" },
           atribucion: attribution,
           utm_source: attribution.utm_source,

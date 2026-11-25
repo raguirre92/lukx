@@ -14,7 +14,7 @@ function load(file) {
   const compiledModule = { exports: {} };
   cache.set(file,compiledModule);
   let code = ts.transpileModule(fs.readFileSync(file,'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop:true, target:ts.ScriptTarget.ES2022 } }).outputText;
-  if (file === path.join(root, "src/lib/odoo.ts")) code += "\nexports.testLeadValues = leadValues;";
+  if (file === path.join(root, "src/lib/odoo.ts")) code += "\nexports.testLeadValues = leadValues;\nexports.testCustomFallbacks = customFallbacks;";
   const localRequire = (name) => {
     if(mocks.has(name)) return mocks.get(name);
     if(name.startsWith('@/') || name.startsWith('.')) {
@@ -245,3 +245,74 @@ async function integration() {
   console.log('PASS: solar new/existing systems and monthly billing, mounted modal opens with interest, multiple equipment selection persists through Back and reaches booking without asking hours, lighting/charging routes and Back work. All requests mocked locally.');
 }
 integration().catch(error=>{console.error(error);process.exitCode=1;});
+
+{
+  const web=load(path.join(root,'src/lib/web-answers.ts'));
+  const r={
+    '¿Ya tienes paneles solares?':'Sí',
+    '¿Qué necesitas para tu sistema actual?':'Otro',
+    '¿Qué necesitas hacer con tu sistema de paneles?':'Mover paneles',
+    '¿Qué equipos o procesos necesitas respaldar?':'Refrigeración; Otros equipos',
+    '¿Qué otros equipos o procesos necesitas respaldar?':'Compresor',
+    '¿Qué áreas necesitas iluminar?':'Oficinas; Otro',
+    '¿Qué otra área necesitas iluminar?':'Azotea',
+    '¿Qué necesitas para la iluminación?':'Renovar la iluminación actual',
+    '¿Quién usará las estaciones de carga?':'Flotilla de la empresa',
+    '¿Cuántos vehículos necesitas cargar al mismo tiempo?':'De 2 a 5 vehículos',
+  };
+  const f=web.answerFields(r,'$5,000 a $15,000');
+  assert.equal(f.x_web_tiene_paneles,'si');
+  assert.equal(f.x_web_sistema_actual,'otro');
+  assert.equal(f.x_web_sistema_actual_otro,'Mover paneles');
+  assert.equal(f.x_web_equipos,'Refrigeración; Otros equipos; Otro: Compresor');
+  assert.equal(f.x_web_areas_iluminar,'Oficinas; Otro; Otro: Azotea');
+  assert.equal(f.x_web_necesidad_iluminacion,'renovar');
+  assert.equal(f.x_web_uso_cargadores,'Flotilla de la empresa');
+  assert.equal(f.x_web_vehiculos,'2_5');
+  assert.equal(f.x_web_periodo_recibo,'mensual');
+  assert.deepEqual(web.answerFields({},''),{});
+  assert.equal(web.periodoRecibo('Entre 0 y 3,000 pesos'),'bimestral');
+  assert.equal(web.periodoRecibo('Menos de $50,000'),'mensual');
+  assert.equal(web.periodoRecibo('$2,000 a $6,000 al bimestre'),'bimestral');
+  assert.equal(web.periodoRecibo('Pago más de $15,000 al mes'),'mensual');
+  assert.equal(web.periodoRecibo('No lo sé'),'');
+  assert.equal(web.formularioFor('salida',false),'salida');
+  assert.equal(web.formularioFor('hack',true),'contacto');
+  assert.equal(web.formularioFor('',false),'');
+  const t=web.trackingFields({atribucion:{gclid:'g'.repeat(300),utm_campaign:'Solar',landing:'https://lukx.com.mx/lp/residencial?x=1',referrer:''},utm_source:'google'});
+  assert.equal(t.fields.x_web_gclid.length,250);
+  assert.equal(t.fields.x_web_utm_source,'google');
+  assert.equal(t.utmCampaign,'Solar');
+  assert.equal(Object.hasOwn(t.fields,'x_web_referrer'),false);
+  assert.equal(web.textToHtml('Hola <b>\nlínea & 2\n'),'<p>Hola &lt;b&gt;<br>línea &amp; 2</p>');
+  // all selection keys match those created in Odoo
+  const keys={x_web_tiene_paneles:['si','no'],x_web_sistema_actual:['ampliar','revisar','asesoria','otro'],x_web_necesidad_iluminacion:['nueva','renovar','asesoria','otro'],x_web_vehiculos:['1','2_5','mas_5','no_se'],x_web_periodo_recibo:['bimestral','mensual']};
+  for(const sector of ['residencial','comercial','industrial','asesoria']) for(const space of ['','Mi casa','Mi negocio','Mi planta o nave']) {
+    const base={...empty(),espacio:space};
+    for(const interest of flow.getQuoteQuestions(sector,base)[0].options) {
+      const answers={...base,interes:interest,tiene_paneles:'Sí'};
+      for(const q of flow.getQuoteQuestions(sector,answers)) for(const option of q.options??[]) {
+        const fields=web.answerFields(flow.quoteResponses(sector,{...answers,[q.id]:option},''),q.id==='recibo'?option:'');
+        for(const [field,allowed] of Object.entries(keys)) if(fields[field]!==undefined) assert.ok(allowed.includes(fields[field]),`${field}=${fields[field]}`);
+        if(['tiene_paneles','objetivo_solar','proyecto_iluminacion','cantidad_carga'].includes(q.id)) assert.ok(Object.keys(fields).length>0,`${q.id}/${option} unmapped`);
+        if(q.id==='recibo' && option!=='No lo sé') assert.ok(fields.x_web_periodo_recibo,`periodo for ${option}`);
+      }
+    }
+  }
+  const {testLeadValues:lv}=load(path.join(root,'src/lib/odoo.ts'));
+  const base={name:'Prueba',email:'prueba@example.invalid',whatsapp:'5512345678',pendingFields:{}};
+  const noComment=lv({...base,comment:'',webFields:{x_web_formulario:'salida',x_web_equipos:false,x_studio_x:'nope'}},null,new Date(),[],false);
+  assert.equal(Object.hasOwn(noComment,'description'),false);
+  assert.equal(noComment.x_web_formulario,'salida');
+  assert.equal(noComment.x_web_equipos,false);
+  assert.equal(Object.hasOwn(noComment,'x_studio_x'),false);
+  const withComment=lv({...base,comment:'Línea 1\nLínea <2>'},null,new Date(),[],false);
+  assert.equal(withComment.description,'<p>Línea 1<br>Línea &lt;2&gt;</p>');
+  assert.equal(withComment.x_studio_mensaje_del_lead,'Línea 1\nLínea <2>');
+  const {testCustomFallbacks:cf}=load(path.join(root,'src/lib/odoo.ts'));
+  const steps=cf({name:'a',x_studio_sector:'Residencial',x_web_formulario:'cotizador'});
+  assert.deepEqual(steps,[{name:'a',x_studio_sector:'Residencial'},{name:'a'}]);
+  assert.deepEqual(cf({name:'a',x_studio_sector:'Residencial'}),[{name:'a'}]);
+  assert.deepEqual(cf({name:'a'}),[]);
+  console.log('PASS: x_web_* mapping matches Odoo selection keys, tracking trimmed, empty comment keeps description, HTML-escaped line breaks.');
+}

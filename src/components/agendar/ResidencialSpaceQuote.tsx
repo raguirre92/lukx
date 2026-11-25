@@ -297,6 +297,7 @@ export default function ResidencialSpaceQuote({
         privacyAccepted: privacy,
         lukx_hp: honeypot,
         pagina: pagePath,
+        formulario: "cotizador",
         ciudad: chosenCity,
         recibo: chosenRecibo,
         necesidad: chosenInteres,

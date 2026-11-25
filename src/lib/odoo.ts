@@ -682,7 +682,6 @@ export async function bookWebSlot(input: {
       partner_ids: [[6, 0, [...new Set(attendees)]]],
       appointment_type_id: config.id,
       opportunity_id: input.leadId,
-      company_id: COMPANY_ID,
       description: "Llamada o videollamada",
     };
     if (tokenPartner) eventVals.appointment_booker_id = tokenPartner;

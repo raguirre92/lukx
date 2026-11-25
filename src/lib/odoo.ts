@@ -59,6 +59,8 @@ type LeadInput = {
   comment?: string;
   solution?: string;
   recibo?: string;
+  /** This conditional form replaces fields belonging to its previous solution. */
+  replaceSolutionDetails?: boolean;
   contact?: boolean;
   /** True when the form sent a city, including Otro, so an empty city clears the field. */
   cityChosen?: boolean;
@@ -432,9 +434,12 @@ function leadValues(
   if (input.sector) vals.x_studio_sector = input.sector;
   if (comment) vals.x_studio_mensaje_del_lead = comment;
   if (input.recibo) vals.x_studio_gasto_en_recibo_de_luz = input.recibo;
+  else if (input.replaceSolutionDetails) vals.x_studio_gasto_en_recibo_de_luz = false;
   if (tipo) vals.x_studio_tipo_venta = tipo;
   if (input.solution && solutionIncludesRespaldo(input.solution)) {
     vals.x_studio_solucin = SOLUCION_RESPALDO;
+  } else if (input.replaceSolutionDetails) {
+    vals.x_studio_solucin = false;
   }
   return vals;
 }

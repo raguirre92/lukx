@@ -69,7 +69,7 @@
     },
     {
       "question": "¿Qué pasa con la energía que no uso?",
-      "answer": "Al contratar tu servicio de paneles solares, se hacen tramites ante CFE para poder medir la energía que produces, esto se hace a través de un medidor Bidireccional, la energía que no uses durante un período de tiempo va a quedar registrada en este medidor como un saldo a favor para poder darle uso en el período que tu lo requieras."
+      "answer": "Un medidor bidireccional registra la energía que produces y la que envías a la red."
     },
     {
       "question": "¿Cómo sé que soy apto para instalar paneles?",
@@ -86,10 +86,6 @@
     {
       "question": "¿Qué necesito para empezar?",
       "answer": "Contactarnos y brindarnos los datos de tu recibo de CFE (el que tengan a la mano) No necesita ser el más reciente."
-    },
-    {
-      "question": "¿Cuánto tiempo tardan los trámites de CFE?",
-      "answer": "Los trámites pueden tardar varias semanas, dependiendo la zona en la que te encuentres."
     }
   ],
   "images": [

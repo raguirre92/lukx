@@ -5,7 +5,7 @@ export const ASESORIA_PHONE_DISPLAY = site.phoneOffice;
 export const ASESORIA_PHONE_TEL = site.phoneOfficeTel;
 export const ASESORIA_WHATSAPP = site.whatsapp;
 
-// Lista del formulario de Meta, más Ramos Arizpe y Otro. «Otro» se guarda vacío en Odoo.
+// Lista del formulario de Meta, más Ramos Arizpe y Otro. «Otro» admite una ciudad escrita; sin detalle se guarda vacío en Odoo.
 export const CIUDADES = [
   "Monterrey",
   "Saltillo",

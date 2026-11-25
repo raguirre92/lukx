@@ -88,11 +88,6 @@ export default function ExitIntentLead({
     setError(null);
   }
 
-  function preview() {
-    setOpen(false);
-    window.setTimeout(() => setOpen(true), 40);
-  }
-
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
@@ -169,11 +164,6 @@ export default function ExitIntentLead({
           }
         }
       `}</style>
-      {process.env.NODE_ENV === "development" ? (
-        <button type="button" onClick={preview} className="fixed bottom-4 left-4 z-[70] bg-lukx-charcoal px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white">
-          Probar modal
-        </button>
-      ) : null}
       <dialog
       ref={dialogRef}
       className="exit-intent bg-white text-lukx-charcoal"

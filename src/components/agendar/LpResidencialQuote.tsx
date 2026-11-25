@@ -25,58 +25,7 @@ const PROCESS = [
   ["Propuesta", "Con tu recibo de luz diseñamos el sistema y te presentamos la generación estimada y el retorno de inversión.", "solar:document-text-linear"],
   ["Visita técnica", "Revisamos tu domicilio para confirmar el diseño y la instalación.", "solar:map-point-linear"],
   ["Instalación y supervisión", "Instalamos tu sistema, verificamos su calidad y configuramos el monitoreo.", "solar:settings-linear"],
-  ["Trámite con CFE", "Gestionamos todo el trámite hasta la instalación de tu medidor bidireccional. Normalmente toma de 1 a 3 meses desde la firma.", "solar:bolt-linear"],
 ] as const;
-
-const REVIEW_EXAMPLES = [
-  { image: "/images/residencial-casa-paneles.webp", topic: "Paneles solares", quote: "Con mi recibo pude entender cuántos paneles necesitaba y qué esperar del sistema." },
-  { image: "/images/residencial-respaldo-detalle.webp", topic: "Sistemas de respaldo", quote: "En la asesoría vimos qué equipos quería mantener encendidos cuando se va la luz." },
-  { image: "/images/residencial-tecnico-lukx.webp", topic: "Instalación", quote: "Me explicaron por dónde pasaría el cableado y cómo revisar la producción desde mi teléfono." },
-] as const;
-
-function DemoReviews() {
-  const trackRef = useRef<HTMLUListElement>(null);
-
-  function move(direction: number) {
-    const track = trackRef.current;
-    const tile = track?.firstElementChild;
-    if (!track || !tile) return;
-
-    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollBy({ left: direction * (tile.getBoundingClientRect().width + gap), behavior: reduceMotion ? "instant" : "smooth" });
-  }
-
-  return (
-    <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
-      <div className="site-container">
-        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-black/15 pb-6">
-          <div>
-            <p className="mb-2 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa</p>
-            <h2 id="demo-reviews-title" className="font-display text-4xl leading-none md:text-6xl">Experiencias en casa</h2>
-          </div>
-          <div className="flex gap-2">
-            <button type="button" aria-label="Desplazar reseñas a la izquierda" onClick={() => move(-1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">←</button>
-            <button type="button" aria-label="Desplazar reseñas a la derecha" onClick={() => move(1)} className="grid size-11 place-items-center border border-black/20 hover:border-lukx-green-btn">→</button>
-          </div>
-        </div>
-      </div>
-      <ul ref={trackRef} tabIndex={0} aria-label="Reseñas de ejemplo con fotos" className="mt-6 flex w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 pr-4 pl-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:scroll-pl-8 md:pr-8 md:pl-8 lg:scroll-pl-[max(4rem,calc(50%-656px))] lg:pr-16 lg:pl-[max(4rem,calc(50%-656px))]">
-        {REVIEW_EXAMPLES.flatMap((item) => [
-          <li key={item.topic} className="flex aspect-square w-[min(78vw,20rem)] shrink-0 snap-start flex-col border border-black/10 bg-lukx-light p-5 sm:p-6">
-            <span aria-hidden className="font-display text-5xl leading-none text-lukx-green-btn">“</span>
-            <blockquote className="mt-2 flex-1 text-base leading-relaxed sm:text-lg">{item.quote}</blockquote>
-            <p className="mt-4 border-t border-black/10 pt-3 text-xs font-semibold text-lukx-muted">{item.topic} · Reseña ficticia</p>
-          </li>,
-          <li key={item.image} aria-hidden className="relative aspect-square w-[min(78vw,20rem)] shrink-0 snap-start overflow-hidden">
-            <Image src={item.image} alt="" fill sizes="(max-width: 410px) 78vw, 320px" className="object-cover" />
-          </li>,
-        ])}
-      </ul>
-    </section>
-  );
-}
-
 
 const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
   "Entre 0 y 3,000 pesos": "solar:bill-list-linear",
@@ -615,7 +564,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
       <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
         <div className="site-container">
           <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">De tu asesoría a la instalación</h2>
-          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
+          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-4 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {PROCESS.map(([title, copy, icon], index) => (
               <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
                 <span className="grid size-12 place-items-center border border-lukx-green-btn bg-lukx-light text-lukx-green-btn" aria-hidden>
@@ -632,7 +581,6 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
         </div>
       </section>
 
-      {process.env.NODE_ENV === "development" ? <DemoReviews /> : null}
 
       <section className="bg-white py-16 md:py-24">
         <div className="site-container grid gap-8 md:grid-cols-[0.75fr_1.25fr] md:gap-12">

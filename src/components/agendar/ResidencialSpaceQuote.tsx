@@ -6,11 +6,12 @@ import { Icon } from "@iconify/react";
 import BookingScheduler from "@/components/BookingScheduler";
 import FaqAccordion from "@/components/FaqAccordion";
 import HeroScrim from "@/components/HeroScrim";
+import QuoteOptionIcon from "@/components/agendar/QuoteOptionIcon";
 import ProjectGallery from "@/components/ProjectGallery";
 import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import ExitIntentLead from "@/components/agendar/ExitIntentLead";
 import { site } from "@/data/site";
-import { CIUDADES, RANGOS_LUZ_RESIDENCIAL } from "@/lib/agendar-config";
+import { EMPTY_QUOTE_ANSWERS, getQuoteQuestions, updateQuoteAnswers, quoteResponses, type QuoteAnswers, type QuestionId, type QuotePhase, type QuoteQuestion } from "@/lib/quote-flow";
 import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
 import type { Pag } from "@/content/agendar-copys-v2";
 import type { SectorQuote } from "@/content/sector-quotes";
@@ -25,42 +26,12 @@ const PROCESS = [
   ["Propuesta", "Con tu recibo de luz diseñamos el sistema y te presentamos la generación estimada y el retorno de inversión.", "solar:document-text-linear"],
   ["Visita técnica", "Revisamos tu domicilio para confirmar el diseño y la instalación.", "solar:map-point-linear"],
   ["Instalación y supervisión", "Instalamos tu sistema, verificamos su calidad y configuramos el monitoreo.", "solar:settings-linear"],
-  ["Trámite con CFE", "Gestionamos todo el trámite hasta la instalación de tu medidor bidireccional. Normalmente toma de 1 a 3 meses desde la firma.", "solar:bolt-linear"],
 ] as const;
-
-const RANGO_ICON: Record<(typeof RANGOS_LUZ_RESIDENCIAL)[number], string> = {
-  "Entre 0 y 3,000 pesos": "solar:bill-list-linear",
-  "Entre 3,001 y 6,000 pesos": "solar:bill-linear",
-  "Entre 6,001 y 10,000 pesos": "solar:chart-square-linear",
-  "Más de 10,000 pesos": "solar:graph-up-linear",
-};
-
-const INTERES_CASA = ["Paneles solares", "Baterías de respaldo", "Las dos", "No estoy seguro"] as const;
-
-const INTERES_ICON: Record<(typeof INTERES_CASA)[number], string> = {
-  "Paneles solares": "solar:sun-linear",
-  "Baterías de respaldo": "solar:battery-charge-linear",
-  "Las dos": "solar:layers-linear",
-  "No estoy seguro": "solar:question-circle-linear",
-};
-
-const MOTIVOS = ["Pagar menos de luz", "Tener respaldo cuando se va la luz", "Ambos"] as const;
-
-const STEPS = ["ciudad", "recibo", "interes", "motivo", "comentarios", "cita"] as const;
-
-type Phase = (typeof STEPS)[number];
-
-const BUBBLES: Record<Phase, string> = {
-  ciudad: "Con tu ciudad confirmamos que podemos atender tu casa.",
-  recibo: "Con esto calculamos el tamaño aproximado de tu sistema.",
-  interes: "Así te asignamos al especialista correcto.",
-  motivo: "Así vemos qué quieres resolver.",
-  comentarios: "Si tienes dudas o algo más que contarnos, puedes dejarlo aquí.",
-  cita: "Elige el día y la hora. La asesoría es por llamada o videollamada.",
-};
 
 function interestIcon(option: string) {
   const value = option.toLowerCase();
+  if (value.includes("iluminación")) return "solar:lightbulb-linear";
+  if (value.includes("carga")) return "solar:bolt-linear";
   if (value.includes("ambos") || value.includes("las dos")) return "solar:layers-linear";
   if (value.includes("respaldo") || value.includes("bater")) return "solar:battery-charge-linear";
   if (value.includes("panel") || value.includes("generaci") || value.includes("solar")) return "solar:sun-linear";
@@ -122,7 +93,7 @@ function ChoiceCards({
                 }}
               />
               <span className="flex min-h-[4.5rem] items-center gap-3 border-2 border-black/10 bg-white px-4 py-3 hover:border-lukx-green-btn hover:bg-[#f3faf4] motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 peer-checked:border-lukx-green-btn peer-checked:bg-[#f3faf4] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lukx-green">
-                <Icon icon={icons[option] ?? "solar:map-point-linear"} className="size-7 shrink-0 text-lukx-green-btn" aria-hidden />
+                {option === "Estaciones de carga" ? <QuoteOptionIcon option={option} className="size-7 shrink-0 text-lukx-green-btn" /> : <Icon icon={icons[option] ?? "solar:map-point-linear"} className="size-7 shrink-0 text-lukx-green-btn" aria-hidden />}
                 <span className="text-base font-semibold text-lukx-charcoal">{option}</span>
               </span>
             </label>
@@ -133,30 +104,39 @@ function ChoiceCards({
   );
 }
 
-function CardStep({
-  title,
-  name,
-  options,
-  value,
-  disabled,
-  onPick,
-  onBack,
-}: {
-  title: string;
-  name: string;
-  options: readonly string[];
-  value: string;
-  disabled: boolean;
-  onPick: (value: string) => void;
-  onBack: () => void;
-}) {
+function QuestionStep({ question, value, disabled, onPick, onBack }: { question: QuoteQuestion; value: string; disabled: boolean; onPick: (value: string) => void; onBack?: () => void }) {
+  const [draft, setDraft] = useState(value);
+  const selected = draft ? draft.split("; ") : [];
+  const back = onBack ? <button type="button" disabled={disabled} onClick={onBack} className="cursor-pointer text-sm font-semibold hover:underline disabled:opacity-40">Atrás</button> : null;
+  if (question.options && !question.multiple) return <div className="mt-5"><ChoiceCards name={question.id} legend={question.title} options={question.options} icons={Object.fromEntries(question.options.map((option) => [option, interestIcon(option)]))} value={value} disabled={disabled} onPick={onPick} /><div className="mt-4">{back}</div></div>;
   return (
-    <div className="mt-5">
-      <ChoiceCards name={name} legend={title} options={options} icons={{}} value={value} disabled={disabled} onPick={onPick} />
-      <button type="button" disabled={disabled} onClick={onBack} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
-        Atrás
-      </button>
-    </div>
+    <form className="mt-5" onSubmit={(event) => { event.preventDefault(); if (draft.trim()) onPick(draft.trim()); }}>
+      {question.multiple && question.options ? (
+        <fieldset disabled={disabled} aria-describedby="quote-selection-hint" className="min-w-0 border-0 p-0">
+          <legend className="font-display text-3xl leading-none md:text-4xl">{question.title}</legend>
+          <p id="quote-selection-hint" className="mt-3 text-sm text-lukx-muted">{question.id === "area_iluminacion" ? "Puedes seleccionar varias áreas." : question.id === "uso_carga" ? "Puedes seleccionar varios usos." : "Puedes seleccionar varios equipos."}</p>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {question.options.map((option) => (
+              <label key={option} className="cursor-pointer">
+                <input type="checkbox" name={question.id} value={option} checked={selected.includes(option)} onChange={(event) => setDraft((event.target.checked ? [...selected, option] : selected.filter((item) => item !== option)).join("; "))} className="peer sr-only" />
+                <span className="relative flex min-h-32 flex-col items-center justify-center gap-3 border-2 border-black/10 bg-white px-3 py-5 text-center hover:border-lukx-green-btn hover:bg-[#f3faf4] peer-checked:border-lukx-green-btn peer-checked:bg-[#f3faf4] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lukx-green motion-safe:transition motion-safe:duration-150">
+                  <span aria-hidden className={`absolute right-2 top-2 grid size-5 place-items-center rounded-sm border ${selected.includes(option) ? "border-lukx-green-btn bg-lukx-green-btn text-white" : "border-black/20"}`}>{selected.includes(option) ? <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="block size-3.5"><path d="m3.5 8 3 3 6-6" /></svg> : null}</span>
+                  <QuoteOptionIcon option={option} className="size-10 text-lukx-green-btn" />
+                  <span className="text-sm font-semibold leading-snug">{option}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : (
+        <>
+          <label htmlFor={`quote-${question.id}`} className="font-display text-3xl leading-none md:text-4xl">{question.title}</label>
+          {question.inputType === "text" ? <input id={`quote-${question.id}`} type="text" aria-describedby={`quote-${question.id}-count`} required maxLength={question.maxLength ?? 300} value={draft} disabled={disabled} placeholder={question.placeholder} onChange={(event) => setDraft(event.target.value)} className={`${fieldClass} mt-4`} /> : <textarea id={`quote-${question.id}`} aria-describedby={`quote-${question.id}-count`} required maxLength={question.maxLength ?? 300} rows={3} value={draft} disabled={disabled} placeholder={question.placeholder} onChange={(event) => setDraft(event.target.value)} className={`${fieldClass} mt-4`} />}
+          <p id={`quote-${question.id}-count`} className="mt-1 text-xs text-lukx-muted">{(question.maxLength ?? 300) - draft.length} caracteres disponibles</p>
+        </>
+      )}
+      <div className="mt-4 flex items-center gap-5">{back}<button type="submit" disabled={disabled || !draft.trim()} className="btn-green disabled:opacity-40">Continuar</button></div>
+    </form>
   );
 }
 
@@ -187,28 +167,21 @@ export default function ResidencialSpaceQuote({
   const faqs = content?.faqs ?? pag!.faq;
   const solutions = content?.solutions ?? SOLUTIONS;
   const processSteps = content?.process ?? PROCESS;
-  const interests = content?.interests ?? INTERES_CASA;
-  const motives = content?.motives ?? MOTIVOS;
-  const cityLegend = content?.cityLegend ?? "¿En qué ciudad está tu casa?";
-  const reciboLegend = content?.reciboLegend ?? "¿Cuánto pagas de luz al bimestre?";
-  const bubbles: Record<Phase, string> = content
-    ? { ...BUBBLES, ciudad: content.cityBubble, recibo: content.reciboBubble }
-    : BUBBLES;
-  const interesIcons: Record<string, string> = content
-    ? Object.fromEntries(interests.map((option) => [option, interestIcon(option)]))
-    : INTERES_ICON;
+  const sector = content?.linea ?? "residencial";
+  const [answers, setAnswers] = useState<QuoteAnswers>({ ...EMPTY_QUOTE_ANSWERS });
+  const questions = getQuoteQuestions(sector, answers);
+  const phases: QuotePhase[] = [...questions.map((question) => question.id), "comentarios", "cita"];
   const [open, setOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [phase, setPhase] = useState<Phase>("ciudad");
+  const [phase, setPhase] = useState<QuotePhase>("interes");
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
   const [privacy, setPrivacy] = useState(true);
   const [honeypot, setHoneypot] = useState("");
-  const [recibo, setRecibo] = useState("");
-  const [interes, setInteres] = useState("");
-  const [motivo, setMotivo] = useState("");
+  const city = answers.ciudad;
+  const question = questions.find((item) => item.id === phase);
+  const resumePhase = () => questions.find((item) => !answers[item.id])?.id ?? "comentarios";
   const [comment, setComment] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [attr, setAttr] = useState<Attribution | null>(null);
@@ -239,6 +212,7 @@ export default function ResidencialSpaceQuote({
   const busy = useRef(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const contactDialogRef = useRef<HTMLDialogElement>(null);
+  const questionRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -278,6 +252,10 @@ export default function ResidencialSpaceQuote({
     };
   }, [open, contactOpen]);
 
+  useEffect(() => {
+    if (open) questionRef.current?.focus();
+  }, [phase, open]);
+
   function markStart() {
     if (tracked.current.start) return;
     tracked.current.start = true;
@@ -293,44 +271,22 @@ export default function ResidencialSpaceQuote({
   function openQuote() {
     if (token) {
       setContactOpen(false);
-      setPhase(city ? "recibo" : "ciudad");
+      setPhase(resumePhase());
       setOpen(true);
       return;
     }
     setContactOpen(true);
   }
 
-  function profileAnswers(extra: {
-    city?: string;
-    recibo?: string;
-    interes?: string;
-    motivo?: string;
-  } = {}) {
-    const respuestas: Record<string, string> = {
-      Nombre: name,
-      WhatsApp: whatsapp,
-      "Correo electrónico": email,
-    };
-    const chosenCity = extra.city ?? city;
-    const chosenRecibo = extra.recibo ?? recibo;
-    const chosenInteres = extra.interes ?? interes;
-    const chosenMotivo = extra.motivo ?? motivo;
-    if (chosenCity) respuestas["Ciudad o municipio"] = chosenCity;
-    if (chosenRecibo) respuestas["¿Cuánto pagas de luz al bimestre, aproximadamente?"] = chosenRecibo;
-    if (chosenInteres) respuestas["¿Qué te interesa?"] = chosenInteres;
-    if (comment.trim()) respuestas.Comentarios = comment.trim();
-    if (chosenMotivo) respuestas["¿Qué te motiva más?"] = chosenMotivo;
-    return { respuestas, chosenCity, chosenRecibo, chosenInteres };
+  function profileAnswers(extra: Partial<QuoteAnswers> = {}, currentComment = comment) {
+    const current = { ...answers, ...extra };
+    const respuestas = { Nombre: name, WhatsApp: whatsapp, "Correo electrónico": email, ...quoteResponses(sector, current, currentComment) };
+    return { respuestas, chosenCity: current.ciudad, chosenRecibo: current.recibo, chosenInteres: current.interes };
   }
 
-  async function postLead(extra: {
-    city?: string;
-    recibo?: string;
-    interes?: string;
-    motivo?: string;
-  } = {}) {
+  async function postLead(extra: Partial<QuoteAnswers> = {}, currentComment = comment) {
     const attribution = attr ?? captureAttribution();
-    const { respuestas, chosenCity, chosenRecibo, chosenInteres } = profileAnswers(extra);
+    const { respuestas, chosenCity, chosenRecibo, chosenInteres } = profileAnswers(extra, currentComment);
     const res = await fetch("/api/lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -344,6 +300,7 @@ export default function ResidencialSpaceQuote({
         ciudad: chosenCity,
         recibo: chosenRecibo,
         necesidad: chosenInteres,
+        replaceSolutionDetails: Boolean(chosenInteres),
         respuestas,
         atribucion: attribution,
         utm_source: attribution.utm_source,
@@ -368,7 +325,7 @@ export default function ResidencialSpaceQuote({
         tracked.current.step2 = true;
         pushDataLayer("form_step_2", { pagina: pagePath });
       }
-      setPhase(city ? "recibo" : "ciudad");
+      setPhase(resumePhase());
       setContactOpen(false);
       setOpen(true);
       return;
@@ -391,7 +348,7 @@ export default function ResidencialSpaceQuote({
           pagina: pagePath,
         });
       }
-      setPhase("ciudad");
+      setPhase("interes");
       setContactOpen(false);
       setOpen(true);
     } catch (err) {
@@ -401,42 +358,27 @@ export default function ResidencialSpaceQuote({
     }
   }
 
-  async function pickCity(value: string) {
-    if (busy.current || !token) return;
-    setCity(value);
-    setError(null);
-    busy.current = true;
-    setSubmitting(true);
-    try {
-      const leadToken = await postLead({ city: value, recibo, interes });
-      setToken(leadToken);
-      setPhase("recibo");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos guardar tu ciudad.");
-    } finally {
-      busy.current = false;
-      setSubmitting(false);
-    }
-  }
-
-  function go(next: Phase) {
+  function go(next: QuotePhase) {
     setError(null);
     setPhase(next);
   }
 
-  async function pickMapped(kind: "recibo" | "interes", value: string) {
+  async function pickQuestion(id: QuestionId, value: string) {
     if (busy.current || !token) return;
-    if (kind === "recibo") setRecibo(value);
-    else setInteres(value);
+    const updated = updateQuoteAnswers(sector, answers, id, value);
+    setAnswers(updated);
+    if (id === "interes" && answers.interes !== value) setComment("");
     setError(null);
     busy.current = true;
     setSubmitting(true);
     try {
-      const leadToken = await postLead(kind === "recibo" ? { recibo: value } : { interes: value });
+      const leadToken = await postLead(updated, id === "interes" && answers.interes !== value ? "" : comment);
       setToken(leadToken);
-      go(kind === "recibo" ? "interes" : "motivo");
+      const nextQuestions = getQuoteQuestions(sector, updated);
+      const index = nextQuestions.findIndex((item) => item.id === id);
+      go(nextQuestions[index + 1]?.id ?? "comentarios");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos guardar tu respuesta.");
+      setError(err instanceof Error ? err.message : "No pudimos guardar tu respuesta. Intenta de nuevo.");
     } finally {
       busy.current = false;
       setSubmitting(false);
@@ -460,8 +402,8 @@ export default function ResidencialSpaceQuote({
     }
   }
 
-  const stepNumber = STEPS.indexOf(phase) + 1;
-  const stepCount = STEPS.length;
+  const stepNumber = Math.max(1, phases.indexOf(phase) + 1);
+  const stepCount = phases.length;
 
   const contactForm = (id: string, modal = false) => (
     <form id={id} onSubmit={onContact} onFocus={markStart} className={modal ? "p-6 sm:p-8" : "scroll-mt-20 bg-white p-6 shadow-[0_28px_80px_rgba(0,0,0,0.35)] sm:p-8"}>
@@ -611,7 +553,7 @@ export default function ResidencialSpaceQuote({
       <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-20">
         <div className="site-container">
           <h2 data-no-split className="max-w-2xl text-balance font-display text-4xl leading-none md:text-5xl">De tu asesoría a la instalación</h2>
-          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
+          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-4 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {processSteps.map(([title, copy, icon], index) => (
               <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
                 <span className="grid size-12 place-items-center border border-lukx-green-btn bg-lukx-light text-lukx-green-btn" aria-hidden>
@@ -691,6 +633,7 @@ export default function ResidencialSpaceQuote({
 
       <dialog
         ref={dialogRef}
+        data-lenis-prevent
         className="lp-modal bg-white text-lukx-charcoal"
         aria-labelledby="lp-modal-title"
         onCancel={(event) => {
@@ -716,65 +659,18 @@ export default function ResidencialSpaceQuote({
                     <div className="quote-bar h-full bg-lukx-green" style={{ width: `${(stepNumber / stepCount) * 100}%` }} />
                   </div>
                   <div className="mt-5">
-                    <AdvisorBubble text={bubbles[phase]} />
+                    <AdvisorBubble text={question?.bubble ?? (phase === "cita" ? "Elige el día y la hora. La asesoría es por llamada o videollamada." : "Si tienes dudas o algo más que contarnos, puedes dejarlo aquí.")} />
                   </div>
                 </>
               )}
-              <div key={phase} className="quote-step">
-                {phase === "ciudad" ? (
-                  <div className="mt-5">
-                    <ChoiceCards
-                      name="ciudad"
-                      legend={cityLegend}
-                      options={CIUDADES}
-                      icons={{}}
-                      value={city}
-                      disabled={submitting}
-                      onPick={(value) => void pickCity(value)}
-                    />
-                  </div>
-                ) : null}
-                {phase === "recibo" ? (
-                  <div className="mt-5">
-                    <ChoiceCards
-                      name="recibo"
-                      legend={reciboLegend}
-                      options={RANGOS_LUZ_RESIDENCIAL}
-                      icons={RANGO_ICON}
-                      value={recibo}
-                      disabled={submitting}
-                      onPick={(value) => void pickMapped("recibo", value)}
-                    />
-                    <button type="button" disabled={submitting} onClick={() => go("ciudad")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
-                      Atrás
-                    </button>
-                  </div>
-                ) : null}
-                {phase === "interes" ? (
-                  <div className="mt-5">
-                    <ChoiceCards
-                      name="interes"
-                      legend="¿Qué te interesa?"
-                      options={interests}
-                      icons={interesIcons}
-                      value={interes}
-                      disabled={submitting}
-                      onPick={(value) => void pickMapped("interes", value)}
-                    />
-                    <button type="button" disabled={submitting} onClick={() => go("recibo")} className="mt-4 text-sm font-semibold underline-offset-2 hover:underline disabled:opacity-40">
-                      Atrás
-                    </button>
-                  </div>
-                ) : null}
-                {phase === "motivo" ? (
-                  <CardStep title="¿Qué te motiva más?" name="motivo" options={motives} value={motivo} disabled={submitting} onPick={(value) => { setMotivo(value); go("comentarios"); }} onBack={() => go("interes")} />
-                ) : null}
+              <div key={phase} ref={questionRef} tabIndex={-1} role="group" aria-label={question?.title ?? (phase === "cita" ? "Agenda tu asesoría" : "Comentarios")} className="quote-step outline-none">
+                {question ? <QuestionStep key={phase} question={question} value={answers[question.id]} disabled={submitting} onPick={(value) => void pickQuestion(question.id, value)} onBack={stepNumber > 1 ? () => go(phases[stepNumber - 2]) : undefined} /> : null}
                 {phase === "comentarios" ? (
                   <form className="mt-5" onSubmit={(event) => { event.preventDefault(); void finishProfile(); }}>
                     <label htmlFor="lp-residential-comment" className="font-display text-4xl">¿Tienes alguna pregunta o comentario adicional?</label>
                     <textarea id="lp-residential-comment" className={`${fieldClass} mt-4`} rows={4} maxLength={500} placeholder="Escribe aquí (opcional)" value={comment} disabled={submitting} onChange={(event) => setComment(event.target.value)} />
                     <div className="mt-4 flex items-center gap-5">
-                      <button type="button" disabled={submitting} onClick={() => go("motivo")} className="text-sm font-semibold hover:underline disabled:opacity-40">Atrás</button>
+                      <button type="button" disabled={submitting} onClick={() => go(questions[questions.length - 1].id)} className="text-sm font-semibold hover:underline disabled:opacity-40">Atrás</button>
                       <button type="submit" disabled={submitting} className="btn-green disabled:opacity-40">Continuar</button>
                     </div>
                   </form>
@@ -788,7 +684,7 @@ export default function ResidencialSpaceQuote({
                       onBack={() => go("comentarios")}
                       onScheduled={() => {
                         setBooked(true);
-                        pushDataLayer("schedule_appointment", { pagina: pagePath, ciudad: city === "Otro" ? "" : city });
+                        pushDataLayer("schedule_appointment", { pagina: pagePath, ciudad: city === "Otro" ? answers.ciudad_otra : city });
                       }}
                     />
                   </div>

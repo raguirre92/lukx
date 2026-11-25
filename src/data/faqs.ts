@@ -9,7 +9,7 @@ export const faqs: FaqItem[] = [
   {
     question: "¿Cómo me ayuda este sistema a reducir mi factura de luz?",
     answer:
-      "Existen varias modalidades de configuración y los más comunes son:\n\n• Peak Shaving (Recorte de picos): Reduce los cargos por demanda máxima al usar la energía de las baterías justo cuando tu consumo es más alto.\n• Load Shifting (Desplazamiento de carga): Carga las baterías en horarios donde la tarifa de luz es barata y usa esa energía cuando la tarifa es cara.",
+      "Existen varias modalidades de configuración y los más comunes son:\\n\\n• Peak Shaving (Recorte de picos): Reduce los cargos por demanda máxima al usar la energía de las baterías justo cuando tu consumo es más alto.\\n• Load Shifting (Desplazamiento de carga): Carga las baterías en horarios donde la tarifa de luz es barata y usa esa energía cuando la tarifa es cara.",
   },
   {
     question: "¿Es difícil la instalación en mi infraestructura actual?",
@@ -72,7 +72,7 @@ export const faqs: FaqItem[] = [
   {
     question: "¿Qué pasa con la energía que no uso?",
     answer:
-      "Al contratar tu servicio de paneles solares, se hacen trámites ante CFE para poder medir la energía que produces, esto se hace a través de un medidor Bidireccional. La energía que no uses durante un período de tiempo va a quedar registrada en este medidor como un saldo a favor para poder darle uso en el período que tú lo requieras.",
+      "Un medidor bidireccional registra la energía que produces y la que envías a la red.",
   },
   {
     question: "¿Cómo sé que soy apto para instalar paneles?",
@@ -94,11 +94,6 @@ export const faqs: FaqItem[] = [
     answer:
       "Contactarnos y brindarnos los datos de tu recibo de CFE (el que tengan a la mano). No necesita ser el más reciente.",
   },
-  {
-    question: "¿Cuánto tiempo tardan los trámites de CFE?",
-    answer:
-      "Los trámites pueden tardar varias semanas, dependiendo la zona en la que te encuentres.",
-  },
 ];
 
 export const solarFaqs = faqs.filter((f) =>
@@ -113,6 +108,5 @@ export const solarFaqs = faqs.filter((f) =>
     "¿Puedo financiar la instalación?",
     "¿Cuánto tiempo tarda la instalación?",
     "¿Qué necesito para empezar?",
-    "¿Cuánto tiempo tardan los trámites de CFE?",
   ].includes(f.question),
 );

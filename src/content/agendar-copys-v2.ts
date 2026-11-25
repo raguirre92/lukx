@@ -26,7 +26,7 @@ type Pag = {
 };
 
 const COMUN = "Común a las 8 páginas";
-const PAUTA = "Propuesta de pauta · pendiente de aprobación de Rafa";
+const PAUTA = "Campañas de anuncios";
 const c = (campo: string, opciones: string, obligatorio: string): Campo => ({ campo, opciones, obligatorio, origen: COMUN });
 const q = (campo: string, opciones: string, obligatorio: string): Campo => ({ campo, opciones, obligatorio, origen: PAUTA });
 
@@ -36,21 +36,21 @@ const contacto: Campo[] = [
   c("Correo electrónico", "nombre@correo.com", "Sí"),
   c("Ciudad o municipio", "Monterrey y área metropolitana · Saltillo · Ramos Arizpe · Otra", "Sí"),
 ];
-const aviso: Campo = c("Aviso de privacidad", "Casilla: Acepto el aviso de privacidad [enlace pendiente]", "Sí");
+const aviso: Campo = c("Aviso de privacidad", "Casilla: Acepto el aviso de privacidad", "Sí");
 const comentario = (ph: string): Campo => c("Comentarios", ph, "No");
 
 const plazo = "En los próximos 0–3 meses · De 3 a 6 meses · Solo estoy cotizando";
 const califRes: Campo[] = [
   q("¿Ya tienes paneles solares?", "Sí · No (si responde que sí, el lead se enfoca en batería de respaldo)", "Sí"),
   q("¿Qué te interesa?", "Paneles solares · Batería de respaldo · Ambos", "Sí"),
-  q("¿Cuánto pagas de luz al bimestre, aproximadamente?", "[rangos por definir]", "Sí"),
+  q("¿Cuánto pagas de luz al bimestre, aproximadamente?", "Entre 0 y 3,000 pesos · Entre 3,001 y 6,000 pesos · Entre 6,001 y 10,000 pesos · Más de 10,000 pesos", "Sí"),
   q("¿Qué te motiva más?", "Pagar menos de luz · Los apagones o tener respaldo · Ambos", "Sí"),
   q("¿Eres dueño de la casa?", "Sí · No", "Sí"),
 ];
 const califCom: Campo[] = [
-  q("Tipo de negocio", "[opciones por definir]", "Sí"),
+  q("Tipo de negocio", "Escribe el tipo de negocio", "Sí"),
   q("¿Qué te interesa?", "Proyecto de iluminación (diseño e instalación) · Paneles solares · Respaldo con baterías · Estaciones de carga", "Sí"),
-  q("¿Cuánto pagas de luz al mes, aproximadamente?", "[rangos por definir]", "Sí"),
+  q("¿Cuánto pagas de luz al mes, aproximadamente?", "Entre 0 y 3,000 pesos · Entre 3,001 y 6,000 pesos · Entre 6,001 y 10,000 pesos · Más de 10,000 pesos", "Sí"),
   q("¿Cuándo planeas hacerlo?", plazo, "Sí"),
   q("Empresa", "Nombre de tu empresa o negocio", "No"),
   q("Puesto", "¿Cuál es tu puesto?", "No"),
@@ -58,8 +58,8 @@ const califCom: Campo[] = [
 const califInd: Campo[] = [
   q("Empresa", "Nombre de tu empresa", "Sí"),
   q("Puesto", "¿Cuál es tu puesto?", "No"),
-  q("Tipo de proyecto", "[opciones por definir; propuesta: Iluminación de nave o bodega · Paneles solares · Respaldo de energía · Carga para vehículos eléctricos]", "Sí"),
-  q("Tamaño aproximado de la nave o del consumo", "m² aproximados o [rangos por definir]", "Sí"),
+  q("Tipo de proyecto", "Iluminación de nave o bodega · Paneles solares · Respaldo de energía · Carga para vehículos eléctricos", "Sí"),
+  q("Tamaño aproximado de la nave o del consumo", "Escribe el tamaño aproximado en m²", "Sí"),
   q("¿Cuándo planeas hacerlo?", plazo, "Sí"),
   q("¿Eres quien decide la compra?", "Sí · No · Influyo en la decisión", "Sí"),
 ];
@@ -81,7 +81,7 @@ const comoEs: Faq = {
 
 const proyectos = (espacio: string): string[] => [
   "Título: Proyectos que hemos hecho" + espacio,
-  "[Elegir proyectos reales de /portfolio con autorización del cliente; sin cifras ni resultados sin validar]",
+  "Conoce nuestros proyectos de instalación.",
   "Enlace: Ver todos los proyectos → /portfolio",
 ];
 
@@ -96,7 +96,7 @@ const bloquesEspacio = (que: string[], soluciones: string[], hub: string, cuanto
 ];
 
 const bloquesAds = (beneficios: string[]): Bloque[] => [
-  { t: "Header mínimo", k: "lista", lineas: ["Logo de Lukx, sin menú (enlace al inicio opcional) + teléfono como texto, sin botón [pendiente: confirmar número comercial]."] },
+  { t: "Header mínimo", k: "lista", lineas: ["Logo de Lukx, sin menú (enlace al inicio opcional) + teléfono como texto, sin botón."] },
   { t: "H1 igual al mensaje del anuncio + subtítulo", k: "hero" },
   { t: "Formulario en 2 pasos, arriba del pliegue", k: "form" },
   { t: "3 beneficios", k: "lista", lineas: beneficios },
@@ -104,7 +104,7 @@ const bloquesAds = (beneficios: string[]): Bloque[] => [
   { t: "Cómo funciona en 3 pasos", k: "pasos" },
   { t: "FAQ visibles", k: "faq" },
   { t: "CTA repetido", k: "lista", lineas: ["Texto: ¿Listo para empezar? Agenda tu asesoría.", "Botón: Agendar asesoría (lleva al paso 1 del formulario)."] },
-  { t: "Footer", k: "lista", lineas: ["Aviso de privacidad [enlace pendiente] · © Lukx"] },
+  { t: "Footer", k: "lista", lineas: ["Aviso de privacidad · © Lukx"] },
 ];
 
 const paso1Ads = (titulo: string, siguiente: string): Paso => ({
@@ -155,7 +155,6 @@ const paginas: Pag[] = [
       { t: "Soluciones (4 enlaces)", k: "lista", lineas: [
         "Título: Lo que diseñamos e instalamos",
         "Paneles solares · Sistemas de respaldo en baterías · Proyectos de iluminación · Estaciones de carga",
-        "[Enlaces: confirmar las URLs de las 4 páginas de solución en la nueva arquitectura]",
       ] },
       { t: "Proyectos (2–3 de /portfolio)", k: "lista", lineas: proyectos("") },
       { t: "FAQ visibles", k: "faq" },
@@ -186,7 +185,7 @@ const paginas: Pag[] = [
       { title: "En la asesoría te decimos qué conviene", detail: "Si quieres avanzar, preparamos tu propuesta y cotización." },
     ],
     ctaP: "Agendar asesoría",
-    ctaS: "Prefiero escribir por WhatsApp [pendiente: confirmar número comercial]",
+    ctaS: "Prefiero escribir por WhatsApp",
   },
   {
     tipo: "organica", version: "residencial", url: "/agendar/residencial",
@@ -270,7 +269,7 @@ const paginas: Pag[] = [
       campos: [
         ...contacto,
         q("¿Qué te interesa?", "Proyecto de iluminación (diseño e instalación) · Paneles solares · Respaldo con baterías · Estaciones de carga (espacio preseleccionado en “Negocio u oficina”)", "Sí"),
-        q("Tipo de negocio", "[opciones por definir]", "Sí"),
+        q("Tipo de negocio", "Escribe el tipo de negocio", "Sí"),
         comentario("Ej.: restaurante con consumo alto en verano, tienda que vamos a remodelar, oficina con apagones…"),
         aviso,
       ],
@@ -318,7 +317,7 @@ const paginas: Pag[] = [
       campos: [
         ...contacto,
         q("Empresa", "Nombre de tu empresa", "Sí"),
-        q("Tipo de proyecto", "[opciones por definir; misma lista que /lp/industrial] (espacio preseleccionado en “Industria, nave o bodega”)", "Sí"),
+        q("Tipo de proyecto", "Iluminación de nave o bodega · Paneles solares · Respaldo de energía · Carga para vehículos eléctricos", "Sí"),
         comentario("Ej.: nave con zonas oscuras entre racks, paros por apagones, queremos cargadores para la flotilla…"),
         aviso,
       ],
@@ -390,7 +389,7 @@ const paginas: Pag[] = [
       { q: "¿Puedo tener paneles sin baterías?", a: "Sí. Puedes instalar paneles interconectados a CFE sin incluir baterías en el proyecto." },
       { q: "¿Cuántas baterías necesito para mi casa?", a: "Depende de qué quieres mantener encendido y por cuánto tiempo. Lo revisamos contigo en la asesoría." },
       { q: "¿Qué es un inversor híbrido y para qué sirve?", a: "Es un equipo que puede gestionar la energía de los paneles, las baterías y la red en un sistema compatible." },
-      { q: "¿Cómo funcionan los paneles solares con CFE?", a: "Un medidor bidireccional registra la energía que tomas de la red y la que le envías. Gestionamos tu trámite de interconexión." },
+      { q: "¿Cómo funcionan los paneles solares con CFE?", a: "Un medidor bidireccional registra la energía que tomas de la red y la que le envías." },
       { q: "¿Qué mantenimiento necesitan y cuánto duran?", a: "El mantenimiento y la vida útil dependen de los equipos y de las condiciones de instalación. Puedes revisar los detalles de tu sistema en la asesoría." },
     ],
     pasos: [

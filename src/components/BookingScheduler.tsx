@@ -559,7 +559,7 @@ export default function BookingScheduler({
                   {error}
                 </p>
               ) : null}
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap items-center gap-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -570,7 +570,8 @@ export default function BookingScheduler({
                     setStep("datos");
                     setError(null);
                   }}
-                  className="border border-black/20 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-charcoal transition hover:border-lukx-charcoal"
+                  disabled={submitting}
+                  className="cursor-pointer text-sm font-semibold hover:underline disabled:opacity-40"
                 >
                   Atrás
                 </button>

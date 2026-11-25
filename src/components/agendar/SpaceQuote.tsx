@@ -537,7 +537,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
       <section className="bg-lukx-light py-16 text-lukx-charcoal md:py-24">
         <div className="site-container">
           <h2 className="max-w-2xl text-balance font-display text-4xl leading-none md:text-6xl">{landing.processTitle}</h2>
-          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-5 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
+          <ol className="relative mt-9 grid gap-7 before:absolute before:bottom-8 before:left-6 before:top-6 before:w-px before:bg-lukx-green-btn/35 lg:grid-cols-4 lg:gap-5 lg:before:inset-x-6 lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
             {landing.process.map(({ title, text, icon }, index) => (
               <li key={title} className="relative grid grid-cols-[3rem_1fr] items-start gap-4 lg:grid-cols-1 lg:grid-rows-[3rem_1fr] lg:gap-5">
                 <span className="grid size-12 place-items-center border border-lukx-green-btn bg-lukx-light text-lukx-green-btn" aria-hidden>
@@ -554,23 +554,6 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
         </div>
       </section>
 
-      <section aria-labelledby="demo-reviews-title" className="bg-white py-16 text-lukx-charcoal md:py-24">
-        <div className="site-container">
-          <h2 className="font-display text-4xl leading-none md:text-6xl">{landing.projectsTitle}</h2>
-          <p className="mt-3 max-w-2xl text-sm text-lukx-muted">{landing.projectsText}</p>
-          {landing.teamNote ? <p className="mt-4 max-w-2xl text-sm text-lukx-muted">{landing.teamNote}</p> : null}
-          <p className="mt-8 text-xs font-semibold text-lukx-muted">Reseñas ficticias · Vista previa. No son testimonios de clientes.</p>
-          <h3 id="demo-reviews-title" className="mt-2 font-display text-3xl leading-none md:text-5xl">{landing.reviewsTitle}</h3>
-          <ul className="mt-8 grid gap-4 md:grid-cols-3">
-            {landing.reviews.map((item) => (
-              <li key={item.topic} className="border border-black/10 bg-lukx-light p-5">
-                <blockquote className="text-base leading-relaxed">“{item.quote}”</blockquote>
-                <p className="mt-4 border-t border-black/10 pt-3 text-xs font-semibold text-lukx-muted">{item.topic} · Reseña ficticia</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
       <section className="bg-white py-16 md:py-24">
         <div className="site-container grid gap-8 md:grid-cols-[0.75fr_1.25fr] md:gap-12">

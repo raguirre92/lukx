@@ -4,9 +4,11 @@ import { BookingError, MSG, logBookingError, redactSecrets } from "@/lib/booking
 import { formatCdmxDate, formatOffsetIso, fromOdooUtc, toOdooUtc } from "@/lib/cdmx";
 import {
   COMPANY_ID,
+  MEDIUM_SITIO_WEB,
   MEDIUM_WEB_ID,
   SOLUTION_TAG_IDS,
   SOLUCION_RESPALDO,
+  SOURCE_BY_ORIGIN,
   SOURCE_WEB_ID,
   TAG_SCHEDULED,
   TAG_UNSCHEDULED,
@@ -20,7 +22,7 @@ import {
 import { mockExecute } from "@/lib/odoo-mock";
 import type { BusyInterval, SlotWindow } from "@/lib/slots";
 import { generateSlots } from "@/lib/slots";
-import { textToHtml, type WebFields } from "@/lib/web-answers";
+import { ANUNCIOS, textToHtml, type Anuncio, type LeadOrigin, type WebFields } from "@/lib/web-answers";
 import { encodeMethodCall, parseMethodResponse } from "@/lib/xmlrpc";
 
 const MODELS = new Set([
@@ -31,6 +33,8 @@ const MODELS = new Set([
   "appointment.type",
   "appointment.slot",
   "utm.campaign",
+  "utm.medium",
+  "utm.source",
 ]);
 
 const METHODS = new Set(["search_read", "create", "write", "fields_get"]);
@@ -73,6 +77,10 @@ type LeadInput = {
   utmCampaign?: string;
   /** Odoo UTC datetime when the privacy notice was accepted; written once per lead. */
   privacyAcceptedAt?: string;
+  /** First-touch origin → utm.source (Orgánico / Google Ads / ChatGPT Ads). */
+  origin?: LeadOrigin;
+  /** x_studio_anuncio; only Residencial, Comercial or Industrial are ever sent. */
+  anuncio?: Anuncio | "";
 };
 
 export type PublicSlot = { start: string; stop: string };
@@ -83,6 +91,7 @@ type Memory = {
   fields?: { showAs?: boolean; wonStatus?: boolean };
   tags?: { open?: number; booked?: number };
   campaigns?: Record<string, number>;
+  utmIds?: Record<string, number>;
   staff?: { userId: number; partnerId: number };
 };
 
@@ -435,8 +444,6 @@ function leadValues(
     team_id: TEAM_ID,
     contact_name: input.name,
     email_from: input.email,
-    source_id: SOURCE_WEB_ID,
-    medium_id: MEDIUM_WEB_ID,
     x_studio_de_dnde_llego: "Sitio Web",
     x_studio_tipo_de_campaa: "Sitio Web",
     x_etapa_lead_id: 1,
@@ -528,8 +535,14 @@ async function findPartner(email: string, whatsapp: string): Promise<FoundPartne
 
 async function findOpenLead(partnerId: number | null, email: string): Promise<number | null> {
   const wonField = await hasField("crm.lead", "won_status");
+  const mediumId = await utmIdByName("utm.medium", MEDIUM_SITIO_WEB);
   const domain: unknown[] = [
     ["active", "=", true],
+    // Site leads: the new «Sitio Web» medium, the old «Website» medium, or the old «Sitio Web» source.
+    "|",
+    "|",
+    ["medium_id", "=", mediumId],
+    ["medium_id", "=", MEDIUM_WEB_ID],
     ["source_id", "=", SOURCE_WEB_ID],
     wonField ? ["won_status", "!=", "won"] : ["probability", "<", 100],
     ["email_from", "=ilike", email],
@@ -545,20 +558,44 @@ async function findOpenLead(partnerId: number | null, email: string): Promise<nu
   return asId(rows[0]?.id);
 }
 
-/** Keeps the first acceptance time; if the field can't be read, it is not overwritten. */
-async function privacyAlreadyAccepted(leadId: number): Promise<boolean> {
+/** First-touch custom fields already on the lead; if they can't be read, they are not overwritten. */
+async function customAlreadySet(leadId: number): Promise<{ privacy: boolean; anuncio: boolean }> {
   try {
     const rows = await executeKw<OdooRecord[]>(
       "crm.lead",
       "search_read",
       [[["id", "=", leadId]]],
-      { fields: ["x_web_aviso_privacidad"], limit: 1 },
+      { fields: ["x_web_aviso_privacidad", "x_studio_anuncio"], limit: 1 },
     );
-    return Boolean(rows[0]?.x_web_aviso_privacidad);
+    return { privacy: Boolean(rows[0]?.x_web_aviso_privacidad), anuncio: Boolean(rows[0]?.x_studio_anuncio) };
   } catch (err) {
     logBookingError("odoo-x", faultOf(err));
-    return true;
+    return { privacy: true, anuncio: true };
   }
+}
+
+/** utm.medium / utm.source id by exact name, cached; falls back to the known id. */
+async function utmIdByName(model: "utm.medium" | "utm.source", ref: { name: string; id: number }): Promise<number> {
+  const box = mem();
+  box.utmIds ??= {};
+  const key = `${model}:${ref.name}`;
+  if (box.utmIds[key]) return box.utmIds[key];
+  try {
+    const rows = await executeKw<OdooRecord[]>(model, "search_read", [[["name", "=", ref.name]]], {
+      fields: ["id"],
+      limit: 1,
+      order: "id asc",
+    });
+    const id = asId(rows[0]?.id);
+    if (id) {
+      box.utmIds[key] = id;
+      return id;
+    }
+    console.error(`[odoo] ${model} «${ref.name}» no encontrado; se usa el id conocido`);
+  } catch (err) {
+    logBookingError("odoo-utm", faultOf(err));
+  }
+  return ref.id;
 }
 
 export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; partnerId: number }> {
@@ -579,9 +616,15 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
     }
 
     const campaignId = await campaignFor(input.utmCampaign);
+    const mediumId = await utmIdByName("utm.medium", MEDIUM_SITIO_WEB);
+    const sourceId = await utmIdByName("utm.source", SOURCE_BY_ORIGIN[input.origin ?? "organico"]);
+    const anuncio = input.anuncio && (ANUNCIOS as readonly string[]).includes(input.anuncio) ? input.anuncio : "";
     let leadId = await findOpenLead(partnerId, input.email);
     if (!leadId) {
       const vals = leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags], true);
+      vals.medium_id = mediumId;
+      vals.source_id = sourceId;
+      if (anuncio) vals.x_studio_anuncio = anuncio;
       if (campaignId) vals.campaign_id = campaignId;
       if (input.privacyAcceptedAt) vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
       leadId = await createRecord("crm.lead", vals);
@@ -590,15 +633,18 @@ export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; p
         "crm.lead",
         "search_read",
         [[["id", "=", leadId]]],
-        { fields: ["tag_ids"], limit: 1 },
+        { fields: ["tag_ids", "source_id"], limit: 1 },
       );
       const existing = asIdList(current[0]?.tag_ids);
       const appointment = existing.includes(TAG_SCHEDULED) ? TAG_SCHEDULED : TAG_UNSCHEDULED;
       const vals = leadValues(input, partnerId, at, [appointment, ...solutionTags], false);
+      vals.medium_id = mediumId;
+      // First touch wins: origin and ad are only filled when empty.
+      if (!asId(current[0]?.source_id)) vals.source_id = sourceId;
+      const filled = await customAlreadySet(leadId);
+      if (anuncio && !filled.anuncio) vals.x_studio_anuncio = anuncio;
       if (campaignId) vals.campaign_id = campaignId;
-      if (input.privacyAcceptedAt && !(await privacyAlreadyAccepted(leadId))) {
-        vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
-      }
+      if (input.privacyAcceptedAt && !filled.privacy) vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
       await writeRecord("crm.lead", leadId, vals);
     }
     return { leadId, partnerId: partnerId ?? 0 };

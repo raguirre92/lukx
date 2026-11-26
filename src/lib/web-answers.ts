@@ -163,3 +163,55 @@ export function textToHtml(text: string): string {
   if (!lines.length) return "";
   return `<p>${lines.map(escape).join("<br>")}</p>`;
 }
+
+export type LeadOrigin = "organico" | "google_ads" | "chatgpt_ads";
+export const ANUNCIOS = ["Residencial", "Comercial", "Industrial"] as const;
+export type Anuncio = (typeof ANUNCIOS)[number];
+
+function fold(value: unknown): string {
+  return typeof value === "string"
+    ? value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim()
+    : "";
+}
+
+const PAID_MEDIUMS = new Set(["cpc", "ppc", "paid", "paid_search", "sem", "ads"]);
+
+function isPaidMedium(medium: unknown): boolean {
+  return PAID_MEDIUMS.has(fold(medium).replace(/[\s-]+/g, "_"));
+}
+
+/**
+ * Origen del lead con la atribución de primer contacto del navegador.
+ * Google Ads: gclid/gbraid/wbraid, o utm_source google/adwords con medio pagado.
+ * ChatGPT Ads: utm_source chatgpt/openai con medio pagado. Lo demás es orgánico,
+ * incluidos los enlaces de chatgpt.com que llegan con utm_source=chatgpt.com sin medio pagado.
+ */
+export function leadOrigin(attr: Record<string, unknown>): LeadOrigin {
+  const source = fold(attr.utm_source);
+  const paid = isPaidMedium(attr.utm_medium);
+  const clickId = ["gclid", "gbraid", "wbraid"].some((key) => typeof attr[key] === "string" && (attr[key] as string).trim());
+  if (clickId || (paid && /google|adwords/.test(source))) return "google_ads";
+  if (paid && /chatgpt|openai/.test(source)) return "chatgpt_ads";
+  return "organico";
+}
+
+/** utm_content → Residencial/Comercial/Industrial; si no se reconoce, usa el sector del lead. */
+export function anuncioFor(utmContent: unknown, sector: string): Anuncio | "" {
+  const content = fold(utmContent);
+  if (content.includes("resid")) return "Residencial";
+  if (content.includes("comerc")) return "Comercial";
+  if (content.includes("indust")) return "Industrial";
+  return (ANUNCIOS as readonly string[]).includes(sector) ? (sector as Anuncio) : "";
+}
+
+/** Atribución combinada: el objeto `atribucion` manda; las claves sueltas del cuerpo son respaldo. */
+export function attributionOf(record: Record<string, unknown>): Record<string, string> {
+  const atribucion = record.atribucion && typeof record.atribucion === "object"
+    ? record.atribucion as Record<string, unknown>
+    : {};
+  const out: Record<string, string> = {};
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid", "fbclid"]) {
+    out[key] = clean(atribucion[key], TRACKING_MAX) || clean(record[key], TRACKING_MAX);
+  }
+  return out;
+}

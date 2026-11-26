@@ -6,8 +6,17 @@
 
 export const COMPANY_ID = 1;
 export const TEAM_ID = 1;
+/** Origen anterior de todos los leads del sitio; se conserva para deduplicar leads viejos. */
 export const SOURCE_WEB_ID = 51;
+/** Medio anterior («Website»); se conserva para deduplicar leads viejos. */
 export const MEDIUM_WEB_ID = 1;
+/** utm.medium y utm.source por nombre; el id es el respaldo si la búsqueda falla (creados el 25 nov 2026). */
+export const MEDIUM_SITIO_WEB = { name: "Sitio Web", id: 17 } as const;
+export const SOURCE_BY_ORIGIN = {
+  organico: { name: "Orgánico", id: 54 },
+  google_ads: { name: "Google Ads", id: 55 },
+  chatgpt_ads: { name: "ChatGPT Ads", id: 56 },
+} as const;
 export const TAG_UNSCHEDULED = 25;
 export const TAG_SCHEDULED = 26;
 export const TAG_PANELES = 5;

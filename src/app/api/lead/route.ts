@@ -14,7 +14,10 @@ import { saveWebLead } from "@/lib/odoo";
 import {
   SOLUTION_WEB_FIELDS,
   answerFields,
+  anuncioFor,
+  attributionOf,
   formularioFor,
+  leadOrigin,
   pageField,
   trackingFields,
   type WebFields,
@@ -163,6 +166,8 @@ export async function POST(request: Request) {
     const page = pageField(pagina);
     if (page) webFields.x_web_pagina = page;
     Object.assign(webFields, tracking.fields);
+    const sector = sectorForPage(pagina, space);
+    const attribution = attributionOf(record);
 
     const saved = await saveWebLead({
       name,
@@ -170,7 +175,7 @@ export async function POST(request: Request) {
       whatsapp,
       city: cityRaw === "Otro" ? cleanText(respuestas["Otra ciudad o municipio"], 120) || cityLabel(cityRaw) : cityLabel(cityRaw),
       cityChosen: Boolean(cityRaw),
-      sector: sectorForPage(pagina, space),
+      sector,
       comment,
       solution,
       recibo,
@@ -179,6 +184,8 @@ export async function POST(request: Request) {
       pendingFields: pendingFrom(record, respuestas, privacyAccepted),
       webFields,
       utmCampaign: tracking.utmCampaign,
+      origin: leadOrigin(attribution),
+      anuncio: anuncioFor(attribution.utm_content, sector),
       privacyAcceptedAt: privacyAccepted ? toOdooUtc(new Date()) : "",
     });
     const leadToken = signLeadToken(saved.leadId, saved.partnerId);

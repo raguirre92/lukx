@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function ExperienceStrip() {
   return (
-    <section className="relative overflow-hidden bg-[url('/images/2025-07-banner-abajo.jpg')] bg-cover bg-center">
-      <div className="bg-black/55 px-4 py-20 md:py-28">
+    <section className="relative overflow-hidden bg-lukx-charcoal">
+      <div className="px-4 py-20 md:py-28">
         <div className="mx-auto max-w-3xl text-center text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#19b600]">
             ILUMINACIÓN Y ENERGÍA SOLAR
@@ -19,7 +19,7 @@ export default function ExperienceStrip() {
             clientes que vayan de acuerdo a sus necesidades, conjugando el diseño, la funcionalidad
             y el ahorro energético.
           </p>
-          <Link href="/agendar" className="btn-green mt-8">
+          <Link href="/nosotros" className="btn-green mt-8">
             Agendar asesoría <span className="arrow" aria-hidden>→</span>
           </Link>
         </div>

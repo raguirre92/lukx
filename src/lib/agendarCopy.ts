@@ -46,14 +46,32 @@ export function getAgendarCopy(
     .filter(Boolean)
     .join(" · ");
 
-  const isHomeSolar =
-    (!seg && !sol) ||
-    (sol === "paneles-solares" && (!seg || seg === "residencial")) ||
-    (seg === "residencial" && !sol);
+  if (!seg && !sol) {
+    return {
+      interest: "",
+      intro: "Cuéntanos qué quieres resolver y revisamos contigo el siguiente paso.",
+      bullets: [
+        "Revisamos tu casa, negocio o planta",
+        "Te orientamos al proyecto que sí aplica",
+        "Definimos juntos el siguiente paso: visita o propuesta",
+      ],
+      storyTitle: "AGENDA TU ASESORÍA",
+      storyBody:
+        "No tienes que llegar con la solución decidida. Cuéntanos qué quieres resolver y lo vemos contigo.",
+      storyImage: SOLAR_IMAGE,
+      storyImageAlt: "Proyecto de energía e iluminación de Lukx",
+      bannerLine: "Un proyecto a la medida de tu espacio.",
+      alliesBody: "Diseñamos e instalamos proyectos con equipos de confianza, pensados para durar.",
+      closeBody: "Agenda tu asesoría y revisamos contigo el siguiente paso.",
+      isHomeSolar: false,
+    };
+  }
+
+  const isHomeSolar = sol === "paneles-solares" && (!seg || seg === "residencial");
 
   if (isHomeSolar) {
     return {
-      interest: interest || "Residencial · Paneles solares",
+      interest,
       intro:
         "Videollamada para revisar tu recibo de CFE y diseñar paneles solares a la medida de tu casa.",
       bullets: [
@@ -173,8 +191,13 @@ export function getAgendarCopy(
     ],
     storyTitle: "QUÉ INCLUYE LA ASESORÍA",
     storyBody:
-      "No tienes que llegar sabiendo el producto exacto. Revisamos tu caso y te orientamos a la solución que sí aplica, sin compromiso de compra.",
-    storyImage: seg === "industrial" ? "/images/2025-07-INDUSTRIAL-2.jpg" : "/images/2025-07-COMERCIAL.jpg",
+      "No tienes que llegar con el proyecto decidido. Revisamos tu caso y te orientamos a la solución que sí aplica.",
+    storyImage:
+      seg === "industrial"
+        ? "/images/2025-07-INDUSTRIAL-2.jpg"
+        : seg === "comercial"
+          ? "/images/2025-07-COMERCIAL.jpg"
+          : HOME_IMAGE,
     storyImageAlt: `Proyecto ${seg ? SEGMENT_LABELS[seg].toLowerCase() : ""} Lukx`,
     bannerLine: "Una asesoría clara para decidir con información, no a ciegas.",
     alliesBody:

@@ -1,10 +1,12 @@
 export class BookingError extends Error {
   readonly status: number;
+  readonly fault?: string;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, fault?: string) {
     super(message);
     this.name = "BookingError";
     this.status = status;
+    this.fault = fault;
   }
 }
 

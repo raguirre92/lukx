@@ -87,6 +87,12 @@ export function formatOffsetIso(date: Date, timeZone: string): string {
   return `${parts.y}-${pad(parts.m)}-${pad(parts.d)}T${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
 }
 
+export function formatCdmxDate(date: Date): string {
+  const parts = civilParts(date, "America/Mexico_City");
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${parts.y}-${pad(parts.m)}-${pad(parts.d)}`;
+}
+
 export function formatCdmxStamp(date: Date): string {
   const parts = civilParts(date, "America/Mexico_City");
   const pad = (value: number) => String(value).padStart(2, "0");

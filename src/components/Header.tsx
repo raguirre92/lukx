@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { navMain, site } from "@/data/site";
+import { navMain, navSpaces, site } from "@/data/site";
 import { SolutionsMega, SolutionsMobileList, SolutionsTrigger } from "@/components/SolutionsMenu";
 
 export default function Header() {
@@ -13,6 +13,12 @@ export default function Header() {
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const closeMenuTimer = useRef<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -30,17 +36,20 @@ export default function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const cancelSolutionsClose = () => {
+    if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
+  };
+
+  const scheduleSolutionsClose = () => {
+    if (!window.matchMedia("(hover: hover) and (min-width: 1024px)").matches) return;
+    cancelSolutionsClose();
+    closeMenuTimer.current = window.setTimeout(() => setSolutionsOpen(false), 180);
+  };
+
   return (
     <header
       className="fixed inset-x-0 top-0 z-50 bg-[#1a1a1a] transition-shadow duration-300 data-[scrolled=true]:shadow-lg data-[scrolled=true]:shadow-black/25"
       data-scrolled={scrolled || open}
-      onMouseEnter={() => {
-        if (closeMenuTimer.current) window.clearTimeout(closeMenuTimer.current);
-      }}
-      onMouseLeave={() => {
-        if (!window.matchMedia("(hover: hover) and (min-width: 1024px)").matches) return;
-        closeMenuTimer.current = window.setTimeout(() => setSolutionsOpen(false), 160);
-      }}
     >
       <button
         type="button"
@@ -51,7 +60,7 @@ export default function Header() {
         tabIndex={-1}
         onClick={() => setSolutionsOpen(false)}
       />
-      <div className="relative z-30 mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-4 px-4 md:h-[88px] md:gap-6 md:px-8 xl:px-10">
+      <div className="site-container relative z-30 flex h-[72px] items-center justify-between gap-4 md:h-[88px] md:gap-6">
         <Link href="/" className="relative z-10 shrink-0">
           <Image
             src={site.logos.horizontalWhite}
@@ -69,14 +78,23 @@ export default function Header() {
               <span key={item.label} className="contents">
                 <SolutionsTrigger
                   open={solutionsOpen}
-                  active={item.children.some((child) => isActive(child.href))}
-                  onOpen={() => setSolutionsOpen(true)}
+                  active={
+                    item.children.some((child) => isActive(child.href)) ||
+                    navSpaces.some((space) => isActive(space.href))
+                  }
+                  onOpen={() => {
+                    cancelSolutionsClose();
+                    setSolutionsOpen(true);
+                  }}
                   onToggle={() => setSolutionsOpen((value) => !value)}
+                  onLeave={scheduleSolutionsClose}
                 />
                 <SolutionsMega
                   open={solutionsOpen}
                   pathname={pathname}
                   onOpenChange={setSolutionsOpen}
+                  onHoverStart={cancelSolutionsClose}
+                  onHoverEnd={scheduleSolutionsClose}
                 />
               </span>
             ) : (

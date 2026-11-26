@@ -14,6 +14,9 @@ const STATIC_PATHS = [
   "/estaciones-de-carga",
   "/sistemas-de-respaldo-de-energia-en-baterias",
   "/agendar",
+  "/residencial",
+  "/comercial",
+  "/industrial",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

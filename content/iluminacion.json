@@ -3,29 +3,29 @@
   "title": "Iluminación",
   "url": "https://lukx.com.mx/iluminacion/",
   "hero": {
-    "title": "Iluminación led",
-    "subtitle": "Diseño, sumisitos e ingenierías de iluminación",
-    "tagline": "Luminarias de la más alta calidad para iluminar todos tus proyectos.",
+    "title": "Diseño e instalación de proyectos de iluminación",
+    "subtitle": "Proyectos de iluminación para casa, comercio e industria",
+    "tagline": "Del diseño a la instalación, según el uso de cada espacio.",
     "backgroundImage": "/images/2025-09-pexels-sevval-karatas-58866204-10401809-scaled.jpg"
   },
   "headings": [
-    "Iluminación led",
-    "Diseño, sumisitos e ingenierías de iluminación",
-    "Luminarias de la más alta calidad para iluminar todos tus proyectos.",
+    "Diseño e instalación de proyectos de iluminación",
+    "Proyectos de iluminación para casa, comercio e industria",
+    "Del diseño a la instalación, según el uso de cada espacio.",
     "En Lukx transformamos",
     "espacios a través de la luz.",
-    "Nos especializamos en la venta de luminarias de alta calidad y en el diseño de iluminación arquitectónica para proyectos residenciales, comerciales e industriales; contamos con más de 15 años de experiencia. Combinamos funcionalidad, estética y eficiencia energética para crear ambientes únicos que resaltan la arquitectura, mejoran la experiencia de los usuarios y aportan valor a cada proyecto. Ofrecemos productos de alta calidad e instalación profesional para lograr resultados que se notan y se sienten.",
+    "Diseñamos e instalamos proyectos de iluminación para espacios residenciales, comerciales e industriales. Llevamos más de 15 años en este trabajo. Combinamos funcionalidad, estética y eficiencia para que la luz acompañe la arquitectura y el uso de cada lugar.",
     "Soluciones para",
     "Sector Industrial y comercial",
     "Asesoría técnica especializada",
     "Diseño de iluminación profesional",
-    "Venta y distribución de luminarias LED",
+    "Diseño e instalación de proyectos de iluminación",
     "Reducción de costos de energía y mantenimiento",
     "Iluminación",
     "El diseño de iluminación es un servicio especializado que busca potenciar la estética, funcionalidad y atmósfera de un espacio mediante el uso estratégico de la luz.",
     "En Lukx desarrollamos proyectos personalizados que integran:",
     "Este servicio está dirigido a arquitectos, diseñadores, constructores, desarrolladores inmobiliarios y clientes particulares que buscan destacar la arquitectura y crear experiencias únicas a través de la luz.",
-    "Distribución de Luminarias LED",
+    "Proyectos de iluminación LED",
     "El diseño de iluminación arquitectónica es un servicio especializado que busca potenciar la estética, funcionalidad y atmósfera de un espacio mediante el uso estratégico de la luz.",
     "Casos de éxito",
     "Grand Park",
@@ -61,7 +61,7 @@
     },
     {
       "question": "¿Qué pasa con la energía que no uso?",
-      "answer": "Al contratar tu servicio de paneles solares, se hacen tramites ante CFE para poder medir la energía que produces, esto se hace a través de un medidor Bidireccional, la energía que no uses durante un período de tiempo va a quedar registrada en este medidor como un saldo a favor para poder darle uso en el período que tu lo requieras."
+      "answer": "Un medidor bidireccional registra la energía que produces y la que envías a la red."
     },
     {
       "question": "¿Cómo sé que soy apto para instalar paneles?",
@@ -78,10 +78,6 @@
     {
       "question": "¿Qué necesito para empezar?",
       "answer": "Contactarnos y brindarnos los datos de tu recibo de CFE (el que tengan a la mano) No necesita ser el más reciente."
-    },
-    {
-      "question": "¿Cuánto tiempo tardan los trámites de CFE?",
-      "answer": "Los trámites pueden tardar varias semanas, dependiendo la zona en la que te encuentres."
     }
   ],
   "images": [
@@ -131,7 +127,7 @@
     "services": [
       "Asesoría técnica especializada",
       "Diseño de iluminación profesional",
-      "Venta y distribución de luminarias LED",
+      "Diseño e instalación de proyectos de iluminación",
       "Reducción de costos de energía y mantenimiento"
     ]
   },

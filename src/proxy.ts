@@ -2,7 +2,15 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const GONE = new Set(["/sample-page", "/carrusel-de-inicio", "/comments/feed", "/category/uncategorized"]);
+const GONE = new Set([
+  "/sample-page",
+  "/carrusel-de-inicio",
+  "/comments/feed",
+  "/category/uncategorized",
+  "/wp-content/uploads/2021/05/AURORA-HIGH-BAY-1.pdf",
+  "/wp-content/uploads/2021/05/UFO-HIGH-BAY.pdf",
+  "/wp-content/uploads/2021/05/Access-Street-Light-A-1.pdf",
+]);
 
 const STAGING_REALM = 'Basic realm="Lukx staging", charset="UTF-8"';
 

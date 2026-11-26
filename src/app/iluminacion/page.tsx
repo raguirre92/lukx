@@ -10,7 +10,7 @@ import { brandedPage } from "@/lib/seo";
 export const revalidate = 300;
 
 export const metadata: Metadata = brandedPage({
-  title: "Iluminación",
+  title: "Diseño e instalación de proyectos de iluminación",
   description: iluminacion.hero.tagline,
   path: "/iluminacion",
 });
@@ -25,8 +25,8 @@ const services = [
     body: "Con simulaciones y cálculos fotométricos para garantizar uniformidad, niveles adecuados de luz y eficiencia operativa.",
   },
   {
-    title: "Venta y distribución de luminarias LED",
-    body: "Robustas, duraderas y con alta eficiencia energética.",
+    title: "Diseño e instalación de proyectos de iluminación",
+    body: "Del diseño a la instalación, según el uso de cada espacio.",
   },
   {
     title: "Reducción de costos de energía y mantenimiento",
@@ -53,7 +53,7 @@ export default async function IluminacionPage() {
         image={iluminacion.hero.backgroundImage}
       />
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title="En Lukx transformamos espacios a través de la luz." />
         <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">
           {iluminacion.headings[5]}
@@ -61,7 +61,7 @@ export default async function IluminacionPage() {
       </section>
 
       <section className="bg-lukx-light py-14 md:py-16">
-        <div data-stagger className="mx-auto grid max-w-7xl gap-5 px-4 md:grid-cols-2 md:px-8">
+        <div data-stagger className="site-container grid gap-5 md:grid-cols-2">
           {services.map((s) => (
             <article key={s.title} className="bg-white p-6">
               <h3 className="font-display text-2xl text-lukx-charcoal">{s.title}</h3>
@@ -71,7 +71,7 @@ export default async function IluminacionPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title="Diseño de iluminación" />
         <p className="mt-4 text-sm leading-relaxed text-lukx-muted md:text-base">
           El diseño de iluminación es un servicio especializado que busca potenciar la estética,

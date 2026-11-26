@@ -29,7 +29,7 @@ const meta: Record<
       "Proyecto Grand Park desarrollado por Lukx, integrando soluciones de iluminación de alto rendimiento para realzar la arquitectura y mejorar la experiencia del espacio.",
       "Trabajamos con un enfoque integral: selección de luminarias, diseño fotométrico e instalación profesional para lograr eficiencia, estética y durabilidad.",
     ],
-    services: ["Diseño de iluminación", "Suministro de luminarias LED", "Instalación"],
+    services: ["Diseño de iluminación", "Proyecto de iluminación LED", "Instalación"],
   },
   "bodegas-gp": {
     category: "Industrial",
@@ -47,7 +47,7 @@ const meta: Record<
       "Proyecto Colegio Excelsior, donde la iluminación se diseñó para apoyar el aprendizaje, la seguridad y el confort visual en espacios educativos.",
       "Combinamos funcionalidad y eficiencia para crear ambientes adecuados a cada área del campus.",
     ],
-    services: ["Iluminación arquitectónica", "Luminarias LED", "Proyecto integral"],
+    services: ["Iluminación arquitectónica", "Iluminación LED", "Proyecto integral"],
   },
   ifpp: {
     category: "Institucional",
@@ -59,7 +59,7 @@ const meta: Record<
     services: ["Diseño de iluminación", "Eficiencia energética", "Instalación"],
   },
   noho: {
-    category: "Comercial / Residencial",
+    category: "Residencial",
     summary: "Proyecto Noho — iluminación que destaca arquitectura y atmósfera.",
     description: [
       "Proyecto Noho, orientado a potenciar la estética y atmósfera del espacio mediante un diseño de iluminación estratégico.",

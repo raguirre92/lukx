@@ -1,15 +1,28 @@
 import "server-only";
 
 import { BookingError, MSG, logBookingError, redactSecrets } from "@/lib/booking-error";
+import { formatCdmxDate, formatOffsetIso, fromOdooUtc, toOdooUtc } from "@/lib/cdmx";
 import {
-  formatCdmxStamp,
-  formatOffsetIso,
-  fromOdooUtc,
-  toOdooUtc,
-} from "@/lib/cdmx";
+  COMPANY_ID,
+  MEDIUM_SITIO_WEB,
+  MEDIUM_WEB_ID,
+  SOLUTION_TAG_IDS,
+  SOLUCION_RESPALDO,
+  SOURCE_BY_ORIGIN,
+  SOURCE_WEB_ID,
+  TAG_SCHEDULED,
+  TAG_UNSCHEDULED,
+  TEAM_ID,
+  holdPendingFields,
+  solutionIncludesRespaldo,
+  solutionTagIds,
+  tipoVentaFor,
+  type PendingLeadFields,
+} from "@/lib/lead-mapping";
 import { mockExecute } from "@/lib/odoo-mock";
 import type { BusyInterval, SlotWindow } from "@/lib/slots";
 import { generateSlots } from "@/lib/slots";
+import { ANUNCIOS, textToHtml, type Anuncio, type LeadOrigin, type WebFields } from "@/lib/web-answers";
 import { encodeMethodCall, parseMethodResponse } from "@/lib/xmlrpc";
 
 const MODELS = new Set([
@@ -19,12 +32,12 @@ const MODELS = new Set([
   "calendar.event",
   "appointment.type",
   "appointment.slot",
+  "utm.campaign",
+  "utm.medium",
+  "utm.source",
 ]);
 
 const METHODS = new Set(["search_read", "create", "write", "fields_get"]);
-const WEB_SOURCE_ID = 51;
-const TAG_OPEN = "Cita sin agendar";
-const TAG_BOOKED = "Cita agendada";
 const FALLBACK_STAFF_USER_ID = 47;
 const FALLBACK_STAFF_PARTNER_ID = 10879;
 const SLOT_CACHE_MS = 60_000;
@@ -47,9 +60,27 @@ type LeadInput = {
   name: string;
   email: string;
   whatsapp: string;
-  utmSource: string;
-  utmMedium: string;
-  utmCampaign: string;
+  city?: string;
+  sector?: string;
+  comment?: string;
+  solution?: string;
+  recibo?: string;
+  /** This conditional form replaces fields belonging to its previous solution. */
+  replaceSolutionDetails?: boolean;
+  contact?: boolean;
+  /** True when the form sent a city, including Otro, so an empty city clears the field. */
+  cityChosen?: boolean;
+  pendingFields: PendingLeadFields;
+  /** x_web_* values; false clears a field, missing keys are left untouched. */
+  webFields?: WebFields;
+  /** Raw utm_campaign, matched or created as utm.campaign. */
+  utmCampaign?: string;
+  /** Odoo UTC datetime when the privacy notice was accepted; written once per lead. */
+  privacyAcceptedAt?: string;
+  /** First-touch origin → utm.source (Orgánico / Google Ads / ChatGPT Ads). */
+  origin?: LeadOrigin;
+  /** x_studio_anuncio; only Residencial, Comercial or Industrial are ever sent. */
+  anuncio?: Anuncio | "";
 };
 
 export type PublicSlot = { start: string; stop: string };
@@ -59,6 +90,8 @@ type Memory = {
   typeCache?: { at: number; config: TypeConfig };
   fields?: { showAs?: boolean; wonStatus?: boolean };
   tags?: { open?: number; booked?: number };
+  campaigns?: Record<string, number>;
+  utmIds?: Record<string, number>;
   staff?: { userId: number; partnerId: number };
 };
 
@@ -110,8 +143,16 @@ async function executeKw<T>(
     console.error("[odoo] modelo o método fuera de la lista permitida");
     throw new BookingError(502, MSG.connect);
   }
+  const callKwargs: Record<string, unknown> = {
+    ...kwargs,
+    context: {
+      ...(kwargs.context && typeof kwargs.context === "object" ? kwargs.context : {}),
+      allowed_company_ids: [COMPANY_ID],
+      default_company_id: COMPANY_ID,
+    },
+  };
   if (odooMockEnabled()) {
-    return mockExecute(model, method, args, kwargs) as T;
+    return mockExecute(model, method, args, callKwargs) as T;
   }
   const cfg = requireConfig();
   const xml = encodeMethodCall("execute_kw", [
@@ -121,7 +162,7 @@ async function executeKw<T>(
     model,
     method,
     args,
-    kwargs,
+    callKwargs,
   ]);
   let response: Response;
   try {
@@ -138,15 +179,80 @@ async function executeKw<T>(
   }
   const text = await response.text();
   if (!response.ok) {
-    console.error("[odoo] HTTP", response.status, redactSecrets(text).slice(0, 300));
-    throw new BookingError(502, MSG.connect);
+    const fault = redactSecrets(text).slice(0, 500);
+    console.error("[odoo] HTTP", response.status, fault);
+    throw new BookingError(502, MSG.connect, fault);
   }
   try {
     return parseMethodResponse(text) as T;
   } catch (err) {
+    const fault = err instanceof Error ? err.message : String(err);
     logBookingError("odoo", err);
-    throw new BookingError(502, MSG.connect);
+    throw new BookingError(502, MSG.connect, fault);
   }
+}
+
+function faultOf(err: unknown): string {
+  if (err instanceof BookingError) return err.fault ?? "";
+  return err instanceof Error ? err.message : String(err);
+}
+
+function isCustomFieldFault(fault: string): boolean {
+  return /x_[a-z0-9_]+/i.test(fault) || /invalid field|unknown field|does not exist|unexpected keyword/i.test(fault);
+}
+
+function withoutFields(vals: Record<string, unknown>, prefix: string): Record<string, unknown> {
+  const plain: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(vals)) {
+    if (!key.startsWith(prefix)) plain[key] = value;
+  }
+  return plain;
+}
+
+/**
+ * Payloads to try in order when Odoo rejects custom fields: first without the
+ * newer x_web_* fields so the core x_studio_* data survives, then without any x_.
+ */
+function customFallbacks(vals: Record<string, unknown>): Record<string, unknown>[] {
+  const keys = Object.keys(vals);
+  const steps: Record<string, unknown>[] = [];
+  if (keys.some((key) => key.startsWith("x_web_"))) steps.push(withoutFields(vals, "x_web_"));
+  if (keys.some((key) => key.startsWith("x_") && !key.startsWith("x_web_"))) steps.push(withoutFields(vals, "x_"));
+  return steps;
+}
+
+async function withCustomFallback<T>(vals: Record<string, unknown>, run: (payload: Record<string, unknown>) => Promise<T>): Promise<T> {
+  const fallbacks = customFallbacks(vals);
+  let payload = vals;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await run(payload);
+    } catch (err) {
+      const next = fallbacks[attempt];
+      if (!next || !isCustomFieldFault(faultOf(err))) throw err;
+      const keepsCore = Object.keys(next).some((key) => key.startsWith("x_"));
+      console.error(`[odoo] campos ${keepsCore ? "x_web_" : "x_"} rechazados; se reintenta sin ellos`);
+      logBookingError("odoo-x", faultOf(err));
+      payload = next;
+    }
+  }
+}
+
+async function createRecord(model: string, vals: Record<string, unknown>): Promise<number> {
+  return withCustomFallback(vals, async (payload) => {
+    const created = await executeKw<number>(model, "create", [payload]);
+    const id = asId(created);
+    if (!id) throw new BookingError(502, MSG.save);
+    return id;
+  });
+}
+
+async function writeRecord(model: string, id: number, vals: Record<string, unknown>): Promise<void> {
+  await withCustomFallback(vals, async (payload) => {
+    if (!Object.keys(payload).length) return;
+    const wrote = await executeKw<boolean>(model, "write", [[id], payload]);
+    if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.save);
+  });
 }
 
 function asId(value: unknown): number | null {
@@ -194,28 +300,6 @@ async function hasField(model: string, field: string): Promise<boolean> {
   if (field === "show_as") box.fields.showAs = present;
   if (field === "won_status") box.fields.wonStatus = present;
   return present;
-}
-
-async function ensureTag(name: typeof TAG_OPEN | typeof TAG_BOOKED): Promise<number> {
-  const box = mem();
-  box.tags ??= {};
-  const cacheKey = name === TAG_OPEN ? "open" : "booked";
-  const cached = box.tags[cacheKey];
-  if (cached) return cached;
-  const found = await executeKw<OdooRecord[]>(
-    "crm.tag",
-    "search_read",
-    [[["name", "=", name]]],
-    { fields: ["id"], limit: 1 },
-  );
-  let id = asId(found[0]?.id);
-  if (!id) {
-    const created = await executeKw<number>("crm.tag", "create", [{ name }]);
-    id = asId(created);
-  }
-  if (!id) throw new BookingError(502, MSG.save);
-  box.tags[cacheKey] = id;
-  return id;
 }
 
 async function loadTypeConfig(): Promise<TypeConfig> {
@@ -312,40 +396,159 @@ async function staffPartner(userId: number): Promise<number> {
   return partnerId;
 }
 
-function consentText(input: LeadInput, at: Date): string {
-  const lines = [`Consentimiento del Aviso de Privacidad: ${formatCdmxStamp(at)}`];
-  if (input.utmSource) lines.push(`utm_source: ${input.utmSource}`);
-  if (input.utmMedium) lines.push(`utm_medium: ${input.utmMedium}`);
-  if (input.utmCampaign) lines.push(`utm_campaign: ${input.utmCampaign}`);
-  return lines.join("\n");
+type FoundPartner = {
+  id: number;
+  internal: boolean;
+  name: string;
+  email: string;
+  mobile: string;
+  companyId: number | null;
+};
+
+function partnerIsInternal(row: OdooRecord): boolean {
+  return asIdList(row.user_ids).length > 0;
 }
 
-async function findPartner(email: string, whatsapp: string): Promise<number | null> {
+function newPartnerValues(input: LeadInput): Record<string, unknown> {
+  const vals: Record<string, unknown> = {
+    name: input.name,
+    email: input.email,
+    company_id: COMPANY_ID,
+  };
+  if (input.whatsapp) vals.mobile = input.whatsapp;
+  return vals;
+}
+
+function emptyPartnerFill(input: LeadInput, row: FoundPartner): Record<string, unknown> {
+  const vals: Record<string, unknown> = {};
+  if (!row.name && input.name) vals.name = input.name;
+  if (!row.email && input.email) vals.email = input.email;
+  if (!row.mobile && input.whatsapp) vals.mobile = input.whatsapp;
+  if (!row.companyId) vals.company_id = COMPANY_ID;
+  return vals;
+}
+
+function leadValues(
+  input: LeadInput,
+  partnerId: number | null,
+  at: Date,
+  tagIds: number[],
+  clearSalesperson: boolean,
+): Record<string, unknown> {
+  const comment = input.comment?.trim() ?? "";
+  const tipo = input.solution ? tipoVentaFor(input.solution) : "";
+  const vals: Record<string, unknown> = {
+    name: input.name,
+    type: "lead",
+    company_id: COMPANY_ID,
+    team_id: TEAM_ID,
+    contact_name: input.name,
+    email_from: input.email,
+    x_studio_de_dnde_llego: "Sitio Web",
+    x_studio_tipo_de_campaa: "Sitio Web",
+    x_etapa_lead_id: 1,
+    x_fecha_hora_recibido: toOdooUtc(at),
+    x_studio_fecha_recibido: formatCdmxDate(at),
+    tag_ids: [[6, 0, tagIds]],
+  };
+  if (clearSalesperson) vals.user_id = false;
+  if (partnerId) vals.partner_id = partnerId;
+  else vals.partner_id = false;
+  if (input.whatsapp) vals.mobile = input.whatsapp;
+  if (input.city) vals.city = input.city;
+  else if (input.cityChosen) vals.city = false;
+  if (input.sector) vals.x_studio_sector = input.sector;
+  if (comment) {
+    // Without a comment the description is left alone, so a later short form never wipes it.
+    vals.description = textToHtml(comment);
+    vals.x_studio_mensaje_del_lead = comment;
+  }
+  if (input.recibo) vals.x_studio_gasto_en_recibo_de_luz = input.recibo;
+  else if (input.replaceSolutionDetails) vals.x_studio_gasto_en_recibo_de_luz = false;
+  if (tipo) vals.x_studio_tipo_venta = tipo;
+  if (input.solution && solutionIncludesRespaldo(input.solution)) {
+    vals.x_studio_solucin = SOLUCION_RESPALDO;
+  } else if (input.replaceSolutionDetails) {
+    vals.x_studio_solucin = false;
+  }
+  for (const [key, value] of Object.entries(input.webFields ?? {})) {
+    if (key.startsWith("x_web_") && (value === false || value)) vals[key] = value;
+  }
+  return vals;
+}
+
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
+/** Finds utm.campaign by name (case-insensitive) or creates it. Never blocks the lead. */
+async function campaignFor(raw: string | undefined): Promise<number | null> {
+  const name = raw?.trim().slice(0, 100) ?? "";
+  if (!name) return null;
+  const box = mem();
+  box.campaigns ??= {};
+  const cacheKey = name.toLowerCase();
+  if (box.campaigns[cacheKey]) return box.campaigns[cacheKey];
+  try {
+    const rows = await executeKw<OdooRecord[]>(
+      "utm.campaign",
+      "search_read",
+      [[["name", "=ilike", escapeLike(name)]]],
+      { fields: ["id"], limit: 1, order: "id asc" },
+    );
+    let id = asId(rows[0]?.id);
+    if (!id) id = asId(await executeKw<number>("utm.campaign", "create", [{ name, title: name }]));
+    if (id) box.campaigns[cacheKey] = id;
+    return id;
+  } catch (err) {
+    logBookingError("odoo-utm", faultOf(err));
+    return null;
+  }
+}
+
+async function findPartner(email: string, whatsapp: string): Promise<FoundPartner | null> {
+  const domain: unknown[] = whatsapp
+    ? ["|", "|", ["email", "=ilike", email], ["phone", "=", whatsapp], ["mobile", "=", whatsapp]]
+    : [["email", "=ilike", email]];
   const rows = await executeKw<OdooRecord[]>(
     "res.partner",
     "search_read",
-    [[
-      "|",
-      "|",
-      ["email", "=ilike", email],
-      ["phone", "=", whatsapp],
-      ["mobile", "=", whatsapp],
-    ]],
-    { fields: ["id"], limit: 1, order: "id asc" },
+    [domain],
+    { fields: ["id", "name", "email", "mobile", "user_ids", "company_id"], limit: 20, order: "id asc" },
   );
-  return asId(rows[0]?.id);
+  const mapped = rows
+    .map((row) => {
+      const id = asId(row.id);
+      if (!id) return null;
+      return {
+        id,
+        internal: partnerIsInternal(row),
+        name: asText(row.name),
+        email: asText(row.email),
+        mobile: asText(row.mobile),
+        companyId: asId(row.company_id),
+      };
+    })
+    .filter((row): row is FoundPartner => row !== null);
+  return mapped.find((row) => !row.internal) ?? mapped[0] ?? null;
 }
 
-async function findOpenLead(partnerId: number, email: string): Promise<number | null> {
+async function findOpenLead(partnerId: number | null, email: string): Promise<number | null> {
   const wonField = await hasField("crm.lead", "won_status");
+  const mediumId = await utmIdByName("utm.medium", MEDIUM_SITIO_WEB);
   const domain: unknown[] = [
     ["active", "=", true],
-    ["source_id", "=", WEB_SOURCE_ID],
-    wonField ? ["won_status", "!=", "won"] : ["probability", "<", 100],
+    // Site leads: the new «Sitio Web» medium, the old «Website» medium, or the old «Sitio Web» source.
     "|",
-    ["partner_id", "=", partnerId],
+    "|",
+    ["medium_id", "=", mediumId],
+    ["medium_id", "=", MEDIUM_WEB_ID],
+    ["source_id", "=", SOURCE_WEB_ID],
+    wonField ? ["won_status", "!=", "won"] : ["probability", "<", 100],
     ["email_from", "=ilike", email],
   ];
+  if (partnerId) domain.push(["partner_id", "=", partnerId]);
+  else domain.push(["partner_id", "=", false]);
   const rows = await executeKw<OdooRecord[]>(
     "crm.lead",
     "search_read",
@@ -355,77 +558,143 @@ async function findOpenLead(partnerId: number, email: string): Promise<number | 
   return asId(rows[0]?.id);
 }
 
-export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; partnerId: number }> {
+/** First-touch custom fields already on the lead; if they can't be read, they are not overwritten. */
+async function customAlreadySet(leadId: number): Promise<{ privacy: boolean; anuncio: boolean }> {
   try {
-    const config = await loadTypeConfig();
-    const note = consentText(input, new Date());
-    let partnerId = await findPartner(input.email, input.whatsapp);
-    if (!partnerId) {
-      const created = await executeKw<number>("res.partner", "create", [
-        {
-          name: input.name,
-          email: input.email,
-          phone: input.whatsapp,
-          mobile: input.whatsapp,
-        },
-      ]);
-      partnerId = asId(created);
-    } else {
-      const wrote = await executeKw<boolean>("res.partner", "write", [
-        [partnerId],
-        {
-          name: input.name,
-          email: input.email,
-          phone: input.whatsapp,
-          mobile: input.whatsapp,
-        },
-      ]);
-      if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.save);
-    }
-    if (!partnerId) throw new BookingError(502, MSG.save);
+    const rows = await executeKw<OdooRecord[]>(
+      "crm.lead",
+      "search_read",
+      [[["id", "=", leadId]]],
+      { fields: ["x_web_aviso_privacidad", "x_studio_anuncio"], limit: 1 },
+    );
+    return { privacy: Boolean(rows[0]?.x_web_aviso_privacidad), anuncio: Boolean(rows[0]?.x_studio_anuncio) };
+  } catch (err) {
+    logBookingError("odoo-x", faultOf(err));
+    return { privacy: true, anuncio: true };
+  }
+}
 
-    const openTag = await ensureTag(TAG_OPEN);
+/** utm.medium / utm.source id by exact name, cached; falls back to the known id. */
+async function utmIdByName(model: "utm.medium" | "utm.source", ref: { name: string; id: number }): Promise<number> {
+  const box = mem();
+  box.utmIds ??= {};
+  const key = `${model}:${ref.name}`;
+  if (box.utmIds[key]) return box.utmIds[key];
+  try {
+    const rows = await executeKw<OdooRecord[]>(model, "search_read", [[["name", "=", ref.name]]], {
+      fields: ["id"],
+      limit: 1,
+      order: "id asc",
+    });
+    const id = asId(rows[0]?.id);
+    if (id) {
+      box.utmIds[key] = id;
+      return id;
+    }
+    console.error(`[odoo] ${model} «${ref.name}» no encontrado; se usa el id conocido`);
+  } catch (err) {
+    logBookingError("odoo-utm", faultOf(err));
+  }
+  return ref.id;
+}
+
+export async function saveWebLead(input: LeadInput): Promise<{ leadId: number; partnerId: number }> {
+  holdPendingFields(input.pendingFields);
+  try {
+    const at = new Date();
+    const solutionTags = solutionTagIds(input.solution ?? "");
+    const found = await findPartner(input.email, input.whatsapp);
+    let partnerId: number | null = null;
+    if (found?.internal) {
+      partnerId = null;
+    } else if (!found) {
+      partnerId = await createRecord("res.partner", newPartnerValues(input));
+    } else {
+      partnerId = found.id;
+      const fill = emptyPartnerFill(input, found);
+      if (Object.keys(fill).length) await writeRecord("res.partner", found.id, fill);
+    }
+
+    const campaignId = await campaignFor(input.utmCampaign);
+    const mediumId = await utmIdByName("utm.medium", MEDIUM_SITIO_WEB);
+    const sourceId = await utmIdByName("utm.source", SOURCE_BY_ORIGIN[input.origin ?? "organico"]);
+    const anuncio = input.anuncio && (ANUNCIOS as readonly string[]).includes(input.anuncio) ? input.anuncio : "";
     let leadId = await findOpenLead(partnerId, input.email);
     if (!leadId) {
-      const created = await executeKw<number>("crm.lead", "create", [
-        {
-          name: `Cita web – ${input.name}`,
-          contact_name: input.name,
-          email_from: input.email,
-          phone: input.whatsapp,
-          partner_id: partnerId,
-          user_id: config.staffUserId,
-          source_id: WEB_SOURCE_ID,
-          tag_ids: [[6, 0, [openTag]]],
-          type: "opportunity",
-          description: note,
-        },
-      ]);
-      leadId = asId(created);
+      const vals = leadValues(input, partnerId, at, [TAG_UNSCHEDULED, ...solutionTags], true);
+      vals.medium_id = mediumId;
+      vals.source_id = sourceId;
+      if (anuncio) vals.x_studio_anuncio = anuncio;
+      if (campaignId) vals.campaign_id = campaignId;
+      if (input.privacyAcceptedAt) vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
+      leadId = await createRecord("crm.lead", vals);
     } else {
       const current = await executeKw<OdooRecord[]>(
         "crm.lead",
         "search_read",
         [[["id", "=", leadId]]],
-        { fields: ["description", "tag_ids"], limit: 1 },
+        { fields: ["tag_ids", "source_id"], limit: 1 },
       );
-      const previous = asText(current[0]?.description);
-      const tags = asIdList(current[0]?.tag_ids);
-      if (!tags.includes(openTag)) tags.push(openTag);
-      const wrote = await executeKw<boolean>("crm.lead", "write", [
-        [leadId],
-        {
-          contact_name: input.name,
-          email_from: input.email,
-          phone: input.whatsapp,
-          description: previous ? `${previous}\n\n${note}` : note,
-          tag_ids: [[6, 0, tags]],
-        },
-      ]);
-      if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.save);
+      const existing = asIdList(current[0]?.tag_ids);
+      const appointment = existing.includes(TAG_SCHEDULED) ? TAG_SCHEDULED : TAG_UNSCHEDULED;
+      const vals = leadValues(input, partnerId, at, [appointment, ...solutionTags], false);
+      vals.medium_id = mediumId;
+      // First touch wins: origin and ad are only filled when empty.
+      if (!asId(current[0]?.source_id)) vals.source_id = sourceId;
+      const filled = await customAlreadySet(leadId);
+      if (anuncio && !filled.anuncio) vals.x_studio_anuncio = anuncio;
+      if (campaignId) vals.campaign_id = campaignId;
+      if (input.privacyAcceptedAt && !filled.privacy) vals.x_web_aviso_privacidad = input.privacyAcceptedAt;
+      await writeRecord("crm.lead", leadId, vals);
     }
-    if (!leadId) throw new BookingError(502, MSG.save);
-    return { leadId, partnerId };
+    return { leadId, partnerId: partnerId ?? 0 };
+  } catch (err) {
+    if (err instanceof BookingError) throw err;
+    logBookingError("odoo", err);
+    throw new BookingError(502, MSG.save);
+  }
+}
+
+export async function updateLeadSolution(input: {
+  leadId: number;
+  partnerId: number;
+  solution?: string;
+  recibo?: string;
+}): Promise<void> {
+  try {
+    const leads = await executeKw<OdooRecord[]>(
+      "crm.lead",
+      "search_read",
+      [[["id", "=", input.leadId]]],
+      { fields: ["id", "partner_id"], limit: 1 },
+    );
+    const leadPartner = asId(leads[0]?.partner_id);
+    if (!leads[0] || (input.partnerId ? leadPartner !== input.partnerId : leadPartner !== null)) {
+      throw new BookingError(401, MSG.expired);
+    }
+    const tags = input.solution ? solutionTagIds(input.solution) : [];
+    const tipo = input.solution ? tipoVentaFor(input.solution) : "";
+    if (input.solution) {
+      const commands: unknown[] = [
+        ...SOLUTION_TAG_IDS.map((id) => [3, id]),
+        [4, TAG_UNSCHEDULED],
+        ...tags.map((id) => [4, id]),
+      ];
+      await writeRecord("crm.lead", input.leadId, {
+        company_id: COMPANY_ID,
+        tag_ids: commands,
+      });
+      const custom: Record<string, unknown> = { company_id: COMPANY_ID };
+      if (tipo) custom.x_studio_tipo_venta = tipo;
+      if (solutionIncludesRespaldo(input.solution)) custom.x_studio_solucin = SOLUCION_RESPALDO;
+      if (Object.keys(custom).length > 1) await writeRecord("crm.lead", input.leadId, custom);
+    }
+    if (input.recibo) {
+      await writeRecord("crm.lead", input.leadId, {
+        company_id: COMPANY_ID,
+        x_studio_gasto_en_recibo_de_luz: input.recibo,
+      });
+    }
   } catch (err) {
     if (err instanceof BookingError) throw err;
     logBookingError("odoo", err);
@@ -518,48 +787,35 @@ export async function bookWebSlot(input: {
     const leads = await executeKw<OdooRecord[]>(
       "crm.lead",
       "search_read",
-      [[["id", "=", input.leadId], ["partner_id", "=", input.partnerId]]],
-      { fields: ["contact_name", "phone", "partner_id"], limit: 1 },
+      [[["id", "=", input.leadId]]],
+      { fields: ["contact_name", "partner_id"], limit: 1 },
     );
     const lead = leads[0];
     const leadPartner = asId(lead?.partner_id);
-    if (!lead || leadPartner !== input.partnerId) throw new BookingError(401, MSG.expired);
+    const tokenPartner = input.partnerId > 0 ? input.partnerId : null;
+    if (!lead || leadPartner !== tokenPartner) throw new BookingError(401, MSG.expired);
     const name = asText(lead.contact_name) || "Cliente";
-    const whatsapp = asText(lead.phone);
-    const partners = [...new Set([config.staffPartnerId, input.partnerId])];
-    const eventId = asId(
-      await executeKw<number>("calendar.event", "create", [
-        {
-          name: `Asesoría Lukx – ${name}`,
-          start: toOdooUtc(new Date(chosen.start)),
-          stop: toOdooUtc(new Date(chosen.stop)),
-          duration: config.durationHours,
-          user_id: config.staffUserId,
-          partner_ids: [[6, 0, partners]],
-          appointment_type_id: config.id,
-          appointment_booker_id: input.partnerId,
-          opportunity_id: input.leadId,
-          description: `WhatsApp: ${whatsapp}\nPreferencia: llamada o videollamada`,
-        },
-      ]),
-    );
+    const attendees = [config.staffPartnerId];
+    if (tokenPartner) attendees.push(tokenPartner);
+    const eventVals: Record<string, unknown> = {
+      name: `Asesoría Lukx – ${name}`,
+      start: toOdooUtc(new Date(chosen.start)),
+      stop: toOdooUtc(new Date(chosen.stop)),
+      duration: config.durationHours,
+      user_id: config.staffUserId,
+      partner_ids: [[6, 0, [...new Set(attendees)]]],
+      appointment_type_id: config.id,
+      opportunity_id: input.leadId,
+      description: "Llamada o videollamada",
+    };
+    if (tokenPartner) eventVals.appointment_booker_id = tokenPartner;
+    const eventId = asId(await executeKw<number>("calendar.event", "create", [eventVals]));
     if (!eventId) throw new BookingError(502, MSG.book);
 
-    const openTag = await ensureTag(TAG_OPEN);
-    const bookedTag = await ensureTag(TAG_BOOKED);
-    const fresh = await executeKw<OdooRecord[]>(
-      "crm.lead",
-      "search_read",
-      [[["id", "=", input.leadId]]],
-      { fields: ["tag_ids"], limit: 1 },
-    );
-    const tags = asIdList(fresh[0]?.tag_ids).filter((id) => id !== openTag);
-    if (!tags.includes(bookedTag)) tags.push(bookedTag);
-    const wrote = await executeKw<boolean>("crm.lead", "write", [
-      [input.leadId],
-      { tag_ids: [[6, 0, tags]] },
-    ]);
-    if (!writeSucceeded(wrote)) throw new BookingError(502, MSG.book);
+    await writeRecord("crm.lead", input.leadId, {
+      company_id: COMPANY_ID,
+      tag_ids: [[3, TAG_UNSCHEDULED], [4, TAG_SCHEDULED]],
+    });
     clearSlotCache();
     return { eventId, start: chosen.start, stop: chosen.stop };
   } catch (err) {

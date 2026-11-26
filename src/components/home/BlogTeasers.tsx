@@ -10,12 +10,12 @@ type BlogTeaser = {
 
 export default function BlogTeasers({ posts }: { posts: BlogTeaser[] }) {
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="mx-auto max-w-[1400px] px-4 md:px-8 lg:px-10">
+    <section className="bg-white py-10 md:py-14">
+      <div className="site-container">
         <h2 className="font-display text-center text-[clamp(2.4rem,4vw,3.5rem)] leading-none text-lukx-charcoal">
           Blog
         </h2>
-        <div data-stagger className="mt-10 grid gap-6 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-5">
+        <div data-stagger className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           {posts.map((post) => (
             <article key={post.slug} className="group">
               <Link href={`/blog/${post.slug}`} className="block">

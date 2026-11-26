@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: Props) {
         ctaHref="/blog"
       />
 
-      <article className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24">
+      <article className="site-container py-16 md:py-24">
         {post.body?.length ? <PortableBody value={post.body} /> : null}
         <div className="mt-12 border-t border-black/10 pt-8">
           <Link
@@ -98,7 +98,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {related.length > 0 ? (
         <section className="bg-lukx-light">
-          <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="site-container py-16 md:py-20">
             <h2 className="font-display text-4xl text-lukx-charcoal md:text-5xl">Más artículos</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {related.map((item) => (

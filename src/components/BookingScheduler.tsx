@@ -1,7 +1,10 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
+import { CIUDADES } from "@/lib/agendar-config";
+import { captureAttribution, pushDataLayer } from "@/lib/attribution";
+import type { BookingPage } from "@/lib/booking-pages";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
 const MONTHS = [
@@ -57,14 +60,33 @@ function shiftMonth(year: number, month: number, delta: number) {
   return { y: next.getUTCFullYear(), m: next.getUTCMonth() + 1 };
 }
 
-export default function BookingScheduler() {
-  const [step, setStep] = useState<Step>("datos");
-  const [name, setName] = useState("");
+export default function BookingScheduler({
+  page,
+  initialNeed = "",
+  resumeToken = null,
+  onScheduled,
+  guestName = "",
+  onBack,
+  trackingPage,
+}: {
+  page?: BookingPage;
+  initialNeed?: string;
+  resumeToken?: string | null;
+  onScheduled?: () => void;
+  guestName?: string;
+  onBack?: () => void;
+  trackingPage?: string;
+}) {
+  const [step, setStep] = useState<Step>(resumeToken ? "horario" : "datos");
+  const [name, setName] = useState(guestName);
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [need, setNeed] = useState(page?.needs.some((item) => item.value === initialNeed) ? initialNeed : "");
+  const [city, setCity] = useState("");
+  const [extra, setExtra] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
-  const [leadToken, setLeadToken] = useState<string | null>(null);
+  const [leadToken, setLeadToken] = useState<string | null>(resumeToken);
   const [timezone, setTimezone] = useState("America/Mexico_City");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -91,6 +113,10 @@ export default function BookingScheduler() {
     [cursor],
   );
   const daySlots = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
+
+  useEffect(() => {
+    if (resumeToken) void loadSlots();
+  }, [resumeToken]);
 
   async function loadSlots() {
     setLoadingSlots(true);
@@ -130,7 +156,7 @@ export default function BookingScheduler() {
     setSubmitting(true);
     setError(null);
     try {
-      const params = new URLSearchParams(window.location.search);
+      const attribution = captureAttribution();
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -140,9 +166,20 @@ export default function BookingScheduler() {
           whatsapp,
           privacyAccepted,
           lukx_hp: honeypot,
-          utm_source: params.get("utm_source") ?? "",
-          utm_medium: params.get("utm_medium") ?? "",
-          utm_campaign: params.get("utm_campaign") ?? "",
+          utm_source: attribution.utm_source,
+          utm_medium: attribution.utm_medium,
+          utm_campaign: attribution.utm_campaign,
+          atribucion: attribution,
+          pagina: page?.id ?? "",
+          formulario: "agendar",
+          necesidad: need,
+          ciudad: city,
+          respuestas: {
+            "Ciudad o municipio": city,
+            "¿Qué te interesa?": need,
+            ...(page?.extra?.name === "tipoNegocio" ? { "Tipo de negocio": extra } : {}),
+            ...(page?.extra?.name === "tipoPlanta" ? { "Tipo de planta o nave": extra } : {}),
+          },
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -196,6 +233,7 @@ export default function BookingScheduler() {
       }
       setConfirmed({ start: data.start, stop: data.stop });
       setStep("lista");
+      onScheduled?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos confirmar la cita.");
     } finally {
@@ -222,14 +260,14 @@ export default function BookingScheduler() {
   }
 
   return (
-    <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
-      <div className="flex gap-2 border-b border-black/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted md:px-6">
+    <div className={onBack ? "bg-white" : "bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)]"}>
+      {onBack ? null : <div className="flex gap-2 border-b border-black/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-lukx-muted md:px-6">
         <span className={step === "datos" ? "text-lukx-charcoal" : undefined}>Datos</span>
         <span aria-hidden>›</span>
         <span className={step === "horario" ? "text-lukx-charcoal" : undefined}>Fecha y hora</span>
         <span aria-hidden>›</span>
         <span>Confirmación</span>
-      </div>
+      </div>}
 
       {step === "datos" ? (
         <form onSubmit={onLead} className="relative grid gap-8 p-5 md:grid-cols-[1.15fr_0.85fr] md:p-6">
@@ -288,6 +326,59 @@ export default function BookingScheduler() {
                 className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
               />
             </div>
+            <div>
+              <label htmlFor="bk-need" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                ¿Qué quieres revisar?
+              </label>
+              <select
+                id="bk-need"
+                required
+                value={need}
+                onChange={(event) => setNeed(event.target.value)}
+                className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+              >
+                <option value="">Elige una opción</option>
+                {(page?.needs ?? []).map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {page?.city ? (
+              <div>
+                <label htmlFor="bk-city" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                  Ciudad
+                </label>
+                <select
+                  id="bk-city"
+                  required
+                  value={city}
+                  onChange={(event) => setCity(event.target.value)}
+                  className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+                >
+                  <option value="">Elige tu ciudad</option>
+                  {CIUDADES.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            {page?.extra ? (
+              <div>
+                <label htmlFor="bk-extra" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
+                  {page?.extra?.label}
+                </label>
+                <input
+                  id="bk-extra"
+                  required
+                  value={extra}
+                  onChange={(event) => setExtra(event.target.value)}
+                  placeholder={page?.extra?.placeholder}
+                  className="w-full border border-black/15 bg-white px-3 py-3 text-sm text-lukx-charcoal outline-none transition focus:border-lukx-green"
+                />
+              </div>
+            ) : null}
             <label className="flex items-start gap-3 text-sm text-lukx-charcoal">
               <input
                 type="checkbox"
@@ -322,7 +413,7 @@ export default function BookingScheduler() {
               Resumen
             </p>
             <ul className="mt-4 space-y-2 text-sm text-lukx-charcoal">
-              <li>Llamada o videollamada · 30 minutos</li>
+              <li>Llamada o videollamada</li>
               <li>Zona horaria: America/Mexico_City</li>
               <li>Tus datos quedan registrados al continuar, aunque todavía no elijas horario.</li>
             </ul>
@@ -409,15 +500,20 @@ export default function BookingScheduler() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-green"
+                    onClick={() => {
+                      if (trackingPage) pushDataLayer("click_whatsapp", { pagina: trackingPage });
+                    }}
                   >
                     WhatsApp
                   </a>
-                  <a
-                    href="/contacto"
-                    className="inline-flex items-center text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-green-btn"
-                  >
-                    Contacto
-                  </a>
+                  {onBack ? null : (
+                    <a
+                      href="/contacto"
+                      className="inline-flex items-center text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-green-btn"
+                    >
+                      Contacto
+                    </a>
+                  )}
                 </div>
               </div>
             ) : !selectedDay ? (
@@ -452,8 +548,7 @@ export default function BookingScheduler() {
                 Detalles de la reunión
               </p>
               <ul className="mt-3 space-y-2 text-sm text-lukx-charcoal">
-                <li>En línea · Llamada o videollamada</li>
-                <li>30 minutos</li>
+                <li>Llamada o videollamada</li>
                 {selectedStart ? (
                   <li className="font-medium text-lukx-green-btn">
                     {longDate(selectedStart)} · {timeLabel(selectedStart)}
@@ -465,14 +560,19 @@ export default function BookingScheduler() {
                   {error}
                 </p>
               ) : null}
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap items-center gap-5">
                 <button
                   type="button"
                   onClick={() => {
+                    if (onBack) {
+                      onBack();
+                      return;
+                    }
                     setStep("datos");
                     setError(null);
                   }}
-                  className="border border-black/20 px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-lukx-charcoal transition hover:border-lukx-charcoal"
+                  disabled={submitting}
+                  className="cursor-pointer text-sm font-semibold hover:underline disabled:opacity-40"
                 >
                   Atrás
                 </button>

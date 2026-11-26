@@ -142,34 +142,46 @@ export const spaces = [
     id: "residencial" as const,
     title: "Residencial",
     image: "/images/2025-07-residencial-2.jpg",
-    blurb: "Para tu casa: un proyecto a tu medida y menos dependencia de la tarifa eléctrica.",
-    solutionIds: ["paneles-solares", "iluminacion", "estaciones-de-carga"],
-  },
-  {
-    id: "comercial" as const,
-    title: "Comercial",
-    image: "/images/2025-07-COMERCIAL.jpg",
-    blurb: "Para tu negocio: ahorro, iluminación y continuidad de acuerdo a tu operación.",
+    blurb: "Para tu casa: un proyecto de energía e iluminación a tu medida.",
     solutionIds: [
       "paneles-solares",
       "sistemas-de-respaldo-de-energia-en-baterias",
       "iluminacion",
       "estaciones-de-carga",
+    ],
+  },
+  {
+    id: "comercial" as const,
+    title: "Comercial",
+    image: "/images/2025-07-COMERCIAL.jpg",
+    blurb: "Para tu negocio: el proyecto que acompaña la operación de tu local.",
+    solutionIds: [
+      "paneles-solares",
+      "iluminacion",
+      "estaciones-de-carga",
+      "sistemas-de-respaldo-de-energia-en-baterias",
     ],
   },
   {
     id: "industrial" as const,
     title: "Industrial",
     image: "/images/2025-07-INDUSTRIAL-2.jpg",
-    blurb: "Para tu planta: consumo, iluminación de grandes espacios y respaldo energético.",
+    blurb: "Para tu planta: energía, iluminación de naves y bodegas, carga y respaldo.",
     solutionIds: [
       "paneles-solares",
-      "sistemas-de-respaldo-de-energia-en-baterias",
       "iluminacion",
       "estaciones-de-carga",
+      "sistemas-de-respaldo-de-energia-en-baterias",
     ],
   },
 ];
+
+export const navSpaces = spaces.map((space) => ({
+  label: space.title,
+  href: `/${space.id}` as const,
+  image: space.image,
+  summary: space.blurb,
+}));
 
 export function isSpaceId(value: string | undefined): value is SpaceId {
   return value === "residencial" || value === "comercial" || value === "industrial";
@@ -177,10 +189,14 @@ export function isSpaceId(value: string | undefined): value is SpaceId {
 
 export function agendarHref(opts?: { segmento?: string; solucion?: string }) {
   const params = new URLSearchParams();
-  if (opts?.segmento) params.set("segmento", opts.segmento);
   if (opts?.solucion) params.set("solucion", opts.solucion);
+  const segment =
+    opts?.segmento === "residencial" || opts?.segmento === "comercial" || opts?.segmento === "industrial"
+      ? opts.segmento
+      : "";
+  const base = segment ? `/agendar/${segment}` : "/agendar";
   const query = params.toString();
-  return query ? `/agendar?${query}` : "/agendar";
+  return query ? `${base}?${query}` : base;
 }
 
 export const benefitTabs = [

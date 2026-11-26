@@ -29,7 +29,7 @@ export default function SistemasRespaldoPage() {
         image={respaldo.hero.backgroundImage}
       />
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title={respaldo.whatWeDo.title} />
         <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">
           {respaldo.headings[3]}
@@ -40,7 +40,7 @@ export default function SistemasRespaldoPage() {
       </section>
 
       <section className="bg-lukx-light py-14 md:py-16">
-        <div data-stagger className="mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-2 md:px-8">
+        <div data-stagger className="site-container grid gap-6 md:grid-cols-2">
           {[respaldo.systems.bess, respaldo.systems.generators].map((system) => (
             <article key={system.label} className="bg-white p-6 md:p-8">
               <div className="relative mb-5 aspect-[16/10] overflow-hidden bg-lukx-light">
@@ -62,14 +62,14 @@ export default function SistemasRespaldoPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-14 md:px-8 md:py-16">
+      <section className="site-container py-14 md:py-16">
         <SectionHeading title={respaldo.whyLukx.title} />
         <p className="mt-5 text-sm leading-relaxed text-lukx-muted md:text-base">
           {respaldo.whyLukx.intro}
         </p>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 pb-14 md:px-8 md:pb-16">
+      <section className="site-container pb-14 md:pb-16">
         <h2 className="mb-6 font-display text-4xl text-lukx-charcoal">Preguntas frecuentes</h2>
         <FaqAccordion items={bessFaqs} />
       </section>

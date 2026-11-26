@@ -12,7 +12,7 @@ export default function BenefitsTabs() {
 
   return (
     <section className="bg-white py-16 md:py-24">
-      <div className="mx-auto max-w-[1400px] px-4 md:px-8 lg:px-10">
+      <div className="site-container">
         <h2 className="font-display text-center text-[clamp(2.4rem,4vw,3.5rem)] leading-none text-lukx-charcoal">
           Conoce los beneficios
         </h2>

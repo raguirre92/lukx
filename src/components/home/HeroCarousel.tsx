@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { heroSlides, navSolutions } from "@/data/site";
+import HeroScrim from "@/components/HeroScrim";
+import { heroSlides } from "@/data/site";
 
 const labels = ["Paneles solares", "Estaciones de carga", "Iluminación", "Respaldo en baterías", "Proyectos Lukx"];
 
@@ -30,8 +31,7 @@ export default function HeroCarousel() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
       tl.from(".hero-line > span", { yPercent: 115, duration: 1.2, stagger: 0.12, delay: 0.15 })
-        .from(".hero-fade", { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.1 }, "-=0.7")
-        .from(".hero-index li", { x: 24, autoAlpha: 0, duration: 0.7, stagger: 0.06 }, "-=0.8");
+        .from(".hero-fade", { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.1 }, "-=0.7");
     }, root);
     return () => ctx.revert();
   }, []);
@@ -61,13 +61,13 @@ export default function HeroCarousel() {
         </div>
       ))}
 
-      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-r from-black/85 via-black/45 to-black/10" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 z-[2]">
+        <HeroScrim />
+      </div>
 
-      <div className="relative z-[3] mx-auto flex h-full max-w-[1400px] items-end gap-10 px-5 pb-16 md:px-10 md:pb-20">
+      <div className="site-container relative z-[3] flex h-full items-end gap-10 pb-16 md:pb-20">
         <div className="flex-1">
-          <p className="eyebrow hero-fade">Monterrey, Nuevo León · Más de 15 años</p>
-          <h1 className="mt-6 font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
+          <h1 className="font-display text-[clamp(3.4rem,9vw,8.2rem)] leading-[1.02] text-white">
             <span className="hero-line block overflow-hidden"><span className="block">Energía e</span></span>
             <span className="hero-line block overflow-hidden">
               <span className="block">
@@ -80,37 +80,15 @@ export default function HeroCarousel() {
             Diseñamos e instalamos la solución que tu casa, comercio o industria sí necesita.
             Agenda una asesoría y te decimos qué conviene para tu proyecto.
           </p>
-          <div className="hero-fade mt-8 flex flex-wrap gap-3">
-            <Link href="/agendar" className="btn-green">
+          <div className="hero-fade mt-8">
+            <Link href="/agendar" className="btn-green btn-lg">
               Agendar asesoría <Icon icon="solar:arrow-right-linear" className="arrow" width={16} aria-hidden />
-            </Link>
-            <Link href="#espacios" className="btn-outline">
-              Elige tu espacio
             </Link>
           </div>
         </div>
-
-        <nav aria-label="Soluciones" className="hidden w-[300px] shrink-0 lg:block">
-          <ol className="hero-index border-t border-white/20">
-            {navSolutions.map((s, i) => (
-              <li key={s.href} className="border-b border-white/20">
-                <Link
-                  href={s.href}
-                  className="group flex items-center justify-between py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-white/75 transition-colors hover:text-white focus-visible:text-white"
-                >
-                  <span>
-                    <span className="mr-3 font-display text-base tracking-normal text-lukx-green">0{i + 1}</span>
-                    {s.label}
-                  </span>
-                  <Icon icon="solar:arrow-right-up-linear" width={16} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </nav>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 z-[4] mx-auto flex max-w-[1400px] items-center gap-4 px-5 pb-6 md:px-10">
+      <div className="site-container absolute inset-x-0 bottom-0 z-[4] flex items-center gap-4 pb-6">
         <div className="flex flex-1 gap-1.5" role="group" aria-label="Fotografías del carrusel">
           {heroSlides.map((_, i) => (
             <button
@@ -128,17 +106,6 @@ export default function HeroCarousel() {
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-label={paused ? "Reanudar carrusel" : "Pausar carrusel"}
-          className="grid h-9 w-9 place-items-center rounded-full border border-white/30 text-white transition hover:border-lukx-green hover:text-lukx-green"
-        >
-          <Icon icon={paused ? "solar:play-bold" : "solar:pause-bold"} width={14} aria-hidden />
-        </button>
-        <span className="hidden font-display text-lg tracking-wider text-white/70 sm:inline" aria-live="polite">
-          {String(index + 1).padStart(2, "0")} / {String(heroSlides.length).padStart(2, "0")} · {labels[index]}
-        </span>
       </div>
     </section>
   );

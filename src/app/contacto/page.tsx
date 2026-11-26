@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ContactForm from "@/components/ContactForm";
 import PageHero from "@/components/PageHero";
 import SectionHeading from "@/components/SectionHeading";
 import { site } from "@/data/site";
@@ -48,7 +49,7 @@ export default function ContactoPage() {
         secondaryLabel="Agendar asesoría"
       />
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+      <section className="site-container py-16 md:py-24">
         <div data-stagger className="grid gap-12 lg:grid-cols-2">
           <div>
             <SectionHeading
@@ -84,64 +85,7 @@ export default function ContactoPage() {
             <p className="mt-3 text-sm text-lukx-muted md:text-base">
               Completa el formulario y un asesor te contactará a la brevedad.
             </p>
-            <form
-              className="mt-8 space-y-4"
-              action={`mailto:${site.email}`}
-              method="post"
-              encType="text/plain"
-            >
-              <div>
-                <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
-                  Nombre
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  required
-                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm outline-none ring-lukx-green focus:ring-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
-                  Correo
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm outline-none ring-lukx-green focus:ring-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-lukx-charcoal">
-                  Teléfono
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm outline-none ring-lukx-green focus:ring-2"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="message"
-                  className="mb-1.5 block text-sm font-medium text-lukx-charcoal"
-                >
-                  Mensaje
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={5}
-                  required
-                  className="w-full border border-black/10 bg-white px-4 py-3 text-sm outline-none ring-lukx-green focus:ring-2"
-                />
-              </div>
-              <button type="submit" className="btn-green w-full">
-                Enviar mensaje
-              </button>
-            </form>
+            <ContactForm />
           </div>
         </div>
       </section>

@@ -46,11 +46,47 @@ const redirects = [
   { source: "/:file(.*-sitemap\\d*\\.xml)/", destination: "/sitemap.xml", permanent },
   { source: "/portfolio", destination: "/#proyectos", permanent },
   { source: "/portfolio/", destination: "/#proyectos", permanent },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "residencial" }],
+    destination: "/agendar/residencial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "residencial" }],
+    destination: "/agendar/residencial",
+    permanent,
+  },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "comercial" }],
+    destination: "/agendar/comercial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "comercial" }],
+    destination: "/agendar/comercial",
+    permanent,
+  },
+  {
+    source: "/agendar",
+    has: [{ type: "query" as const, key: "segmento", value: "industrial" }],
+    destination: "/agendar/industrial",
+    permanent,
+  },
+  {
+    source: "/agendar/",
+    has: [{ type: "query" as const, key: "segmento", value: "industrial" }],
+    destination: "/agendar/industrial",
+    permanent,
+  },
   // El proxy responde 410 antes que este comodín. Estas rutas quedan fuera
   // para no convertirlas en un 308 hacia otra URL.
   {
     source:
-      "/:path((?!sample-page/$|carrusel-de-inicio/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$).+)/",
+      "/:path((?!sample-page/$|carrusel-de-inicio/$|comments/feed/$|category/[^/]+/feed/$|[^/]+/feed/$|category/uncategorized/$|wp-content/uploads/2021/05/AURORA-HIGH-BAY-1\\.pdf/$|wp-content/uploads/2021/05/UFO-HIGH-BAY\\.pdf/$|wp-content/uploads/2021/05/Access-Street-Light-A-1\\.pdf/$).+)/",
     destination: "/:path",
     permanent,
   },
@@ -75,12 +111,22 @@ const nextConfig: NextConfig = {
     return redirects;
   },
   async headers() {
-    if (process.env.VERCEL_ENV === "production") return [];
+    const lp = {
+      source: "/lp/:path*",
+      headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+    };
+    const agendar = ["/agendar/comercial", "/agendar/industrial", "/agendar/asesoria"].map((source) => ({
+      source,
+      headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+    }));
+    if (process.env.VERCEL_ENV === "production") return [lp, ...agendar];
     return [
       {
         source: "/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
+      lp,
+      ...agendar,
     ];
   },
   turbopack: {

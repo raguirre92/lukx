@@ -37,7 +37,9 @@ export const category = defineType({
     }),
     defineField({
       name: "description",
-      title: "Descripción",
+      title: "Introducción",
+      description:
+        "Texto propio de la categoría. La página /blog/categoria/slug queda en noindex hasta tener esta introducción y 5 o más artículos.",
       type: "text",
       rows: 3,
     }),

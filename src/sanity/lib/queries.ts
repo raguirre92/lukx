@@ -28,6 +28,8 @@ export const POST_QUERY = defineQuery(`
     excerpt,
     publishedAt,
     updatedAt,
+    _updatedAt,
+    relatedServiceUrl,
     body,
     "authorName": author->name,
     "authorUrl": author->url,
@@ -97,6 +99,24 @@ export const SITEMAP_POSTS_QUERY = defineQuery(`
   *[_type == "post" && defined(slug.current) && seo.noindex != true] {
     "slug": slug.current,
     "updated": coalesce(updatedAt, publishedAt, _updatedAt)
+  }
+`);
+
+const INDEXABLE_CATEGORY_POSTS = `count(*[_type == "post" && categories[0]._ref == ^._id && seo.noindex != true])`;
+
+export const CATEGORY_QUERY = defineQuery(`
+  *[_type == "category" && slug.current == $slug][0]{
+    title,
+    "slug": slug.current,
+    description,
+    "postCount": ${INDEXABLE_CATEGORY_POSTS}
+  }
+`);
+
+export const SITEMAP_CATEGORIES_QUERY = defineQuery(`
+  *[_type == "category" && defined(slug.current) && length(coalesce(description, "")) > 0 && ${INDEXABLE_CATEGORY_POSTS} >= 5] {
+    "slug": slug.current,
+    "updated": _updatedAt
   }
 `);
 

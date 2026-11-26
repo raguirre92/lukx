@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
-import { getBlogPosts, getPublishedCategorySlugs } from "@/lib/cms";
+import { getBlogCategory, getBlogPosts, getPublishedCategorySlugs } from "@/lib/cms";
 import { absoluteUrl, formatContentDate, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
@@ -16,27 +16,33 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const posts = await getBlogPosts();
-  const title = posts.find((post) => post.categorySlug === slug)?.category;
+  const [posts, category] = await Promise.all([getBlogPosts(), getBlogCategory(slug)]);
+  const title = category?.title || posts.find((post) => post.categorySlug === slug)?.category;
   if (!title) return { title: "Categoría" };
   return pageMetadata({
     title: title,
-    description: `Artículos de ${title} en el blog de Lukx.`,
+    description: category?.description || `Artículos de ${title} en el blog de Lukx.`,
     canonical: absoluteUrl(`/blog/categoria/${slug}`),
-    noindex: true,
+    // noindex, follow hasta tener introducción propia y 5 o más artículos.
+    noindex: !category?.indexable,
     nofollow: false,
   });
 }
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
-  const posts = (await getBlogPosts()).filter((post) => post.categorySlug === slug);
+  const [allPosts, category] = await Promise.all([getBlogPosts(), getBlogCategory(slug)]);
+  const posts = allPosts.filter((post) => post.categorySlug === slug);
   if (!posts.length) notFound();
-  const title = posts[0]?.category || slug;
+  const title = category?.title || posts[0]?.category || slug;
 
   return (
     <>
-      <PageHero title={title} subtitle="Artículos de esta categoría." image={posts[0]?.image || "/images/luz-1.jpg"} />
+      <PageHero
+        title={title}
+        subtitle={category?.description || "Artículos de esta categoría."}
+        image={posts[0]?.image || "/images/luz-1.jpg"}
+      />
       <section className="site-container py-16 md:py-24">
         <div className="grid gap-8 sm:grid-cols-2">
           {posts.map((post) => (

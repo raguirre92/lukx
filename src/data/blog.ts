@@ -9,6 +9,9 @@ export type BlogPost = {
   title: string;
   date: string;
   updatedAt?: string;
+  /** _updatedAt de Sanity: respaldo para dateModified cuando no hay fecha de actualización editorial. */
+  systemUpdatedAt?: string;
+  relatedServiceUrl?: string;
   image: string;
   imageAlt?: string;
   excerpt: string;

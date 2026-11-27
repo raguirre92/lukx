@@ -9,7 +9,7 @@ import HeroScrim from "@/components/HeroScrim";
 import { site } from "@/data/site";
 import ExitIntentLead from "@/components/agendar/ExitIntentLead";
 import { CIUDADES, RANGOS_LUZ_RESIDENCIAL } from "@/lib/agendar-config";
-import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer, leadUserData, type Attribution } from "@/lib/attribution";
 import type { Pag } from "@/content/agendar-copys-v2";
 
 const PAGE = "/lp/residencial";
@@ -343,6 +343,7 @@ export default function LpResidencialQuote({ pag }: { pag: Pag }) {
           ciudad: "",
           tiene_paneles: "",
           pagina: PAGE,
+          ...leadUserData(email, whatsapp),
         });
       }
       setPhase("ciudad");

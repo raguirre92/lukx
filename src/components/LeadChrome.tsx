@@ -5,7 +5,6 @@ import Link from "next/link";
 import MotionProvider from "@/components/motion/MotionProvider";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { ASESORIA_PHONE_DISPLAY, ASESORIA_PHONE_TEL } from "@/lib/agendar-config";
-import { pushDataLayer } from "@/lib/attribution";
 import { site } from "@/data/site";
 
 /**
@@ -46,7 +45,7 @@ export default function LeadChrome({
           ) : ads ? (
             <a
               href={`tel:${ASESORIA_PHONE_TEL}`}
-              onClick={() => pushDataLayer("click_telefono", { pagina: "ads" })}
+              data-track-pagina="ads"
               className="text-sm text-[#f5f5f5]"
             >
               {ASESORIA_PHONE_DISPLAY}

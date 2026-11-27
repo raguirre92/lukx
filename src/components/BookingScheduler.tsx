@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
 import { CIUDADES } from "@/lib/agendar-config";
-import { captureAttribution, pushDataLayer } from "@/lib/attribution";
+import { captureAttribution } from "@/lib/attribution";
 import type { BookingPage } from "@/lib/booking-pages";
 
 const WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"] as const;
@@ -500,9 +500,7 @@ export default function BookingScheduler({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-green"
-                    onClick={() => {
-                      if (trackingPage) pushDataLayer("click_whatsapp", { pagina: trackingPage });
-                    }}
+                    data-track-pagina={trackingPage || undefined}
                   >
                     WhatsApp
                   </a>

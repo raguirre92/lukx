@@ -19,7 +19,7 @@ const aiAssistants = [
 
 export default function Footer() {
   return (
-    <footer className="bg-lukx-charcoal text-white">
+    <footer className="bg-lukx-charcoal text-white" data-track-ubicacion="footer">
       <div className="site-container grid items-start gap-10 py-12 md:grid-cols-[11rem_minmax(16rem,1fr)_minmax(26rem,1.35fr)] md:gap-x-16 md:py-14">
         <div>
           <Link href="/" aria-label="Lukx">

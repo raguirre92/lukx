@@ -8,7 +8,7 @@ import FaqAccordion from "@/components/FaqAccordion";
 import HeroScrim from "@/components/HeroScrim";
 import { site } from "@/data/site";
 import { CIUDADES } from "@/lib/agendar-config";
-import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer, leadUserData, type Attribution } from "@/lib/attribution";
 import { landingForPath, type LandingStep } from "@/content/space-landings";
 
 const fieldClass =
@@ -279,6 +279,7 @@ export default function SpaceQuote({ pagePath }: { pagePath: string }) {
           ciudad: "",
           tiene_paneles: "",
           pagina: pagePath,
+          ...leadUserData(email, whatsapp),
         });
       }
       setPhase("ciudad");

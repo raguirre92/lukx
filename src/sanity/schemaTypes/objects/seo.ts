@@ -12,7 +12,10 @@ export const seo = defineType({
       title: "Título meta",
       description: "Si se deja vacío se usa el título de la página.",
       type: "string",
-      validation: (rule) => rule.max(70).warning("Conviene mantenerlo cerca de 70 caracteres."),
+      validation: (rule) => [
+        rule.max(60).error("Máximo 60 caracteres; Google corta el resto."),
+        rule.max(55).warning("Arriba de 55 caracteres se puede cortar en Google; ideal 55 o menos."),
+      ],
     }),
     defineField({
       name: "metaDescription",
@@ -20,8 +23,17 @@ export const seo = defineType({
       description: "Si se deja vacía se usa el extracto.",
       type: "text",
       rows: 3,
-      validation: (rule) =>
-        rule.max(160).warning("La descripción meta conviene en unos 160 caracteres."),
+      validation: (rule) => [
+        rule.max(160).error("Máximo 160 caracteres."),
+        rule.custom((value) => {
+          const length = typeof value === "string" ? value.trim().length : 0;
+          if (!length) return true;
+          if (length < 140 || length > 155) {
+            return `Ideal entre 140 y 155 caracteres (hoy ${length}).`;
+          }
+          return true;
+        }).warning(),
+      ],
     }),
     defineField({
       name: "ogImage",
@@ -53,7 +65,8 @@ export const seo = defineType({
     defineField({
       name: "canonical",
       title: "Canonical (opcional)",
-      description: "Normalmente vacío. La página usa su propia URL en https://lukx.com.mx.",
+      description:
+        "Normalmente vacío: la página se apunta a sí misma en https://lukx.com.mx. Llénalo solo si el contenido original vive en otra URL de Lukx.",
       type: "url",
       validation: (rule) =>
         rule.uri({ scheme: ["https"], allowRelative: false }).custom((value) => {

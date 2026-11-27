@@ -21,7 +21,7 @@ const STATIC_PATHS = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!isProductionDeploy()) return [];
-  const { posts, projects } = await getSitemapEntries();
+  const { posts, projects, categories } = await getSitemapEntries();
   const now = new Date();
   return [
     ...STATIC_PATHS.map((path) => ({
@@ -35,6 +35,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: post.updated ? new Date(post.updated) : now,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    // Solo categorías indexables (introducción propia y 5 o más artículos); las demás son noindex.
+    ...categories.map((category) => ({
+      url: `${SITE_URL}/blog/categoria/${category.slug}`,
+      lastModified: category.updated ? new Date(category.updated) : now,
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
     })),
     ...projects.map((project) => ({
       url: `${SITE_URL}/portfolio/${project.slug}`,

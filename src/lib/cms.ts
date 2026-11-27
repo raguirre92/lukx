@@ -9,6 +9,8 @@ import {
   PROJECT_QUERY,
   PROJECT_SLUGS_QUERY,
   PROJECTS_QUERY,
+  CATEGORY_QUERY,
+  SITEMAP_CATEGORIES_QUERY,
   SITEMAP_POSTS_QUERY,
   SITEMAP_PROJECTS_QUERY,
 } from "@/sanity/lib/queries";
@@ -43,6 +45,8 @@ type SanityPostCard = {
 };
 
 type SanityPost = SanityPostCard & {
+  _updatedAt?: string | null;
+  relatedServiceUrl?: string | null;
   body?: unknown[] | null;
   authorName?: string | null;
   authorUrl?: string | null;
@@ -148,6 +152,8 @@ function mapPost(post: SanityPost): BlogPost {
   return {
     ...card,
     body: post.body ?? [],
+    systemUpdatedAt: post._updatedAt || undefined,
+    relatedServiceUrl: post.relatedServiceUrl || undefined,
     authorName: post.authorName || undefined,
     authorUrl: post.authorUrl || undefined,
     seoTitle: post.seo?.metaTitle || undefined,
@@ -253,6 +259,34 @@ export async function getPublishedCategorySlugs() {
   return [...new Set(source.map((post) => post.categorySlug).filter((slug): slug is string => Boolean(slug)))];
 }
 
+/** Mínimo de artículos para que una categoría deje de ser noindex (además de tener introducción propia). */
+export const CATEGORY_INDEX_MIN_POSTS = 5;
+
+type SanityCategory = {
+  title?: string | null;
+  slug?: string | null;
+  description?: string | null;
+  postCount?: number | null;
+};
+
+export async function getBlogCategory(slug: string) {
+  const category = await sanityFetch<SanityCategory | null>({
+    query: CATEGORY_QUERY,
+    params: { slug },
+    tags: ["category", `category:${slug}`, "post"],
+  });
+  if (!category?.slug) return undefined;
+  const description = category.description?.trim() || undefined;
+  const postCount = category.postCount ?? 0;
+  return {
+    title: category.title?.trim() || slug,
+    slug: category.slug,
+    description,
+    postCount,
+    indexable: Boolean(description) && postCount >= CATEGORY_INDEX_MIN_POSTS,
+  };
+}
+
 export async function getContentSlugs(kind: "post" | "project") {
   const query = kind === "post" ? POST_SLUGS_QUERY : PROJECT_SLUGS_QUERY;
   const rows = await sanityFetchPublished<Array<{ slug: string }>>(query);
@@ -261,9 +295,10 @@ export async function getContentSlugs(kind: "post" | "project") {
 }
 
 export async function getSitemapEntries() {
-  const [posts, projects] = await Promise.all([
+  const [posts, projects, categories] = await Promise.all([
     sanityFetchPublished<Array<{ slug: string; updated?: string }>>(SITEMAP_POSTS_QUERY),
     sanityFetchPublished<Array<{ slug: string; updated?: string }>>(SITEMAP_PROJECTS_QUERY),
+    sanityFetchPublished<Array<{ slug: string; updated?: string }>>(SITEMAP_CATEGORIES_QUERY),
   ]);
   return {
     posts: posts?.length
@@ -272,5 +307,6 @@ export async function getSitemapEntries() {
     projects: projects?.length
       ? projects
       : localProjects.map((project) => ({ slug: project.slug, updated: undefined })),
+    categories: categories ?? [],
   };
 }

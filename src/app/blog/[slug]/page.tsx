@@ -5,6 +5,7 @@ import JsonLd from "@/components/JsonLd";
 import PageHero from "@/components/PageHero";
 import PortableBody from "@/components/PortableBody";
 import ContactCta from "@/components/ContactCta";
+import { blogServicePage } from "@/lib/blog-services";
 import { getBlogPost, getBlogPosts, getContentSlugs } from "@/lib/cms";
 import { ORGANIZATION_ID, SITE_URL } from "@/lib/organization";
 import { formatContentDate, pageMetadata, postCanonical } from "@/lib/seo";
@@ -44,6 +45,18 @@ export default async function BlogPostPage({ params }: Props) {
   const related = posts.filter((item) => item.slug !== post.slug).slice(0, 3);
   const canonical = postCanonical(post.slug, post.canonical);
   const image = post.ogImage || post.image;
+  const dateModified = post.updatedAt || post.systemUpdatedAt || post.date;
+  const updatedDay = post.updatedAt?.slice(0, 10);
+  const showUpdated = Boolean(updatedDay && updatedDay !== post.date.slice(0, 10));
+  const service = blogServicePage(post.relatedServiceUrl);
+  const breadcrumb = [
+    { name: "Inicio", item: SITE_URL },
+    { name: "Blog", item: `${SITE_URL}/blog` },
+    ...(post.category && post.categorySlug
+      ? [{ name: post.category, item: `${SITE_URL}/blog/categoria/${post.categorySlug}` }]
+      : []),
+    { name: post.title, item: canonical },
+  ];
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -53,7 +66,7 @@ export default async function BlogPostPage({ params }: Props) {
         headline: post.title,
         description: post.seoDescription || post.excerpt,
         datePublished: post.date,
-        dateModified: post.updatedAt || post.date,
+        dateModified,
         inLanguage: "es-MX",
         image: image.startsWith("http") ? image : `${SITE_URL}${image}`,
         mainEntityOfPage: canonical,
@@ -64,11 +77,12 @@ export default async function BlogPostPage({ params }: Props) {
       },
       {
         "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Inicio", item: SITE_URL },
-          { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
-          { "@type": "ListItem", position: 3, name: post.title, item: canonical },
-        ],
+        itemListElement: breadcrumb.map((entry, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: entry.name,
+          item: entry.item,
+        })),
       },
     ],
   };
@@ -78,7 +92,13 @@ export default async function BlogPostPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <PageHero
         title={post.title}
-        subtitle={[post.category, formatContentDate(post.date)].filter(Boolean).join(" · ")}
+        subtitle={[
+          post.category,
+          formatContentDate(post.date),
+          showUpdated ? `Actualizado el ${formatContentDate(post.updatedAt)}` : "",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
         image={post.image}
         ctaLabel="Más artículos"
         ctaHref="/blog"
@@ -86,6 +106,14 @@ export default async function BlogPostPage({ params }: Props) {
 
       <article className="site-container py-16 md:py-24">
         {post.body?.length ? <PortableBody value={post.body} /> : null}
+        {service ? (
+          <p className="mt-10 text-lg text-lukx-charcoal">
+            Servicio relacionado:{" "}
+            <Link href={service.value} className="font-semibold text-lukx-green-btn underline hover:text-lukx-green">
+              {service.title}
+            </Link>
+          </p>
+        ) : null}
         <div className="mt-12 border-t border-black/10 pt-8">
           <Link
             href="/blog"

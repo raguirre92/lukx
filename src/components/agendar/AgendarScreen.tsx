@@ -12,7 +12,7 @@ import {
   TIPOS_NEGOCIO,
   TIPOS_PROYECTO_INDUSTRIAL,
 } from "@/lib/agendar-config";
-import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer, leadUserData, type Attribution } from "@/lib/attribution";
 import { site } from "@/data/site";
 import { califCom, califInd, califRes, comoFunciona, type Campo, type Pag } from "@/content/agendar-copys-v2";
 
@@ -190,6 +190,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
         ciudad: answers["Ciudad o municipio"] || "",
         tiene_paneles: answers["¿Ya tienes paneles solares?"] || "",
         linea: pag.version,
+        ...leadUserData(answers["Correo electrónico"] ?? "", answers.WhatsApp ?? ""),
       });
       setToken(data.leadToken);
     } catch (err) {
@@ -294,7 +295,7 @@ export default function AgendarScreen({ pag }: { pag: Pag }) {
 
       {!ads && pag.ctaS.includes("WhatsApp") ? (
         <p className="site-container pb-10 text-center text-sm">
-          <a href={ASESORIA_WHATSAPP} target="_blank" rel="noreferrer" onClick={() => pushDataLayer("click_whatsapp", { pagina: pag.version })} className="text-lukx-green-btn underline">
+          <a href={ASESORIA_WHATSAPP} target="_blank" rel="noreferrer" data-track-pagina={pag.version} className="text-lukx-green-btn underline">
             Prefiero escribir por WhatsApp
           </a>
         </p>

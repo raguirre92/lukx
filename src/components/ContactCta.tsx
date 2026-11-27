@@ -22,6 +22,7 @@ export default function ContactCta({
 }: ContactCtaProps) {
   return (
     <section
+      data-track-ubicacion="contacto_cta"
       className="relative overflow-hidden bg-lukx-black bg-cover bg-center text-white"
       style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined}
     >

@@ -12,7 +12,7 @@ import ProjectsCarousel from "@/components/home/ProjectsCarousel";
 import ExitIntentLead from "@/components/agendar/ExitIntentLead";
 import { site } from "@/data/site";
 import { EMPTY_QUOTE_ANSWERS, getQuoteQuestions, updateQuoteAnswers, quoteResponses, type QuoteAnswers, type QuestionId, type QuotePhase, type QuoteQuestion } from "@/lib/quote-flow";
-import { captureAttribution, pushDataLayer, type Attribution } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer, leadUserData, type Attribution } from "@/lib/attribution";
 import type { Pag } from "@/content/agendar-copys-v2";
 import type { SectorQuote } from "@/content/sector-quotes";
 
@@ -347,6 +347,7 @@ export default function ResidencialSpaceQuote({
           ciudad: "",
           tiene_paneles: "",
           pagina: pagePath,
+          ...leadUserData(email, whatsapp),
         });
       }
       setPhase("interes");

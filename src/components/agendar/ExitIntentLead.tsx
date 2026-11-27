@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { site } from "@/data/site";
-import { captureAttribution, pushDataLayer } from "@/lib/attribution";
+import { captureAttribution, pushDataLayer, leadUserData } from "@/lib/attribution";
 
 const fieldClass =
   "w-full border border-black/15 bg-white px-3 py-3 text-base text-lukx-charcoal outline-none transition focus:border-lukx-green";
@@ -128,6 +128,7 @@ export default function ExitIntentLead({
         ciudad: "",
         tiene_paneles: "",
         pagina: pagePath,
+        ...leadUserData(email, whatsapp),
       });
       setDone(true);
     } catch (err) {

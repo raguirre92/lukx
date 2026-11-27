@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import GoogleTagManager from "@/components/GoogleTagManager";
 import JsonLd from "@/components/JsonLd";
 import SiteChrome from "@/components/SiteChrome";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/organization";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${montserrat.variable} ${bebas.variable} h-full antialiased`}
     >
       <body className={`${montserrat.className} flex min-h-full flex-col`}>
+        <GoogleTagManager />
         <JsonLd
           data={{
             "@context": "https://schema.org",

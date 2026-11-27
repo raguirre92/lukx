@@ -5,6 +5,7 @@ export default function WhatsAppButton() {
     <a
       href={site.whatsapp}
       className="whatsapp-float"
+      data-track-ubicacion="boton_flotante"
       target="_blank"
       rel="noreferrer"
       aria-label="Enviar mensaje por WhatsApp"
